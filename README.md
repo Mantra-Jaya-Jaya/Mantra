@@ -106,5 +106,53 @@ Setelah melakukan *push* dari *branch* fitur, **jangan langsung digabung!**
 3. Rekan setim akan mengecek (misal: mengingatkan penamaan variabel atau penanganan *error*).
 4. Jika sudah di-*approve* (disetujui) oleh rekan setim, barulah PR tersebut di-**Merge** ke *branch* `dev`.
 
+## 🏃‍♂️ Cara Setup & Menjalankan Project di Laptop Lokal
+
+Ikuti langkah-langkah di bawah ini secara berurutan biar nggak error:
+
+### Langkah 1: Clone Repository
+Buka terminal/CMD di folder tempat kalian biasa nyimpen tugas kuliah, lalu jalankan perintah ini:
+
+    git clone https://github.com/Hamim688/Mantra.git
+    cd mantra-app/backend
+
+### Langkah 2: Bikin Database Kosong di Lokal
+Kita nggak pakai database di VPS buat tahap development, jadi kalian wajib bikin di laptop masing-masing.
+
+1. Buka terminal psql atau DBeaver kalian.
+2. Buat database baru bernama `mantra_db` dengan menjalankan query SQL ini:
+
+    CREATE DATABASE mantra_db;
+
+*(Cukup bikin databasenya aja, nggak usah bikin tabel apa-apa. Nanti Golang yang bakal otomatis buatin tabelnya untuk kita).*
+
+### Langkah 3: Install Semua Dependencies (Sihir Golang)
+Karena kita pakai GORM, kita harus download library-nya dulu. Pastikan posisi terminal kalian ada di dalam folder backend, lalu jalankan:
+
+    go mod tidy
+
+*Perintah ini akan otomatis membaca file `go.mod` dan mendownload semua package yang dibutuhkan.*
+
+### Langkah 4: Sesuaikan Password Database! ⚠️ PENTING ⚠️
+Buka file `config/database.go` di text editor (VS Code). Cari baris kode koneksi (DSN) ini:
+
+    dsn := "host=localhost user=postgres password=123456 dbname=mantra_db port=5432 sslmode=disable"
+
+**WAJIB DIGANTI:** Ubah bagian `password=123456` menjadi password akun PostgreSQL di laptop kalian masing-masing.
+
+### Langkah 5: Jalankan Aplikasi (Auto-Migrate)
+Setelah password disesuaikan dan di-save, jalankan perintah pamungkas ini di terminal:
+
+    go run main.go
+
+Jika di terminal muncul tulisan: `Database Connected & Migrated Successfully!` berarti aplikasi backend sudah berjalan.
+
+---
+
+## 🤝 Aturan Main Pembagian Tugas
+- Buat file struct (tabel) baru hanya di dalam folder `models/`.
+- Format nama struct menggunakan awalan huruf Kapital (contoh: `Keranjang`, `Kategori`).
+- Format nama field untuk database wajib menggunakan tag column snake_case (contoh: `gorm:"column:id_kategori"`).
+
 ---
 *Developed with ☕ by Mantra Team*
