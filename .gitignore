@@ -20,4 +20,3 @@ backend/*.exe
 Assest/
 backend/Dockerfile
 docker-compose.yml
-README-PRIVATE.md
