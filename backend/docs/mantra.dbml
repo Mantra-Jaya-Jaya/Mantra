@@ -1,5 +1,30 @@
 // Database Schema - ERD Mantra (Fixed Version)
 
+// =================================================================
+// 📚 PANDUAN SINGKAT DBML UNTUK PEMULA (CODE-TO-DIAGRAM)
+// =================================================================
+// File ini menggunakan format DBML (Database Markup Language).
+// Ini adalah cara ajaib membuat visual ERD hanya dengan mengetik kode!
+//
+// 1. CARA MEMBUAT TABEL:
+//    Gunakan sintaks `Table nama_tabel { ... }`.
+//    Setiap baris di dalamnya adalah: `nama_kolom tipe_data`.
+//
+// 2. PRIMARY KEY (PK):
+//    Tambahkan tag `[pk]` di ujung baris kolom yang menjadi kunci utama.
+//    Contoh: id_user int [pk]
+//
+// 3. FOREIGN KEY (FK) & RELASI:
+//    - Relasi TIDAK ditulis di dalam tabel, tapi dikumpulkan di
+//      bagian paling BAWAH file ini menggunakan kata kunci `Ref:`.
+//    - Tanda `>` berarti "One-to-Many" (Satu ke Banyak).
+//    - Tanda `-` berarti "One-to-One" (Satu ke Satu).
+//    - Contoh: Ref: pesanan.id_customer > customer.id_customer
+//      (Artinya: Banyak pesanan bisa dimiliki oleh 1 customer).
+//
+// Silakan bereksperimen! Diagram akan otomatis berubah saat kode diedit.
+// =================================================================
+
 Table role {
   id_role int [pk]
   nama_role varchar

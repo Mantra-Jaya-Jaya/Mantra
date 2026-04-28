@@ -43,9 +43,8 @@ Agar seluruh anggota tim dapat melihat visualisasi grafik relasinya dengan mudah
 
 ### Cara Melihat Visualisasi Database (Untuk Tim)
 1. Buka menu **Extensions** di VS Code Anda (atau tekan `Ctrl+Shift+X`).
-2. Cari ekstensi bernama **"DBML"** atau **"vscode-dbml"** (biasanya logo berwarna biru/ungu).
-3. Klik **Install**.
-4. Setelah ter-install, buka file `backend/docs/mantra.dbml`.
+2. Cari ekstensi bernama **"dbdiagram"**.
+3. Klik **Install**.4. Setelah ter-install, buka file `backend/docs/mantra.dbml`.
 5. Akan muncul tombol **Preview** atau ikon kaca pembesar/diagram di pojok kanan atas editor Anda. Klik tombol tersebut untuk melihat diagram tabel yang terhubung (*live-preview*).
 
 *(Alternatif: Anda juga bisa menyalin isi teks file `.dbml` tersebut ke website [dbdiagram.io](https://dbdiagram.io/) untuk melihatnya di browser).*
