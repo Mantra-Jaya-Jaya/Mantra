@@ -194,3 +194,6 @@ Ref: barcode.id_satuan > satuan.id_satuan
 Ref: detail_spesifikasi.id_spesifikasi > spesifikasi.id_spesifikasi
 Ref: detail_spesifikasi.id_barang > barang.id_barang
 Ref: notifikasi.id_user > user.id_user
+Ref: keranjang.id_customer > customer.id_customer
+Ref: keranjang.id_barang > barang.id_barang
+Ref: keranjang.id_kategori > kategori.id_kategori
