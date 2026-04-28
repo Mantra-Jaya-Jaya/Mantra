@@ -15,3 +15,9 @@ frontend/macos/Pods/
 backend/vendor/
 backend/bin/
 backend/*.exe
+
+# --- Untracked / Docker ---
+Assest/
+backend/Dockerfile
+docker-compose.yml
+README-PRIVATE.md
