@@ -21,6 +21,7 @@ MANTRA-APP/
 ├── backend/               # ⚙️ Semua kode API Server (Golang) ada di sini
 │   ├── config/            # Konfigurasi database & environment
 │   ├── controllers/       # Logika bisnis dan pemrosesan request
+│   ├── docs/              # 📄 Dokumentasi API dan ERD Database (.dbml)
 │   ├── models/            # Struktur tabel database (Struct)
 │   ├── routes/            # Daftar endpoint API
 │   └── main.go            # Titik masuk utama server Go
@@ -32,6 +33,22 @@ MANTRA-APP/
 │
 └── .gitignore             # 🛡️ Penjaga file rahasia agar tidak ter-push ke GitHub
 ```
+
+---
+
+## 📊 Dokumentasi Database (ERD)
+
+Desain relasi tabel (ERD) untuk project ini disimpan dalam format **DBML** di dalam folder `backend/docs/mantra.dbml`. 
+Agar seluruh anggota tim dapat melihat visualisasi grafik relasinya dengan mudah secara langsung dari *editor*, **WAJIB** mengikuti panduan berikut:
+
+### Cara Melihat Visualisasi Database (Untuk Tim)
+1. Buka menu **Extensions** di VS Code Anda (atau tekan `Ctrl+Shift+X`).
+2. Cari ekstensi bernama **"DBML"** atau **"vscode-dbml"** (biasanya logo berwarna biru/ungu).
+3. Klik **Install**.
+4. Setelah ter-install, buka file `backend/docs/mantra.dbml`.
+5. Akan muncul tombol **Preview** atau ikon kaca pembesar/diagram di pojok kanan atas editor Anda. Klik tombol tersebut untuk melihat diagram tabel yang terhubung (*live-preview*).
+
+*(Alternatif: Anda juga bisa menyalin isi teks file `.dbml` tersebut ke website [dbdiagram.io](https://dbdiagram.io/) untuk melihatnya di browser).*
 
 ---
 
