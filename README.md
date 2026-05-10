@@ -17,13 +17,16 @@ Proyek ini menggunakan arsitektur *Monorepo* yang memisahkan antara sistem *Mobi
 Berikut adalah susunan ruang kerja kita. Pastikan kalian bekerja di dalam direktori yang tepat!
 
 ```text
-MANTRA-APP/
+MANTRA/
+├── admin/                 # 🖥️ Aplikasi Web Admin (Next.js)
 ├── backend/               # ⚙️ Semua kode API Server (Golang) ada di sini
 │   ├── config/            # Konfigurasi database & environment
 │   ├── controllers/       # Logika bisnis dan pemrosesan request
 │   ├── docs/              # 📄 Dokumentasi API dan ERD Database (.dbml)
 │   ├── models/            # Struktur tabel database (Struct)
 │   ├── routes/            # Daftar endpoint API
+│   ├── seeders/           # Data awal untuk database
+│   ├── atlas.hcl          # Konfigurasi Atlas CLI
 │   └── main.go            # Titik masuk utama server Go
 │
 ├── frontend/              # 📱 Semua kode UI/UX Mobile (Flutter) ada di sini
@@ -163,6 +166,62 @@ Setelah password disesuaikan dan di-save, jalankan perintah pamungkas ini di ter
     go run main.go
 
 Jika di terminal muncul tulisan: `Database Connected & Migrated Successfully!` berarti aplikasi backend sudah berjalan.
+
+### 🛠️ Setup Atlas (Alternatif Migrasi)
+
+Jika Anda ingin menggunakan Atlas untuk manajemen migrasi database yang lebih presisi (mendukung rename dan drop kolom):
+
+1. **Install Tools**
+   - **Atlas CLI**:
+     ```bash
+     curl -sSf https://atlasgo.sh | sh
+     ```
+   - **Atlas Provider GORM**:
+     ```bash
+     go install ariga.io/atlas-provider-gorm@latest
+     ```
+
+2. **Konfigurasi `atlas.hcl`**
+   Pastikan file `atlas.hcl` ada di root folder `backend/` dengan isi sebagai berikut:
+   ```hcl
+   data "external_schema" "gorm" {
+     program = [
+       "go", "run", "-mod=mod",
+       "ariga.io/atlas-provider-gorm", "load",
+       "--path", "./models", "--dialect", "postgres",
+     ]
+   }
+
+   env "local" {
+     url  = "postgres://postgres:123456@localhost:5432/mantra_db?sslmode=disable"
+     from = "postgres://postgres:123456@localhost:5432/mantra_db?sslmode=disable"
+     to   = data.external_schema.gorm.url
+     dev  = "postgres://postgres:123456@localhost:5432/mantra_dev?sslmode=disable"
+   }
+   ```
+
+3. **Buat Database Sandbox (`mantra_dev`)**
+   Atlas memerlukan database kosong untuk simulasi skema. Jalankan di PostgreSQL/DBeaver:
+   ```sql
+   CREATE DATABASE mantra_dev;
+   ```
+
+4. **Perintah Utama**
+   Jalankan perintah ini di dalam folder `backend/`:
+
+   | Tujuan | Perintah |
+   | :--- | :--- |
+   | Analisis Perbedaan | `atlas schema diff --env local` |
+   | Terapkan ke DB | `atlas schema apply --env local` |
+   | Cek Status DB | `atlas schema inspect --env local` |
+
+5. **Tips Penggunaan Aman**
+   - **Interaktif**: Saat menjalankan apply, Atlas akan bertanya jika ada perubahan berisiko (seperti rename atau drop kolom). Perhatikan baik-baik sebelum mengetik `Yes`.
+   - **Dry-run**: Tambahkan flag `--dry-run` untuk melihat SQL yang akan dieksekusi tanpa benar-benar mengubah database:
+     ```bash
+     atlas schema apply --env local --dry-run
+     ```
+   - **Update Sandbox**: Jika terjadi error "Inconsistent State", Anda bisa menghapus dan membuat ulang database `mantra_dev` kapan saja.
 
 ---
 
