@@ -16,8 +16,19 @@ backend/vendor/
 backend/bin/
 backend/*.exe
 
+# Vscode
+.vscode
+
 # --- Untracked / Docker ---
-Assest/
-backend/Dockerfile
+Terra-Assest/
+backend/.Dockerfile.bak
 docker-compose.yml
 README-PRIVATE.md
+.docker-compose.yml.bak
+
+# Your Docs
+walkthrough.md.resolved
+AGENT_DIRECTIVE.md
+backend/ACTION_PLAN.md
+
+.aider*
