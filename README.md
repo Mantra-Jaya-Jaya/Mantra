@@ -168,60 +168,59 @@ Setelah password disesuaikan dan di-save, jalankan perintah pamungkas ini di ter
 Jika di terminal muncul tulisan: `Database Connected & Migrated Successfully!` berarti aplikasi backend sudah berjalan.
 
 ### 🛠️ Setup Atlas (Alternatif Migrasi)
+Jika Anda ingin menggunakan Atlas untuk manajemen migrasi database:
 
-Jika Anda ingin menggunakan Atlas untuk manajemen migrasi database yang lebih presisi (mendukung rename dan drop kolom):
+1. **Install Atlas CLI**:
+   ```bash
+   curl -sSf https://atlasgo.sh | sh
+   ```
+   *Pastikan binary tersebut ter-export ke global/PATH Anda.*
 
-1. **Install Tools**
-   - **Atlas CLI**:
-     ```bash
-     curl -sSf https://atlasgo.sh | sh
-     ```
-   - **Atlas Provider GORM**:
-     ```bash
-     go install ariga.io/atlas-provider-gorm@latest
-     ```
-
-2. **Konfigurasi `atlas.hcl`**
-   Pastikan file `atlas.hcl` ada di root folder `backend/` dengan isi sebagai berikut:
-   ```hcl
-   data "external_schema" "gorm" {
-     program = [
-       "go", "run", "-mod=mod",
-       "ariga.io/atlas-provider-gorm", "load",
-       "--path", "./models", "--dialect", "postgres",
-     ]
-   }
-
-   env "local" {
-     url  = "postgres://postgres:123456@localhost:5432/mantra_db?sslmode=disable"
-     from = "postgres://postgres:123456@localhost:5432/mantra_db?sslmode=disable"
-     to   = data.external_schema.gorm.url
-     dev  = "postgres://postgres:123456@localhost:5432/mantra_dev?sslmode=disable"
-   }
+2. **Install Atlas Provider GORM**:
+   ```bash
+   go install ariga.io/atlas-provider-gorm@latest
    ```
 
-3. **Buat Database Sandbox (`mantra_dev`)**
-   Atlas memerlukan database kosong untuk simulasi skema. Jalankan di PostgreSQL/DBeaver:
+3. **Buat Database Sandbox (`mantra_dev`)**:
+   Atlas memerlukan database "sandbox" untuk membandingkan keadaan skema. Jalankan query ini di PostgreSQL Anda untuk membuat database kosong:
    ```sql
    CREATE DATABASE mantra_dev;
    ```
 
-4. **Perintah Utama**
-   Jalankan perintah ini di dalam folder `backend/`:
-
-   | Tujuan | Perintah |
-   | :--- | :--- |
-   | Analisis Perbedaan | `atlas schema diff --env local` |
-   | Terapkan ke DB | `atlas schema apply --env local` |
-   | Cek Status DB | `atlas schema inspect --env local` |
-
-5. **Tips Penggunaan Aman**
-   - **Interaktif**: Saat menjalankan apply, Atlas akan bertanya jika ada perubahan berisiko (seperti rename atau drop kolom). Perhatikan baik-baik sebelum mengetik `Yes`.
-   - **Dry-run**: Tambahkan flag `--dry-run` untuk melihat SQL yang akan dieksekusi tanpa benar-benar mengubah database:
+4. **Perintah Dasar Atlas**:
+   *Pastikan terminal Anda berada di dalam folder `backend/` sebelum menjalankan perintah di bawah ini.*
+   
+   - **Melihat perbedaan (Diff) antara Model GORM dan Database:**
      ```bash
-     atlas schema apply --env local --dry-run
+     atlas schema diff --from "env://from" --to "env://to" --env local
      ```
-   - **Update Sandbox**: Jika terjadi error "Inconsistent State", Anda bisa menghapus dan membuat ulang database `mantra_dev` kapan saja.
+     *(Perintah ini hanya akan menampilkan perbedaan skema tanpa mengubah apapun).*
+
+   - **Menerapkan perubahan skema dari model GORM ke database:**
+     ```bash
+     atlas schema apply --env local
+     ```
+     *(Perintah ini akan membandingkan model GORM Anda dengan database `mantra_db` dan menerapkan perubahannya).*
+
+   - **Melihat status skema saat ini:**
+     ```bash
+     atlas schema inspect --env local
+     ```
+
+5. **Uji Coba Aman (Tanpa Mengubah Database Asli)**:
+   - **Simulasi (Dry-run) via Apply:**
+     Jalankan `atlas schema apply --env local`. Atlas akan menampilkan perubahan SQL yang akan dilakukan. Jika ditanya apakah ingin menerapkan, ketik `N` atau tekan `Ctrl+C`.
+   
+   - **Menerapkan ke Database Sandbox (`mantra_dev`):**
+     Jika Anda ingin benar-benar melihat hasilnya di database tanpa merusak `mantra_db`, gunakan flag `-u` untuk mengarahkan ke database dev:
+     ```bash
+     atlas schema apply --env local -u "postgres://postgres:123456@localhost:5432/mantra_dev?sslmode=disable"
+     ```
+
+
+File konfigurasi Atlas dapat ditemukan di `backend/atlas.hcl`.
+
+Untuk informasi lebih lanjut, silakan kunjungi [Dokumentasi Resmi Atlas](https://atlasgo.sh/).
 
 ---
 
