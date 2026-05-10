@@ -27,6 +27,7 @@ MANTRA/
 │   ├── routes/            # Daftar endpoint API
 │   ├── seeders/           # Data awal untuk database
 │   ├── atlas.hcl          # Konfigurasi Atlas CLI
+│   ├── Makefile           # Daftar perintah Atlas CLI
 │   └── main.go            # Titik masuk utama server Go
 │
 ├── frontend/              # 📱 Semua kode UI/UX Mobile (Flutter) ada di sini
@@ -168,7 +169,7 @@ Setelah password disesuaikan dan di-save, jalankan perintah pamungkas ini di ter
 Jika di terminal muncul tulisan: `Database Connected & Migrated Successfully!` berarti aplikasi backend sudah berjalan.
 
 ### 🛠️ Setup Atlas (Alternatif Migrasi)
-Jika Anda ingin menggunakan Atlas untuk manajemen migrasi database:
+Atlas CLI sebagai engine untuk menyinkronkan struktur tabel di PostgreSQL secara otomatis berdasarkan GORM Structs (Single Source of Truth) :
 
 1. **Install Atlas CLI**:
    ```bash
@@ -187,38 +188,38 @@ Jika Anda ingin menggunakan Atlas untuk manajemen migrasi database:
    CREATE DATABASE mantra_dev;
    ```
 
-4. **Perintah Dasar Atlas**:
-   *Pastikan terminal Anda berada di dalam folder `backend/` sebelum menjalankan perintah di bawah ini.*
+4. **Workflow Migrasi via Makefile**:
+   Untuk menyederhanakan perintah dan otomatis membaca variabel kredensial dari file `.env`, gunakan utilitas `make`. *Pastikan terminal Anda berada di dalam folder `backend/`.*
    
-   - **Melihat perbedaan (Diff) antara Model GORM dan Database:**
+   - **Melihat Perubahan (Diff):**
+     Menampilkan deteksi perubahan antara model Go dan database saat ini tanpa mengeksekusi apapun.
      ```bash
-     atlas schema diff --from "env://from" --to "env://to" --env local
-     ```
-     *(Perintah ini hanya akan menampilkan perbedaan skema tanpa mengubah apapun).*
-
-   - **Menerapkan perubahan skema dari model GORM ke database:**
-     ```bash
-     atlas schema apply --env local
-     ```
-     *(Perintah ini akan membandingkan model GORM Anda dengan database `mantra_db` dan menerapkan perubahannya).*
-
-   - **Melihat status skema saat ini:**
-     ```bash
-     atlas schema inspect --env local
+     make db-diff
      ```
 
-5. **Uji Coba Aman (Tanpa Mengubah Database Asli)**:
-   - **Simulasi (Dry-run) via Apply:**
-     Jalankan `atlas schema apply --env local`. Atlas akan menampilkan perubahan SQL yang akan dilakukan. Jika ditanya apakah ingin menerapkan, ketik `N` atau tekan `Ctrl+C`.
-   
-   - **Menerapkan ke Database Sandbox (`mantra_dev`):**
-     Jika Anda ingin benar-benar melihat hasilnya di database tanpa merusak `mantra_db`, gunakan flag `-u` untuk mengarahkan ke database dev:
+   - **Simulasi Aman (Dry Run):**
+     Menampilkan *raw SQL* yang akan dieksekusi. Sangat disarankan dijalankan untuk mengecek apakah ada aksi destruktif (seperti `DROP` kolom) sebelum eksekusi final.
      ```bash
-     atlas schema apply --env local -u "postgres://postgres:123456@localhost:5432/mantra_dev?sslmode=disable"
+     make db-plan
      ```
 
+   - **Eksekusi Mutasi (Apply):**
+     Menerapkan perubahan skema secara permanen ke database utama (`mantra_db`).
+     ```bash
+     make db-apply
+     ```
 
-File konfigurasi Atlas dapat ditemukan di `backend/atlas.hcl`.
+5. **Inspeksi & Visualisasi Database**:
+   - **Via CLI:** Melihat representasi HCL/SQL dari tabel yang ada.
+     ```bash
+     make db-inspect
+     ```
+   - **Via Web UI (ERD):** Membuka visualisasi relasi tabel (ERD) interaktif di browser lokal Anda.
+     ```bash
+     make db-ui
+     ```
+
+File konfigurasi Atlas dapat ditemukan di `backend/atlas.hcl`. Seluruh definisi perintah di atas dapat dilihat pada file `backend/Makefile`.
 
 Untuk informasi lebih lanjut, silakan kunjungi [Dokumentasi Resmi Atlas](https://atlasgo.sh/).
 
