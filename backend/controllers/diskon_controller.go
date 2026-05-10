@@ -1,10 +1,10 @@
 package controllers
 
 import (
-	"encoding/json"
-	"net/http"
 	"backend-mantra/config"
 	"backend-mantra/models"
+	"encoding/json"
+	"net/http"
 )
 
 func GetPromoCustomer(w http.ResponseWriter, r *http.Request) {
@@ -21,7 +21,7 @@ func GetPromoCustomer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Siapin array kosong dari model Diskon 
+	// Siapin array kosong dari model Diskon
 	promos := []models.Diskon{}
 
 	// Langsung tarik SEMUA data dari tabel diskon
@@ -41,7 +41,7 @@ func GetPromoCustomer(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(map[string]interface{}{
 			"status":  "success",
 			"message": "Saat ini tidak ada promo yang tersedia",
-			"data":    promos, 
+			"data":    promos,
 		})
 		return
 	}
@@ -51,6 +51,6 @@ func GetPromoCustomer(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"status":  "success",
 		"message": "Berhasil mengambil data promo",
-		"data":    promos, 
+		"data":    promos,
 	})
 }

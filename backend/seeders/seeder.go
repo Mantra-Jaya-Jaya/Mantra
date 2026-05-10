@@ -20,7 +20,6 @@ func RunAllSeeders() {
 	SeedKurir()
 	SeedAlamat()
 
-
 	fmt.Println("======================================")
 	fmt.Println("✅ SEMUA DATA BERHASIL DI-SEED!")
 	fmt.Println("======================================")
