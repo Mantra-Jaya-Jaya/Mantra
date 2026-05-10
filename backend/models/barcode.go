@@ -6,16 +6,15 @@ func (Barcode) TableName() string {
 }
 
 type Barcode struct {
-	IdBarcode   uint   `gorm:"primaryKey;column:id_barcode"`
-	KodeBarcode string `gorm:"column:kode_barcode"` // String bukan int agar support leading zero
-	Kuantitas   int    `gorm:"column:kuantitas"`    // Jumlah per scan, misal 1 dus = 12 pcs
+	// Nama variabel WAJIB Kapital (IdRole), nama di DB diatur lewat Tag (id_role)
+	IdBarcode uint `gorm:"primaryKey;column:id_barcode" json:"id_barcode"`
+	Kuantitas uint `gorm:"column:kuantitas" json:"kuantitas"`
 
-	// Relasi ke Barang
-	BarangId uint   `gorm:"column:id_barang"`
-	Barang   Barang `gorm:"foreignKey:BarangId;references:IdBarang"`
+	//Relasi ke Barang
+	BarangId uint `gorm:"column:id_barang;unique" json:"id_barang"`
+	SatuanId uint `gorm:"column:id_satuan;unique" json:"id_satuan"`
 
-	// Relasi ke Satuan
-	SatuanId uint   `gorm:"column:id_satuan"`
-	Satuan   Satuan `gorm:"foreignKey:SatuanId;references:IdSatuan"`
+	//Relasi  ke tabel barang
+	Barang Barang `gorm:"foreignKey:BarangId;references:IdBarang" json:"barang"`
 }
 

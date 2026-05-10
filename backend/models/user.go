@@ -7,15 +7,12 @@ func (User) TableName() string {
 }
 
 type User struct {
-	IdUser      uint      `gorm:"primaryKey;column:id_user"`
-	Username    string    `gorm:"column:username"`
-	Email       string    `gorm:"unique;column:email"`
-	Password    string    `gorm:"column:password"`
-	NamaLengkap string    `gorm:"column:nama_lengkap"`
-	CreatedAt   time.Time `gorm:"column:created_at"`
-	UpdatedAt   time.Time `gorm:"column:updated_at"`
+  IdUser      uint   `gorm:"primaryKey;column:id_user" json:"id_user"`
+  Username    string `gorm:"column:username" json:"username"`
+  Email       string `gorm:"unique;column:email" json:"email"`
+  Password    string `gorm:"column:password" json:"password"`
+  NamaLengkap string `gorm:"column:nama_lengkap" json:"nama_lengkap"`
 
-	// Relasi ke Role
-	RoleID uint `gorm:"column:id_role"`
-	Role   Role `gorm:"foreignKey:RoleID;references:IdRole"`
+  RoleID      uint   `gorm:"column:id_role" json:"id_role"`
+  Role        Role   `gorm:"foreignKey:RoleID;references:IdRole" json:"role"`
 }

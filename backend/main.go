@@ -6,10 +6,7 @@ import (
 	"backend-mantra/config"
 	"backend-mantra/routes"
 	"backend-mantra/seeders"
-	"log"
-	"os"
-
-	"github.com/gin-gonic/gin"
+	"backend-mantra/routes"
 )
 
 func main() {
