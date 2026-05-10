@@ -17,13 +17,16 @@ Proyek ini menggunakan arsitektur *Monorepo* yang memisahkan antara sistem *Mobi
 Berikut adalah susunan ruang kerja kita. Pastikan kalian bekerja di dalam direktori yang tepat!
 
 ```text
-MANTRA-APP/
+MANTRA/
+├── admin/                 # 🖥️ Aplikasi Web Admin (Next.js)
 ├── backend/               # ⚙️ Semua kode API Server (Golang) ada di sini
 │   ├── config/            # Konfigurasi database & environment
 │   ├── controllers/       # Logika bisnis dan pemrosesan request
 │   ├── docs/              # 📄 Dokumentasi API dan ERD Database (.dbml)
 │   ├── models/            # Struktur tabel database (Struct)
 │   ├── routes/            # Daftar endpoint API
+│   ├── seeders/           # Data awal untuk database
+│   ├── atlas.hcl          # Konfigurasi Atlas CLI
 │   └── main.go            # Titik masuk utama server Go
 │
 ├── frontend/              # 📱 Semua kode UI/UX Mobile (Flutter) ada di sini
@@ -163,6 +166,61 @@ Setelah password disesuaikan dan di-save, jalankan perintah pamungkas ini di ter
     go run main.go
 
 Jika di terminal muncul tulisan: `Database Connected & Migrated Successfully!` berarti aplikasi backend sudah berjalan.
+
+### 🛠️ Setup Atlas (Alternatif Migrasi)
+Jika Anda ingin menggunakan Atlas untuk manajemen migrasi database:
+
+1. **Install Atlas CLI**:
+   ```bash
+   curl -sSf https://atlasgo.sh | sh
+   ```
+   *Pastikan binary tersebut ter-export ke global/PATH Anda.*
+
+2. **Install Atlas Provider GORM**:
+   ```bash
+   go install ariga.io/atlas-provider-gorm@latest
+   ```
+
+3. **Buat Database Sandbox (`mantra_dev`)**:
+   Atlas memerlukan database "sandbox" untuk membandingkan keadaan skema. Jalankan query ini di PostgreSQL Anda untuk membuat database kosong:
+   ```sql
+   CREATE DATABASE mantra_dev;
+   ```
+
+4. **Perintah Dasar Atlas**:
+   *Pastikan terminal Anda berada di dalam folder `backend/` sebelum menjalankan perintah di bawah ini.*
+   
+   - **Melihat perbedaan (Diff) antara Model GORM dan Database:**
+     ```bash
+     atlas schema diff --from "env://from" --to "env://to" --env local
+     ```
+     *(Perintah ini hanya akan menampilkan perbedaan skema tanpa mengubah apapun).*
+
+   - **Menerapkan perubahan skema dari model GORM ke database:**
+     ```bash
+     atlas schema apply --env local
+     ```
+     *(Perintah ini akan membandingkan model GORM Anda dengan database `mantra_db` dan menerapkan perubahannya).*
+
+   - **Melihat status skema saat ini:**
+     ```bash
+     atlas schema inspect --env local
+     ```
+
+5. **Uji Coba Aman (Tanpa Mengubah Database Asli)**:
+   - **Simulasi (Dry-run) via Apply:**
+     Jalankan `atlas schema apply --env local`. Atlas akan menampilkan perubahan SQL yang akan dilakukan. Jika ditanya apakah ingin menerapkan, ketik `N` atau tekan `Ctrl+C`.
+   
+   - **Menerapkan ke Database Sandbox (`mantra_dev`):**
+     Jika Anda ingin benar-benar melihat hasilnya di database tanpa merusak `mantra_db`, gunakan flag `-u` untuk mengarahkan ke database dev:
+     ```bash
+     atlas schema apply --env local -u "postgres://postgres:123456@localhost:5432/mantra_dev?sslmode=disable"
+     ```
+
+
+File konfigurasi Atlas dapat ditemukan di `backend/atlas.hcl`.
+
+Untuk informasi lebih lanjut, silakan kunjungi [Dokumentasi Resmi Atlas](https://atlasgo.sh/).
 
 ---
 
