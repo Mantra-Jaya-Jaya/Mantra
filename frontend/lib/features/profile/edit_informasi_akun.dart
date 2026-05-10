@@ -9,19 +9,22 @@ class EditInformasiAkun extends StatefulWidget {
 }
 
 class _EditInformasiAkunState extends State<EditInformasiAkun> {
-
   // ================= CONTROLLER =================
-  final TextEditingController namaController =
-      TextEditingController(text: "Aarav Lysander");
+  final TextEditingController namaController = TextEditingController(
+    text: "Aarav Lysander",
+  );
 
-  final TextEditingController phoneController =
-      TextEditingController(text: "+62 89000000000");
+  final TextEditingController phoneController = TextEditingController(
+    text: "+62 89000000000",
+  );
 
-  final TextEditingController emailController =
-      TextEditingController(text: "lysander@gmail.com");
+  final TextEditingController emailController = TextEditingController(
+    text: "lysander@gmail.com",
+  );
 
-  final TextEditingController usernameController =
-      TextEditingController(text: "@aarav_");
+  final TextEditingController usernameController = TextEditingController(
+    text: "@aarav_",
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +36,6 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
           padding: const EdgeInsets.only(bottom: 30),
           child: Column(
             children: [
-
               // ================= HEADER =================
               Container(
                 width: double.infinity,
@@ -44,15 +46,11 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
                 color: const Color(0xFFAF510C),
                 child: Row(
                   children: [
-
                     IconButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      icon: const Icon(
-                        Icons.arrow_back,
-                        color: Colors.white,
-                      ),
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
                     ),
 
                     const SizedBox(width: 8),
@@ -81,7 +79,6 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
                 ),
                 child: Column(
                   children: [
-
                     // ================= NAMA =================
                     buildTextField(
                       icon: Icons.person_outline,
@@ -123,19 +120,15 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
                     // ================= BUTTON SIMPAN =================
                     ElevatedButton(
                       onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const BerhasilEditInfo(),
-                          ),
-                        );
+                        // 2. Tunggu sebentar atau langsung kembali ke halaman sebelumnya (Profil)
+                        Navigator.pop(context, 'success');
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFAF510C),
                         minimumSize: const Size(double.infinity, 50),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          ),
+                        ),
                       ),
                       child: const Text(
                         "Simpan Perubahan",
@@ -166,7 +159,6 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-
         // ICON
         Container(
           padding: const EdgeInsets.all(12),
@@ -184,7 +176,6 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Text(
                 title,
                 style: const TextStyle(
@@ -197,9 +188,7 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
 
               Container(
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: const Color(0xFFAF510C),
-                  ),
+                  border: Border.all(color: const Color(0xFFAF510C)),
                   borderRadius: BorderRadius.circular(10),
                   color: Colors.white,
                 ),

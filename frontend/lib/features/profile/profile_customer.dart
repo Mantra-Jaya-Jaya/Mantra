@@ -9,6 +9,87 @@ class Profil extends StatefulWidget {
 }
 
 class _ProfilState extends State<Profil> {
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false, // User wajib klik OK
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // ICON
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0x33AF510C),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Color(0xFFAF510C),
+                    size: 42,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                // TITLE
+                const Text(
+                  "Data berhasil\ndiubah!",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: Color(0xFFAF510C),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                // SUBTITLE
+                const Text(
+                  "Perubahan profil Anda telah\nberhasil disimpan.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 25),
+                // BUTTON
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context), // Tutup popup saja
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFAF510C),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,7 +100,6 @@ class _ProfilState extends State<Profil> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
               // ================= HEADER =================
               Container(
                 width: double.infinity,
@@ -43,28 +123,21 @@ class _ProfilState extends State<Profil> {
               // ================= FOTO PROFIL =================
               CircleAvatar(
                 radius: 55,
-                backgroundImage: AssetImage(
-                  "assets/images/profile.jpg",
-                ),
+                backgroundImage: AssetImage("assets/images/profile.jpg"),
               ),
 
               const SizedBox(height: 12),
 
               const Text(
                 "Aarav Lysander",
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 4),
 
               const Text(
                 "lysander@gmail.com",
-                style: TextStyle(
-                  color: Colors.grey,
-                ),
+                style: TextStyle(color: Colors.grey),
               ),
 
               const SizedBox(height: 24),
@@ -79,12 +152,10 @@ class _ProfilState extends State<Profil> {
                 ),
                 child: Column(
                   children: [
-
                     // HEADER CARD
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         const Text(
                           "Informasi Akun",
                           style: TextStyle(
@@ -95,13 +166,19 @@ class _ProfilState extends State<Profil> {
                         ),
 
                         OutlinedButton.icon(
-                          onPressed: () {
-                            Navigator.push(
+                          onPressed: () async {
+                            // 1. Pergi ke halaman edit dan tunggu hasilnya
+                            final result = await Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => const EditInformasiAkun(),
-                                ),
-                                );
+                              ),
+                            );
+
+                            // 2. Jika kembali dengan membawa data 'success', munculkan popup
+                            if (result == 'success') {
+                              _showSuccessDialog();
+                            }
                           },
                           icon: const Icon(
                             Icons.edit,
@@ -110,14 +187,10 @@ class _ProfilState extends State<Profil> {
                           ),
                           label: const Text(
                             "Edit",
-                            style: TextStyle(
-                              color: Color(0xFFAF510C),
-                            ),
+                            style: TextStyle(color: Color(0xFFAF510C)),
                           ),
                           style: OutlinedButton.styleFrom(
-                            side: const BorderSide(
-                              color: Color(0xFFAF510C),
-                            ),
+                            side: const BorderSide(color: Color(0xFFAF510C)),
                           ),
                         ),
                       ],
@@ -143,15 +216,10 @@ class _ProfilState extends State<Profil> {
                       "lysander@gmail.com",
                     ),
 
-                    buildInfoTile(
-                      Icons.key_outlined,
-                      "Username",
-                      "@aarav_",
-                    ),
+                    buildInfoTile(Icons.key_outlined, "Username", "@aarav_"),
 
                     Row(
                       children: [
-
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
@@ -166,9 +234,7 @@ class _ProfilState extends State<Profil> {
                         const Expanded(
                           child: Text(
                             "Password",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.bold),
                           ),
                         ),
 
@@ -200,7 +266,6 @@ class _ProfilState extends State<Profil> {
                 ),
                 child: Column(
                   children: [
-
                     const Text(
                       "Daftar Alamat",
                       style: TextStyle(
@@ -249,21 +314,14 @@ class _ProfilState extends State<Profil> {
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: OutlinedButton.icon(
                   onPressed: () {},
-                  icon: const Icon(
-                    Icons.logout,
-                    color: Color(0xFFAF510C),
-                  ),
+                  icon: const Icon(Icons.logout, color: Color(0xFFAF510C)),
                   label: const Text(
                     "Keluar dari Akun",
-                    style: TextStyle(
-                      color: Color(0xFFAF510C),
-                    ),
+                    style: TextStyle(color: Color(0xFFAF510C)),
                   ),
                   style: OutlinedButton.styleFrom(
                     minimumSize: const Size(double.infinity, 50),
-                    side: const BorderSide(
-                      color: Color(0xFFAF510C),
-                    ),
+                    side: const BorderSide(color: Color(0xFFAF510C)),
                   ),
                 ),
               ),
@@ -273,57 +331,15 @@ class _ProfilState extends State<Profil> {
           ),
         ),
       ),
-
-      // ================= NAVBAR =================
-      bottomNavigationBar: Container(
-        height: 70,
-        decoration: const BoxDecoration(
-          color: Color(0xFFAF510C),
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(22),
-            topRight: Radius.circular(22),
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: const [
-
-            NavItem(
-              icon: Icons.home_outlined,
-              label: "Home",
-            ),
-
-            NavItem(
-              icon: Icons.qr_code_scanner,
-              label: "Scan",
-            ),
-
-            NavItem(
-              icon: Icons.receipt_long,
-              label: "Orders",
-            ),
-
-            NavItem(
-              icon: Icons.person,
-              label: "Profile",
-            ),
-          ],
-        ),
-      ),
     );
   }
 
   // ================= TILE INFO =================
-  Widget buildInfoTile(
-      IconData icon,
-      String title,
-      String subtitle,
-      ) {
+  Widget buildInfoTile(IconData icon, String title, String subtitle) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         children: [
-
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -338,22 +354,11 @@ class _ProfilState extends State<Profil> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
 
               const SizedBox(height: 2),
 
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  color: Colors.grey,
-                ),
-              ),
+              Text(subtitle, style: const TextStyle(color: Colors.grey)),
             ],
           ),
         ],
@@ -362,11 +367,7 @@ class _ProfilState extends State<Profil> {
   }
 
   // ================= CARD ALAMAT =================
-  Widget buildAddressCard(
-      String title,
-      String address,
-      bool isPrimary,
-      ) {
+  Widget buildAddressCard(String title, String address, bool isPrimary) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -376,17 +377,10 @@ class _ProfilState extends State<Profil> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
 
               if (isPrimary)
                 Container(
@@ -411,18 +405,12 @@ class _ProfilState extends State<Profil> {
 
           const SizedBox(height: 8),
 
-          Text(
-            address,
-            style: const TextStyle(
-              color: Colors.grey,
-            ),
-          ),
+          Text(address, style: const TextStyle(color: Colors.grey)),
 
           const SizedBox(height: 12),
 
           Row(
             children: [
-
               Expanded(
                 child: OutlinedButton.icon(
                   onPressed: () {},
@@ -430,9 +418,7 @@ class _ProfilState extends State<Profil> {
                   label: const Text("Edit"),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: const Color(0xFFAF510C),
-                    side: const BorderSide(
-                      color: Color(0xFFAF510C),
-                    ),
+                    side: const BorderSide(color: Color(0xFFAF510C)),
                   ),
                 ),
               ),
@@ -446,9 +432,7 @@ class _ProfilState extends State<Profil> {
                   label: const Text("Hapus"),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
-                    side: const BorderSide(
-                      color: Colors.red,
-                    ),
+                    side: const BorderSide(color: Colors.red),
                   ),
                 ),
               ),
@@ -456,42 +440,6 @@ class _ProfilState extends State<Profil> {
           ),
         ],
       ),
-    );
-  }
-}
-
-// ================= NAV ITEM =================
-class NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-
-  const NavItem({
-    super.key,
-    required this.icon,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-
-        Icon(
-          icon,
-          color: Colors.white,
-        ),
-
-        const SizedBox(height: 4),
-
-        Text(
-          label,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 12,
-          ),
-        ),
-      ],
     );
   }
 }

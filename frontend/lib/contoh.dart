@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'screens/profile_customer.dart';  
 
 void main() {
   runApp(const MyApp());

@@ -12,19 +12,14 @@ class BerhasilEditInfo extends StatelessWidget {
 
       body: Stack(
         children: [
-
           // ================= BACKGROUND PROFILE =================
           SingleChildScrollView(
             child: Column(
               children: [
-
                 // HEADER
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.only(
-                    top: 70,
-                    bottom: 25,
-                  ),
+                  padding: const EdgeInsets.only(top: 70, bottom: 25),
                   color: const Color(0xFFE3CDBD),
                   child: const Center(
                     child: Text(
@@ -43,29 +38,21 @@ class BerhasilEditInfo extends StatelessWidget {
                 // FOTO PROFILE
                 CircleAvatar(
                   radius: 55,
-                  backgroundImage: AssetImage(
-                    "assets/images/profile.jpg",
-                  ),
+                  backgroundImage: AssetImage("assets/images/profile.jpg"),
                 ),
 
                 const SizedBox(height: 12),
 
                 const Text(
                   "Aarav Lysander",
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
 
                 const SizedBox(height: 4),
 
                 const Text(
                   "lysander@gmail.com",
-                  style: TextStyle(
-                    color: Colors.grey,
-                    fontSize: 14,
-                  ),
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
                 ),
 
                 const SizedBox(height: 25),
@@ -80,7 +67,6 @@ class BerhasilEditInfo extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
-
                       buildInfoTile(
                         Icons.person_outline,
                         "Nama Lengkap",
@@ -105,11 +91,7 @@ class BerhasilEditInfo extends StatelessWidget {
 
                       const SizedBox(height: 15),
 
-                      buildInfoTile(
-                        Icons.key_outlined,
-                        "Username",
-                        "@aarav_",
-                      ),
+                      buildInfoTile(Icons.key_outlined, "Username", "@aarav_"),
                     ],
                   ),
                 ),
@@ -121,23 +103,15 @@ class BerhasilEditInfo extends StatelessWidget {
 
           // ================= BLUR BACKGROUND =================
           BackdropFilter(
-            filter: ImageFilter.blur(
-              sigmaX: 6,
-              sigmaY: 6,
-            ),
-            child: Container(
-              color: Colors.black.withOpacity(0.15),
-            ),
+            filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
+            child: Container(color: Colors.black.withOpacity(0.15)),
           ),
 
           // ================= POPUP BERHASIL =================
           Center(
             child: Container(
               width: 300,
-              padding: const EdgeInsets.symmetric(
-                horizontal: 25,
-                vertical: 30,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
@@ -153,7 +127,6 @@ class BerhasilEditInfo extends StatelessWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-
                   // ICON
                   Container(
                     padding: const EdgeInsets.all(14),
@@ -187,10 +160,7 @@ class BerhasilEditInfo extends StatelessWidget {
                   const Text(
                     "Perubahan profil Anda telah\nberhasil disimpan.",
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
-                    ),
+                    style: TextStyle(color: Colors.grey, fontSize: 14),
                   ),
 
                   const SizedBox(height: 25),
@@ -210,9 +180,7 @@ class BerhasilEditInfo extends StatelessWidget {
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFAF510C),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 14,
-                        ),
+                        padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
@@ -237,11 +205,7 @@ class BerhasilEditInfo extends StatelessWidget {
   }
 
   // ================= WIDGET TILE =================
-  Widget buildInfoTile(
-    IconData icon,
-    String title,
-    String value,
-  ) {
+  Widget buildInfoTile(IconData icon, String title, String value) {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -250,17 +214,13 @@ class BerhasilEditInfo extends StatelessWidget {
       ),
       child: Row(
         children: [
-
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
               color: const Color(0x33AF510C),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: const Color(0xFFAF510C),
-            ),
+            child: Icon(icon, color: const Color(0xFFAF510C)),
           ),
 
           const SizedBox(width: 14),
@@ -269,7 +229,6 @@ class BerhasilEditInfo extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-
                 Text(
                   title,
                   style: const TextStyle(
@@ -282,10 +241,7 @@ class BerhasilEditInfo extends StatelessWidget {
 
                 Text(
                   value,
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontSize: 13,
-                  ),
+                  style: const TextStyle(color: Colors.grey, fontSize: 13),
                 ),
               ],
             ),
