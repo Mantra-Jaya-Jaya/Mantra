@@ -1,0 +1,6 @@
+name: mantra-dev
+variables:
+  - name: base_url
+    value: http://localhost:8080/
+  - name: acces_token
+    value: ""

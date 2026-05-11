@@ -22,7 +22,8 @@ MANTRA/
 ├── backend/               # ⚙️ Semua kode API Server (Golang) ada di sini
 │   ├── config/            # Konfigurasi database & environment
 │   ├── controllers/       # Logika bisnis dan pemrosesan request
-│   ├── docs/              # 📄 Dokumentasi API dan ERD Database (.dbml)
+│   ├── docs/              # 📄 Dokumentasi API Lokal dan ERD Database (.dbml)
+│   ├── middleware/        # 🛡️ Middleware (Auth, Role, Ownership)
 │   ├── models/            # Struktur tabel database (Struct)
 │   ├── routes/            # Daftar endpoint API
 │   ├── seeders/           # Data awal untuk database
@@ -34,6 +35,11 @@ MANTRA/
 │   ├── lib/               # Kodingan utama aplikasi Flutter
 │   ├── pubspec.yaml       # Daftar package/library Flutter
 │   └── ...
+│
+├── docs/                  # 📚 Dokumentasi Global (API Contract, RBAC, dll)
+│   ├── api-contract.md    # Kontrak API
+│   ├── security-rbac.md   # Dokumen Keamanan & RBAC
+│   └── mantra-dev/        # 📁 Koleksi API Bruno untuk Testing
 │
 └── .gitignore             # 🛡️ Penjaga file rahasia agar tidak ter-push ke GitHub
 ```
