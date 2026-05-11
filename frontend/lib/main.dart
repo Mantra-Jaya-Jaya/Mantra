@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
+import 'features/cart/cart_customer.dart';
 import 'features/orders/order_customer.dart';
+import 'features/notifications/notification_customer.dart';
 import 'features/profile/profile_customer.dart'; // 1. Import file temanmu
+import 'features/scan/scan_customer.dart';
 import 'core/widgets/bottom_navbar.dart';
+
+// ✅ Deklarasi RouteObserver global untuk mendeteksi navigasi halaman
+final RouteObserver<Route> routeObserver = RouteObserver<Route>();
 
 void main() {
   runApp(const MantraApp());
@@ -19,6 +25,8 @@ class MantraApp extends StatelessWidget {
         // Tetap gunakan skema warna cokelatmu agar konsisten
         primaryColor: const Color(0xFFAD510D),
       ),
+      // ✅ Tambahkan RouteObserver untuk mendeteksi navigasi
+      navigatorObservers: [routeObserver],
       home: const HomeScreen(),
     );
   }
@@ -37,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
   // 2. Masukkan widget Profil milik temanmu ke index 3
   final List<Widget> _pages = [
     const HomeContent(),
-    const Center(child: Text("Scan")),
+    const ScanPage(),
     const MyOrderPage(),
     const Profil(), // <--- Widget dari file temanmu
   ];
@@ -129,16 +137,37 @@ class HomeContent extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    const Icon(
-                      Icons.shopping_cart_outlined,
-                      color: Colors.white,
-                      size: 28,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CartCustomerPage(),
+                          ),
+                        );
+                      },
+                      child: const Icon(
+                        Icons.shopping_cart_outlined,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                     ),
                     const SizedBox(width: 10),
-                    const Icon(
-                      Icons.notifications_none_outlined,
-                      color: Colors.white,
-                      size: 28,
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                const NotificationCustomerPage(),
+                          ),
+                        );
+                      },
+                      child: const Icon(
+                        Icons.notifications_none_outlined,
+                        color: Colors.white,
+                        size: 28,
+                      ),
                     ),
                   ],
                 ),
@@ -150,7 +179,15 @@ class HomeContent extends StatelessWidget {
                     color: Colors.orange.shade100,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: const Center(child: Text("Promo Banner")),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: Image.asset(
+                      'assets/images/promo.png',
+                      width: double.infinity,
+                      height: double.infinity,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -158,7 +195,7 @@ class HomeContent extends StatelessWidget {
 
           // Kategori Section
           const Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: Text(
               'Kategori',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -183,7 +220,7 @@ class HomeContent extends StatelessWidget {
 
           // Rekomendasi Section
           const Padding(
-            padding: EdgeInsets.all(20),
+            padding: EdgeInsets.fromLTRB(20, 20, 20, 10),
             child: Text(
               'Rekomendasi Untuk Anda',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
@@ -204,7 +241,6 @@ class HomeContent extends StatelessWidget {
               },
             ),
           ),
-          const SizedBox(height: 100),
         ],
       ),
     );
@@ -233,7 +269,19 @@ class HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: Container(color: Colors.grey[200])),
+          Expanded(
+            child: ClipRRect(
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(15),
+                topRight: Radius.circular(15),
+              ),
+              child: Image.asset(
+                'assets/images/produk.png',
+                fit: BoxFit.cover,
+                width: double.infinity,
+              ),
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: Column(
