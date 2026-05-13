@@ -1,0 +1,32 @@
+info:
+  name: Buat Akun Kasir (Oleh Kasir)
+  type: http
+  seq: 3
+
+http:
+  method: POST
+  url: "{{base_url}}api/v1/admin/karyawan/kasir"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: "{{access_token}}"
+  body:
+    type: json
+    data: |
+      {
+        "username": "kasir_baru",
+        "email": "kasir_baru@mantra.com",
+        "password": "PasswordKasir123",
+        "nama_lengkap": "Kasir Baru",
+        "no_telp": "08122222222",
+        "alamat": "Jl. Sudirman No. 1",
+        "shift": "Pagi"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

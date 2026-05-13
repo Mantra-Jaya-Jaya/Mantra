@@ -1,0 +1,32 @@
+info:
+  name: Login
+  type: http
+  seq: 1
+
+http:
+  method: POST
+  url: "{{base_url}}api/v1/login"
+  body:
+    type: json
+    data: |-
+      {
+        "email": "admin@mantra.com",
+        "Password": "AdminMantra#1"
+      }
+  auth: inherit
+
+runtime:
+  scripts:
+    - type: after-response
+      code: |-
+        const data = res.getBody();
+
+        if (data && data.data && data.data.access_token) {
+          bru.setEnvVar("access_token", data.data.access_token);
+        }
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
