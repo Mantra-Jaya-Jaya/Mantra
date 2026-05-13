@@ -1,0 +1,32 @@
+info:
+  name: Buat Akun Kurir Internal (Oleh Admin)
+  type: http
+  seq: 4
+
+http:
+  method: POST
+  url: "{{base_url}}api/v1/admin/karyawan/kurir"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Authorization
+      value: "{{access_token}}"
+  body:
+    type: json
+    data: |
+      {
+        "username": "kurir1",
+        "email": "kurir1@mantra.com",
+        "password": "PasswordKasir123",
+        "nama_lengkap": "Kurir1",
+        "no_telp": "0812212412",
+        "alamat": "Jl. Sudirman No. 1",
+        "shift": "Pagi"
+      }
+  auth: inherit
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5

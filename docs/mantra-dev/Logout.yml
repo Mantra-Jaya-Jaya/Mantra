@@ -1,0 +1,28 @@
+info:
+  name: Logout
+  type: http
+  seq: 5
+
+http:
+  method: POST
+  url: "{{base_url}}api/v1/logout"
+  headers:
+    - name: Content-Type
+      value: application/json
+    - name: Proxy-Authenticate
+      value: Bearer{{access_token}}
+  body:
+    type: json
+    data: |
+      {
+        "refresh_token": "isi_dengan_refresh_token_hasil_login"
+      }
+  auth:
+    type: bearer
+    token: Bearer{{access_token}}
+
+settings:
+  encodeUrl: true
+  timeout: 0
+  followRedirects: true
+  maxRedirects: 5
