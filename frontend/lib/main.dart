@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'features/auth/signup.dart';
+import 'features/landing_page/landing_page.dart';
 
 // 1. TAMBAHKAN INI: Deklarasikan variabel secara global di luar class
 final RouteObserver<Route> routeObserver = RouteObserver<Route>();
@@ -19,8 +20,8 @@ class MantraApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
       // 2. TAMBAHKAN INI: Daftarkan observer agar sistem navigasi Flutter mengenalinya
-      navigatorObservers: [routeObserver], 
-      home: const SignUpScreen(),
+      navigatorObservers: [routeObserver],
+      home: const LandingPage(),
     );
   }
 }
