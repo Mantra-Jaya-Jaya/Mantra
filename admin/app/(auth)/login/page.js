@@ -15,11 +15,12 @@ export default function LoginPage() {
     setErrorMsg("");
 
     try {
-      // Nembak langsung ke API Golang lu di port 8080
-      const res = await fetch("http://localhost:8080/api/v1/login", {
+      // Nembak ke API Golang via proxy Next.js
+      const res = await fetch("/api/v1/login", {
         method: "POST",
         headers: { 
-          "Content-Type": "application/json" 
+          "Content-Type": "application/json",
+          "X-Client-Type": "nextjs"
         },
         // formData isinya udah sesuai sama { email, password }
         body: JSON.stringify(formData), 
