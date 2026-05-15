@@ -41,3 +41,14 @@ export const transactionData = Array.from({ length: 48 }).map((_, i) => ({
   total: `Rp ${(Math.floor(Math.random() * 50) + 10) * 100}.000`,
   status: i % 3 === 0 ? "Proses" : i % 5 === 0 ? "Batal" : "Selesai"
 }));
+
+// Data Dummy untuk Barang
+export const dataBarang = Array.from({ length: 48 }).map((_, i) => ({
+  id: i + 1,
+  nama: `Smartwatch Series 7`,
+  sku: `SW-7001-BLK-${1000 + i}`,
+  harga: "Rp 5.499.000,00",
+  stok: i % 7 === 0 ? 5 : 45, // Sengaja dibikin ada yang stoknya tipis
+  kategori: i % 3 === 0 ? "Aksesoris" : "Gadget",
+  gambar: "https://ui-avatars.com/api/?name=SW&background=18181b&color=fff&rounded=true" // Gambar dummy
+}));
