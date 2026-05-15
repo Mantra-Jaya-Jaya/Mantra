@@ -18,13 +18,18 @@ Proyek ini menggunakan arsitektur _Monorepo_ yang memisahkan antara sistem _Mobi
 Berikut adalah susunan ruang kerja kita. Pastikan kalian bekerja di dalam direktori yang tepat!
 
 ```text
-MANTRA-APP/
+MANTRA/
+├── admin/                 # 🖥️ Aplikasi Web Admin (Next.js)
 ├── backend/               # ⚙️ Semua kode API Server (Golang) ada di sini
 │   ├── config/            # Konfigurasi database & environment
 │   ├── controllers/       # Logika bisnis dan pemrosesan request
-│   ├── docs/              # 📄 Dokumentasi API dan ERD Database (.dbml)
+│   ├── docs/              # 📄 Dokumentasi API Lokal dan ERD Database (.dbml)
+│   ├── middleware/        # 🛡️ Middleware (Auth, Role, Ownership)
 │   ├── models/            # Struktur tabel database (Struct)
 │   ├── routes/            # Daftar endpoint API
+│   ├── seeders/           # Data awal untuk database
+│   ├── atlas.hcl          # Konfigurasi Atlas CLI
+│   ├── Makefile           # Daftar perintah Atlas CLI
 │   └── main.go            # Titik masuk utama server Go
 │
 ├── frontend/              # 📱 Semua kode UI/UX Mobile (Flutter) ada di sini
@@ -34,6 +39,11 @@ MANTRA-APP/
 |   |   ├── features/      # Halaman-halaman fitur (misal home, order)
 │   ├── pubspec.yaml       # Daftar package/library Flutter
 │   └── main.dart          # App Flow starting point
+│
+├── docs/                  # 📚 Dokumentasi Global (API Contract, RBAC, dll)
+│   ├── api-contract.md    # Kontrak API
+│   ├── security-rbac.md   # Dokumen Keamanan & RBAC
+│   └── mantra-dev/        # 📁 Koleksi API Bruno untuk Testing
 │
 └── .gitignore             # 🛡️ Penjaga file rahasia agar tidak ter-push ke GitHub
 ```
@@ -180,6 +190,124 @@ Setelah password disesuaikan dan di-save, jalankan perintah pamungkas ini di ter
     go run main.go
 
 Jika di terminal muncul tulisan: `Database Connected & Migrated Successfully!` berarti aplikasi backend sudah berjalan.
+
+### 🛠️ Setup Atlas (Alternatif Migrasi)
+Atlas CLI sebagai engine untuk menyinkronkan struktur tabel di PostgreSQL secara otomatis berdasarkan GORM Structs (Single Source of Truth) :
+
+1. **Install Atlas CLI**:
+   ```bash
+   curl -sSf https://atlasgo.sh | sh
+   ```
+   *Pastikan binary tersebut ter-export ke global/PATH Anda.*
+
+2. **Install Atlas Provider GORM**:
+   ```bash
+   go install ariga.io/atlas-provider-gorm@latest
+   ```
+
+3. **Buat Database Sandbox (`mantra_dev`)**:
+   Atlas memerlukan database "sandbox" untuk membandingkan keadaan skema. Jalankan query ini di PostgreSQL Anda untuk membuat database kosong:
+   ```sql
+   CREATE DATABASE mantra_dev;
+   ```
+
+4. **Workflow Migrasi via Makefile**:
+   Untuk menyederhanakan perintah dan otomatis membaca variabel kredensial dari file `.env`, gunakan utilitas `make`. *Pastikan terminal Anda berada di dalam folder `backend/`.*
+   
+   - **Melihat Perubahan (Diff):**
+     Menampilkan deteksi perubahan antara model Go dan database saat ini tanpa mengeksekusi apapun.
+     ```bash
+     make db-diff
+     ```
+
+   - **Simulasi Aman (Dry Run):**
+     Menampilkan *raw SQL* yang akan dieksekusi. Sangat disarankan dijalankan untuk mengecek apakah ada aksi destruktif (seperti `DROP` kolom) sebelum eksekusi final.
+     ```bash
+     make db-plan
+     ```
+
+   - **Eksekusi Mutasi (Apply):**
+     Menerapkan perubahan skema secara permanen ke database utama (`mantra_db`).
+     ```bash
+     make db-apply
+     ```
+
+5. **Inspeksi & Visualisasi Database**:
+   - **Via CLI:** Melihat representasi HCL/SQL dari tabel yang ada.
+     ```bash
+     make db-inspect
+     ```
+   - **Via Web UI (ERD):** Membuka visualisasi relasi tabel (ERD) interaktif di browser lokal Anda.
+     ```bash
+     make db-ui
+     ```
+
+File konfigurasi Atlas dapat ditemukan di `backend/atlas.hcl`. Seluruh definisi perintah di atas dapat dilihat pada file `backend/Makefile`.
+
+Untuk informasi lebih lanjut, silakan kunjungi [Dokumentasi Resmi Atlas](https://atlasgo.sh/).
+
+---
+
+## 🖥️ Setup Admin Panel (Next.js)
+
+Panel Admin adalah aplikasi web berbasis Next.js yang berjalan di port `3000` dan terhubung ke backend Golang via API Proxy internal.
+
+### Prasyarat
+- **Node.js** versi 18 ke atas
+- Backend Golang **sudah berjalan** di port `8080`
+
+### Langkah Instalasi
+
+1. **Masuk ke folder `admin/`**:
+   ```bash
+   cd admin/
+   ```
+
+2. **Install dependensi**:
+   ```bash
+   npm install
+   ```
+
+3. **Buat file konfigurasi lingkungan (Environment)**: 
+   Salin file template `.env.example` menjadi `.env.local`. File ini bersifat **pribadi** dan tidak akan ter-push ke GitHub.
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. **Sesuaikan isi `.env.local`** (buka file tersebut dengan editor):
+   
+   - Jika Anda **hanya mengakses dari browser di mesin yang sama** (`localhost`), Anda tidak perlu mengubah apapun.
+   - Jika Anda **mengakses dari HP atau perangkat lain** di jaringan lokal (Wi-Fi yang sama), isi `ALLOWED_DEV_ORIGINS` dengan IP lokal mesin Anda:
+   
+   ```env
+   # Cari IP lokal Anda dengan perintah: ip addr (Linux) atau ipconfig (Windows)
+   ALLOWED_DEV_ORIGINS=192.168.X.X
+   ```
+
+   > **Mengapa perlu ini?** Next.js Dev Server memblokir akses dari IP selain `localhost` untuk keamanan. Ini hanya diperlukan saat *development*.
+
+5. **Jalankan server development**:
+   ```bash
+   npm run dev
+   ```
+   
+   Jika berhasil, terminal akan menampilkan:
+   ```
+   ▲ Next.js 16.x.x (Turbopack)
+     - Local:   http://localhost:3000
+   ✓ Ready in Xms
+   ```
+
+6. **Buka di browser**: [http://localhost:3000](http://localhost:3000)
+
+### Troubleshooting Umum
+
+| Masalah | Kemungkinan Penyebab | Solusi |
+|---|---|---|
+| Login berhasil tapi tidak pindah halaman | Backend tidak berjalan | Pastikan `make run` di folder `backend/` sudah aktif |
+| Error `next: command not found` | Dependensi belum di-install | Jalankan `npm install` terlebih dahulu |
+| `Blocked cross-origin request` | IP belum terdaftar di `ALLOWED_DEV_ORIGINS` | Tambahkan IP Anda ke `.env.local` lalu restart `npm run dev` |
+| Grafik tidak tampil / crash | Ukuran container tidak terdeteksi | Ini sudah ditangani, pastikan versi kode sudah yang terbaru |
 
 ---
 
