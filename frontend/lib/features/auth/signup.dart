@@ -13,7 +13,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  
+
   bool _obscurePassword = true;
   bool _isFormValid = false;
 
@@ -27,7 +27,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _emailController.text.isNotEmpty &&
+      _isFormValid =
+          _emailController.text.isNotEmpty &&
           _usernameController.text.isNotEmpty &&
           _passwordController.text.isNotEmpty;
     });
@@ -58,8 +59,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Center(
                       child: Column(
                         children: [
-                          const Icon(Icons.show_chart, size: 60, color: Colors.white),
-                          const Text('MANTRA', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20)),
+                          Image.asset(
+                            'assets/images/logo_putih_notext.png', // Logo icon MANTRA
+                            width: 80,
+                          ),
+                          const Text(
+                            'MANTRA',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -79,35 +90,82 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Sign Up', style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFFB45309))),
+                            const Text(
+                              'Sign Up',
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFFB45309),
+                              ),
+                            ),
                             const SizedBox(height: 30),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 _buildStepItem("1", "Create Account", true),
-                                Container(width: 50, height: 1, color: Colors.grey[300]),
-                                _buildStepItem("2", "Fill Your Identity", false),
+                                Container(
+                                  width: 50,
+                                  height: 1,
+                                  color: Colors.grey[300],
+                                ),
+                                _buildStepItem(
+                                  "2",
+                                  "Fill Your Identity",
+                                  false,
+                                ),
                               ],
                             ),
                             const SizedBox(height: 40),
-                            _buildTextField(controller: _emailController, label: 'Email', hint: 'Email'),
+                            _buildTextField(
+                              controller: _emailController,
+                              label: 'Email',
+                              hint: 'Email',
+                            ),
                             const SizedBox(height: 20),
-                            _buildTextField(controller: _usernameController, label: 'Username', hint: 'Username'),
+                            _buildTextField(
+                              controller: _usernameController,
+                              label: 'Username',
+                              hint: 'Username',
+                            ),
                             const SizedBox(height: 20),
-                            _buildTextField(controller: _passwordController, label: 'Password', hint: 'Password', isPassword: true),
+                            _buildTextField(
+                              controller: _passwordController,
+                              label: 'Password',
+                              hint: 'Password',
+                              isPassword: true,
+                            ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: double.infinity,
                               height: 55,
                               child: ElevatedButton(
-                                onPressed: _isFormValid ? () {
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => const Signup2()));
-                                } : null,
+                                onPressed: _isFormValid
+                                    ? () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>
+                                                const Signup2(),
+                                          ),
+                                        );
+                                      }
+                                    : null,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: _isFormValid ? const Color(0xFFB45309) : const Color(0xFFCBD5E1),
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                                  backgroundColor: _isFormValid
+                                      ? const Color(0xFFB45309)
+                                      : const Color(0xFFCBD5E1),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                                child: const Text('Next', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold)),
+                                child: const Text(
+                                  'Next',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ),
                             ),
                             const Spacer(), // Dorong tulisan login ke paling bawah
@@ -120,16 +178,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                     onTap: () {
                                       Navigator.push(
                                         context,
-                                        MaterialPageRoute(builder: (context) => const LoginScreen()),
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const LoginScreen(),
+                                        ),
                                       );
                                     },
-                                    child: const Text (
+                                    child: const Text(
                                       "Login",
                                       style: TextStyle(
                                         color: Color(0xFF1E293B),
                                         fontWeight: FontWeight.bold,
                                       ),
-                                    )
+                                    ),
                                   ),
                                 ],
                               ),
@@ -153,28 +214,56 @@ class _SignUpScreenState extends State<SignUpScreen> {
       children: [
         CircleAvatar(
           radius: 18,
-          backgroundColor: isActive ? const Color(0xFFB45309) : Colors.grey[300],
-          child: Text(number, style: TextStyle(color: isActive ? Colors.white : Colors.grey)),
+          backgroundColor: isActive
+              ? const Color(0xFFB45309)
+              : Colors.grey[300],
+          child: Text(
+            number,
+            style: TextStyle(color: isActive ? Colors.white : Colors.grey),
+          ),
         ),
         const SizedBox(height: 4),
-        Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: isActive ? const Color(0xFFB45309) : Colors.grey)),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.bold,
+            color: isActive ? const Color(0xFFB45309) : Colors.grey,
+          ),
+        ),
       ],
     );
   }
 
-  Widget _buildTextField({required TextEditingController controller, required String label, required String hint, bool isPassword = false}) {
+  Widget _buildTextField({
+    required TextEditingController controller,
+    required String label,
+    required String hint,
+    bool isPassword = false,
+  }) {
     return TextField(
       controller: controller,
       obscureText: isPassword ? _obscurePassword : false,
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFB45309))),
-        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: const BorderSide(color: Color(0xFFB45309))),
-        suffixIcon: isPassword ? IconButton(
-          icon: Icon(_obscurePassword ? Icons.visibility_off : Icons.visibility),
-          onPressed: () => setState(() => _obscurePassword = !_obscurePassword),
-        ) : null,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFB45309)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFFB45309)),
+        ),
+        suffixIcon: isPassword
+            ? IconButton(
+                icon: Icon(
+                  _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                ),
+                onPressed: () =>
+                    setState(() => _obscurePassword = !_obscurePassword),
+              )
+            : null,
       ),
     );
   }
