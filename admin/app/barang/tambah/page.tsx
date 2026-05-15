@@ -2,44 +2,89 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CloudUpload, ScanLine, Trash2, Plus, ChevronRight, ChevronDown } from "lucide-react"; // Tambah ChevronDown
+import { CloudUpload, ScanLine, Trash2, Plus, ChevronRight, ChevronDown, Package, Barcode } from "lucide-react"; 
 
 export default function TambahBarangPage() {
   const router = useRouter();
   
-  // 1. STATE UNTUK FORM
+  // STATE INFORMASI DASAR
   const [media, setMedia] = useState(null);
   const [info, setInfo] = useState({ nama: "", hargaBeli: "", kategori: "", satuan: "", deskripsi: "" });
   
-  const [barcodes, setBarcodes] = useState([{ id: 1, manual: "", qty: "" }]);
-  const [spesifikasi, setSpesifikasi] = useState([{ id: 1, atribut: "", nilai: "", stok: "", hargaJual: "" }]);
+  // 🚀 STATE SPESIFIKASI (Sekarang punya array 'barcodes' di dalamnya)
+  const [spesifikasi, setSpesifikasi] = useState([
+    { 
+      id: 1, 
+      atribut: "", 
+      nilai: "", 
+      stok: "", 
+      hargaJual: "", 
+      barcodes: [{ b_id: 101, code: "", qty: "" }] // Default 1 barcode kosong
+    }
+  ]);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // --- FUNGSI FORMAT RUPIAH OTOMATIS ---
-  // Fungsi ini ngasih titik otomatis pas diketik, tapi buang huruf/simbol lain
-  const formatRupiah = (value) => {
+  const dummySatuan = ["Pcs", "Box", "Lusin", "Rim", "Pack", "Kg", "Gram"];
+  const [showSatuan, setShowSatuan] = useState(false);
+  const filteredSatuan = dummySatuan.filter(s => s.toLowerCase().includes(info.satuan.toLowerCase()));
+
+  const formatRupiah = (value: any) => {
     if (!value) return "";
-    const angkaMurni = value.toString().replace(/\D/g, ""); // Buang semua selain angka
+    const angkaMurni = value.toString().replace(/\D/g, "");
     if (!angkaMurni) return "";
-    return new Intl.NumberFormat('id-ID').format(angkaMurni); // Format gaya Indonesia (1.000)
+    return new Intl.NumberFormat('id-ID').format(angkaMurni);
   };
 
-  // --- FUNGSI DINAMIS BARCODE ---
-  const addBarcodeRow = () => setBarcodes([...barcodes, { id: Date.now(), manual: "", qty: "" }]);
-  const updateBarcode = (id, field, value) => {
-    setBarcodes(barcodes.map(b => b.id === id ? { ...b, [field]: value } : b));
+  // --- HANDLER SPESIFIKASI (VARIAN INDUK) ---
+  const addSpesifikasiRow = () => {
+    setSpesifikasi([...spesifikasi, { 
+      id: Date.now(), atribut: "", nilai: "", stok: "", hargaJual: "", 
+      barcodes: [{ b_id: Date.now() + 1, code: "", qty: "" }] 
+    }]);
   };
-
-  // --- FUNGSI DINAMIS SPESIFIKASI ---
-  const addSpesifikasiRow = () => setSpesifikasi([...spesifikasi, { id: Date.now(), atribut: "", nilai: "", stok: "", hargaJual: "" }]);
-  const removeSpesifikasiRow = (id) => setSpesifikasi(spesifikasi.filter(s => s.id !== id));
-  const updateSpesifikasi = (id, field, value) => {
+  const removeSpesifikasiRow = (id: number) => setSpesifikasi(spesifikasi.filter(s => s.id !== id));
+  const updateSpesifikasi = (id: number, field: string, value: any) => {
     setSpesifikasi(spesifikasi.map(s => s.id === id ? { ...s, [field]: value } : s));
   };
 
-  // --- LOGIKA VALIDASI & SIMPAN API ---
+  // --- 🚀 HANDLER BARCODE (SUB-VARIAN) ---
+  
+  // 🚀 Tambahin ": number" di parameter spekId
+  const addBarcodeToSpesifikasi = (spekId: number) => {
+    setSpesifikasi(spesifikasi.map(s => {
+      if (s.id === spekId) {
+        return { ...s, barcodes: [...s.barcodes, { b_id: Date.now(), code: "", qty: "" }] };
+      }
+      return s;
+    }));
+  };
+  
+  // 🚀 Tambahin ": number" di spekId dan barcodeId
+  const removeBarcodeFromSpesifikasi = (spekId: number, barcodeId: number) => {
+    setSpesifikasi(spesifikasi.map(s => {
+      if (s.id === spekId) {
+        return { ...s, barcodes: s.barcodes.filter(b => b.b_id !== barcodeId) };
+      }
+      return s;
+    }));
+  };
+  
+  // 🚀 Tambahin ": number" di spekId & barcodeId, ": string" di field, dan ": any" di value
+  const updateBarcodeInSpek = (spekId: number, barcodeId: number, field: string, value: any) => {
+    setSpesifikasi(spesifikasi.map(s => {
+      if (s.id === spekId) {
+        return {
+          ...s,
+          barcodes: s.barcodes.map(b => b.b_id === barcodeId ? { ...b, [field]: value } : b)
+        };
+      }
+      return s;
+    }));
+  };
+
+  // --- LOGIKA SIMPAN API ---
   const handleSimpan = async () => {
     setErrorMsg("");
 
@@ -47,23 +92,16 @@ export default function TambahBarangPage() {
       return setErrorMsg("Semua kolom Informasi Barang wajib diisi (kecuali deskripsi).");
     }
 
-    const spekValid = spesifikasi.every(s => s.atribut && s.nilai && s.stok && s.hargaJual);
-    if (!spekValid || spesifikasi.length === 0) {
-      return setErrorMsg("Lengkapi semua kolom pada Spesifikasi Barang.");
-    }
-
     setLoading(true);
 
     try {
-      // Data siap dikirim ke API Golang (Angkanya tetep murni ya bro, nggak ada titiknya pas dikirim)
       const payload = {
         media: media,
         informasi_barang: info,
-        barcode: barcodes,
-        spesifikasi: spesifikasi
+        spesifikasi: spesifikasi 
       };
 
-      console.log("Data siap dikirim ke API:", payload);
+      console.log("Payload disiapkan:", JSON.stringify(payload, null, 2));
 
       setTimeout(() => {
         router.push("/barang");
@@ -78,9 +116,8 @@ export default function TambahBarangPage() {
 
   return (
     <div className="w-full pb-12"> 
-      {/* ☝️ max-w-[1200px] dan mx-auto Kak Gem hapus biar marginnya sama kayak halaman sebelumnya */}
       
-      {/* HEADER & BREADCRUMB */}
+      {/* Header Halaman */}
       <div className="flex justify-between items-end mb-8">
         <div>
           <h1 className="text-3xl font-bold text-zinc-900 mb-2">Tambah Barang Baru</h1>
@@ -96,8 +133,7 @@ export default function TambahBarangPage() {
             Batal
           </Link>
           <button 
-            onClick={handleSimpan}
-            disabled={loading}
+            onClick={handleSimpan} disabled={loading}
             className="px-6 py-2.5 bg-[#AF520C] text-white rounded-lg text-sm font-bold hover:bg-[#8e4209] transition shadow-sm disabled:opacity-50"
           >
             {loading ? "Menyimpan..." : "Simpan Perubahan"}
@@ -105,69 +141,27 @@ export default function TambahBarangPage() {
         </div>
       </div>
 
-      {/* ERROR MESSAGE BAR */}
       {errorMsg && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-semibold">
           ⚠️ {errorMsg}
         </div>
       )}
 
-      {/* GRID ATAS: MEDIA & BARCODE */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-        
-        {/* MEDIA PRODUK (Kiri) */}
-        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm lg:col-span-2">
-          <h2 className="text-lg font-bold text-zinc-800 mb-4">Media Produk</h2>
-          <div className="w-full border-2 border-dashed border-zinc-300 rounded-xl p-12 flex flex-col items-center justify-center text-center hover:bg-zinc-50 transition cursor-pointer">
-            <div className="w-12 h-12 bg-orange-50 text-[#AF520C] rounded-full flex items-center justify-center mb-4">
-              <CloudUpload size={24} />
-            </div>
-            <p className="font-bold text-zinc-700 mb-1">Unggah Foto Produk</p>
-            <p className="text-sm text-zinc-400 max-w-xs">Tarik dan lepas gambar di sini, atau klik untuk memilih file. Gunakan format JPG, PNG (Maks. 5MB).</p>
+      {/* MEDIA PRODUK */}
+      <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm mb-6">
+        <h2 className="text-lg font-bold text-zinc-800 mb-4">Media Produk</h2>
+        <div className="w-full border-2 border-dashed border-zinc-300 rounded-xl p-12 flex flex-col items-center justify-center text-center hover:bg-zinc-50 transition cursor-pointer">
+          <div className="w-12 h-12 bg-orange-50 text-[#AF520C] rounded-full flex items-center justify-center mb-4">
+            <CloudUpload size={24} />
           </div>
-        </div>
-
-        {/* SCAN BARCODE (Kanan) */}
-        <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm lg:col-span-1">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-lg font-bold text-zinc-800">Scan Barcode</h2>
-            <button onClick={addBarcodeRow} className="text-[#AF520C] text-xs font-bold flex items-center gap-1 hover:underline">
-              <Plus size={14} /> Tambah Atribut
-            </button>
-          </div>
-
-          <div className="flex flex-col gap-4 mb-6">
-            {barcodes.map((item, index) => (
-              <div key={item.id} className="flex gap-4">
-                <div className="flex-1">
-                  {index === 0 && <label className="text-xs font-bold text-zinc-600 mb-2 block">Barcode manual</label>}
-                  <input type="text" className="w-full border border-zinc-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-[#AF520C]" 
-                    value={item.manual} onChange={(e) => updateBarcode(item.id, "manual", e.target.value)} />
-                </div>
-                <div className="w-1/3">
-                  {index === 0 && <label className="text-xs font-bold text-zinc-600 mb-2 block">Kuantitas</label>}
-                  <input type="number" className="w-full border border-zinc-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-[#AF520C]" 
-                    value={item.qty} onChange={(e) => updateBarcode(item.id, "qty", e.target.value)} />
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex items-center gap-4 mb-6">
-            <div className="h-px bg-zinc-200 flex-1"></div>
-            <span className="text-xs font-bold text-zinc-400">ATAU</span>
-            <div className="h-px bg-zinc-200 flex-1"></div>
-          </div>
-
-          <button className="w-full py-3 border-2 border-dashed border-[#AF520C] text-[#AF520C] rounded-lg font-bold text-sm flex items-center justify-center gap-2 hover:bg-orange-50 transition">
-            <ScanLine size={18} /> Scan dengan Kamera
-          </button>
+          <p className="font-bold text-zinc-700 mb-1">Unggah Foto Produk</p>
+          <p className="text-sm text-zinc-400 max-w-xs">Tarik dan lepas gambar di sini, atau klik untuk memilih file. Gunakan format JPG, PNG (Maks. 5MB).</p>
         </div>
       </div>
 
-      {/* TENGAH: INFORMASI BARANG */}
+      {/* INFORMASI BARANG */}
       <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm mb-6">
-        <h2 className="text-lg font-bold text-zinc-800 mb-6">Informasi Barang</h2>
+        <h2 className="text-lg font-bold text-zinc-800 mb-6">Informasi Dasar Barang</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="text-sm font-bold text-zinc-600 mb-2 block">Nama barang</label>
@@ -175,22 +169,15 @@ export default function TambahBarangPage() {
               value={info.nama} onChange={(e) => setInfo({ ...info, nama: e.target.value })} />
           </div>
           
-          {/* UANG TOTAL HARGA BELI - Otomatis Format */}
           <div>
-            <label className="text-sm font-bold text-zinc-600 mb-2 block">Total Harga Beli</label>
+            <label className="text-sm font-bold text-zinc-600 mb-2 block">Total Harga Beli (Modal Induk)</label>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-sm">Rp</span>
-              <input 
-                type="text" // Diganti type text biar titiknya jalan
-                placeholder="0" 
-                className="w-full border border-zinc-200 rounded-lg p-3 pl-10 text-sm focus:outline-none focus:border-[#AF520C]" 
-                value={formatRupiah(info.hargaBeli)} 
-                onChange={(e) => setInfo({ ...info, hargaBeli: e.target.value.replace(/\D/g, "") })} 
-              />
+              <input type="text" placeholder="0" className="w-full border border-zinc-200 rounded-lg p-3 pl-10 text-sm focus:outline-none focus:border-[#AF520C]" 
+                value={formatRupiah(info.hargaBeli)} onChange={(e) => setInfo({ ...info, hargaBeli: e.target.value.replace(/\D/g, "") })} />
             </div>
           </div>
 
-          {/* DROPDOWN KATEGORI */}
           <div>
             <label className="text-sm font-bold text-zinc-600 mb-2 block">Kategori</label>
             <div className="relative">
@@ -204,18 +191,10 @@ export default function TambahBarangPage() {
             </div>
           </div>
 
-          {/* DROPDOWN SATUAN */}
           <div>
-            <label className="text-sm font-bold text-zinc-600 mb-2 block">Satuan</label>
-            <div className="relative">
-              <select className="w-full border border-zinc-200 rounded-lg p-3 pr-10 text-sm focus:outline-none focus:border-[#AF520C] appearance-none bg-white cursor-pointer"
-                value={info.satuan} onChange={(e) => setInfo({ ...info, satuan: e.target.value })}>
-                <option value="" disabled>Pilih satuan</option>
-                <option value="Pcs">Pcs</option>
-                <option value="Box">Box</option>
-              </select>
-              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 pointer-events-none" size={18} />
-            </div>
+            <label className="text-sm font-bold text-zinc-600 mb-2 block">Satuan Dasar</label>
+            <input type="text" placeholder="Pcs, Box, dll..." className="w-full border border-zinc-200 rounded-lg p-3 text-sm focus:outline-none focus:border-[#AF520C]"
+              value={info.satuan} onChange={(e) => setInfo({ ...info, satuan: e.target.value })} />
           </div>
         </div>
 
@@ -226,41 +205,99 @@ export default function TambahBarangPage() {
         </div>
       </div>
 
-      {/* BAWAH: SPESIFIKASI BARANG */}
+      {/* SPESIFIKASI BARANG & BARCODE (UI BERTINGKAT) */}
       <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-lg font-bold text-zinc-800">Spesifikasi barang</h2>
-          <button onClick={addSpesifikasiRow} className="text-[#AF520C] text-sm font-bold flex items-center gap-1 hover:underline">
-            <Plus size={16} /> Tambah Atribut
+          <h2 className="text-lg font-bold text-zinc-800 flex items-center gap-2">
+            <Package size={20} className="text-[#AF520C]" />
+            Spesifikasi & Relasi Barcode
+          </h2>
+          <button onClick={addSpesifikasiRow} className="px-4 py-2 bg-orange-50 text-[#AF520C] rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-orange-100 transition">
+            <Plus size={16} /> Tambah Varian
           </button>
         </div>
 
-        <div className="flex flex-col gap-4">
-          {spesifikasi.map((item) => (
-            <div key={item.id} className="flex flex-col md:flex-row gap-4 items-center">
-              <input type="text" placeholder="Nama Atribut (Merek, Warna, dll)" className="flex-1 w-full border border-zinc-200 rounded-lg p-3 text-sm focus:outline-none focus:border-[#AF520C]"
-                value={item.atribut} onChange={(e) => updateSpesifikasi(item.id, "atribut", e.target.value)} />
+        <div className="flex flex-col gap-6">
+          {spesifikasi.map((item, index) => (
+            <div key={item.id} className="border border-zinc-200 rounded-xl overflow-hidden bg-white shadow-sm group">
               
-              <input type="text" placeholder="Nilai (Samsung, Merah, dll)" className="flex-1 w-full border border-zinc-200 rounded-lg p-3 text-sm focus:outline-none focus:border-[#AF520C]"
-                value={item.nilai} onChange={(e) => updateSpesifikasi(item.id, "nilai", e.target.value)} />
-              
-              <input type="number" placeholder="Stok Barang" className="w-full md:w-32 border border-zinc-200 rounded-lg p-3 text-sm focus:outline-none focus:border-[#AF520C]"
-                value={item.stok} onChange={(e) => updateSpesifikasi(item.id, "stok", e.target.value)} />
-              
-              {/* UANG HARGA JUAL - Otomatis Format */}
-              <input 
-                type="text" 
-                placeholder="Harga Jual" 
-                className="w-full md:w-48 border border-zinc-200 rounded-lg p-3 text-sm focus:outline-none focus:border-[#AF520C]"
-                value={formatRupiah(item.hargaJual)} 
-                onChange={(e) => updateSpesifikasi(item.id, "hargaJual", e.target.value.replace(/\D/g, ""))} 
-              />
-              
-              {spesifikasi.length > 1 && (
-                <button onClick={() => removeSpesifikasiRow(item.id)} className="p-3 text-red-500 hover:bg-red-50 rounded-lg transition">
-                  <Trash2 size={20} />
+              {/* BAGIAN ATAS: Info Varian (Putih) */}
+              <div className="p-5 border-b border-zinc-200">
+                <div className="flex justify-between items-center mb-4">
+                  <h3 className="text-sm font-bold text-zinc-700 bg-zinc-100 px-3 py-1 rounded-full">Varian {index + 1}</h3>
+                  {spesifikasi.length > 1 && (
+                    <button onClick={() => removeSpesifikasiRow(item.id)} className="text-red-500 hover:text-red-700 transition flex items-center gap-1 text-xs font-bold">
+                      <Trash2 size={14} /> Hapus Varian
+                    </button>
+                  )}
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-zinc-600 mb-2 block">Nama Atribut</label>
+                    <input type="text" placeholder="Cth: Ukuran / Rasa" className="w-full border border-zinc-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-[#AF520C]"
+                      value={item.atribut} onChange={(e) => updateSpesifikasi(item.id, "atribut", e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-600 mb-2 block">Nilai Atribut</label>
+                    <input type="text" placeholder="Cth: 100ml / Pedas" className="w-full border border-zinc-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-[#AF520C]"
+                      value={item.nilai} onChange={(e) => updateSpesifikasi(item.id, "nilai", e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-600 mb-2 block">Total Stok Fisik</label>
+                    <input type="number" placeholder="0" className="w-full border border-zinc-200 rounded-lg p-2.5 text-sm focus:outline-none focus:border-[#AF520C]"
+                      value={item.stok} onChange={(e) => updateSpesifikasi(item.id, "stok", e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold text-zinc-600 mb-2 block">Harga Jual Dasar</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-semibold">Rp</span>
+                      <input type="text" placeholder="0" className="w-full border border-zinc-200 rounded-lg p-2.5 pl-8 text-sm focus:outline-none focus:border-[#AF520C]"
+                        value={formatRupiah(item.hargaJual)} onChange={(e) => updateSpesifikasi(item.id, "hargaJual", e.target.value.replace(/\D/g, ""))} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* BAGIAN BAWAH: Daftar Barcode (Abu-abu muda) */}
+              <div className="p-5 bg-zinc-50">
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-xs font-bold text-zinc-600 flex items-center gap-1.5">
+                    <Barcode size={14} /> Pemetaan Barcode & Kuantitas
+                  </label>
+                </div>
+                
+                <div className="flex flex-col gap-3">
+                  {item.barcodes.map((bc, bcIndex) => (
+                    <div key={bc.b_id} className="flex items-center gap-3">
+                      <div className="relative flex-1">
+                        <input type="text" placeholder="Scan atau Ketik Barcode/SKU..." className="w-full border border-zinc-300 rounded-lg p-2.5 pl-3 text-sm focus:outline-none focus:border-[#AF520C] bg-white"
+                          value={bc.code} onChange={(e) => updateBarcodeInSpek(item.id, bc.b_id, "code", e.target.value)} />
+                        <button className="absolute right-0 top-0 h-full px-3 text-zinc-400 hover:text-[#AF520C] border-l border-zinc-200" title="Scan Barcode">
+                          <ScanLine size={16} />
+                        </button>
+                      </div>
+                      
+                      <div className="w-32 relative">
+                        <input type="number" placeholder="Qty" className="w-full border border-zinc-300 rounded-lg p-2.5 pr-8 text-sm focus:outline-none focus:border-[#AF520C] bg-white"
+                          value={bc.qty} onChange={(e) => updateBarcodeInSpek(item.id, bc.b_id, "qty", e.target.value)} />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-400 font-bold">Qty</span>
+                      </div>
+
+                      {item.barcodes.length > 1 && (
+                        <button onClick={() => removeBarcodeFromSpesifikasi(item.id, bc.b_id)} className="p-2.5 text-zinc-400 hover:text-red-500 transition">
+                          <Trash2 size={18} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <button onClick={() => addBarcodeToSpesifikasi(item.id)} className="mt-4 text-[#AF520C] text-xs font-bold flex items-center gap-1 hover:underline">
+                  <Plus size={14} /> Tambah Relasi Barcode Lain
                 </button>
-              )}
+              </div>
+
             </div>
           ))}
         </div>

@@ -41,10 +41,16 @@ export default function BarangPage() {
           <h1 className="text-3xl font-bold text-zinc-900 mb-2">Daftar Barang</h1>
           <p className="text-sm text-zinc-500">Kelola produk, harga, dan stok inventaris Anda.</p>
         </div>
-        <Link href="/barang/tambah" className="flex items-center gap-2 bg-[#AF520C] hover:bg-[#8e4209] text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">
-          <Plus size={18} />
-          Tambah Barang
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link href="/barang/kategori" className="flex items-center gap-2 bg-white border border-zinc-200 text-zinc-700 hover:bg-zinc-50 px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+            <Plus size={18} />
+            Kategori
+          </Link>
+          <Link href="/barang/tambah" className="flex items-center gap-2 bg-[#AF520C] hover:bg-[#8e4209] text-white px-4 py-2.5 rounded-lg text-sm font-semibold transition-colors shadow-sm">
+            <Plus size={18} />
+            Tambah Barang
+          </Link>
+        </div>
       </div>
 
       {/* Filter Bar (Kotak Putih di atas tabel) */}
