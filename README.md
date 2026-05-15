@@ -248,6 +248,69 @@ Untuk informasi lebih lanjut, silakan kunjungi [Dokumentasi Resmi Atlas](https:/
 
 ---
 
+## 🖥️ Setup Admin Panel (Next.js)
+
+Panel Admin adalah aplikasi web berbasis Next.js yang berjalan di port `3000` dan terhubung ke backend Golang via API Proxy internal.
+
+### Prasyarat
+- **Node.js** versi 18 ke atas
+- Backend Golang **sudah berjalan** di port `8080`
+
+### Langkah Instalasi
+
+1. **Masuk ke folder `admin/`**:
+   ```bash
+   cd admin/
+   ```
+
+2. **Install dependensi**:
+   ```bash
+   npm install
+   ```
+
+3. **Buat file konfigurasi lingkungan (Environment)**: 
+   Salin file template `.env.example` menjadi `.env.local`. File ini bersifat **pribadi** dan tidak akan ter-push ke GitHub.
+   ```bash
+   cp .env.example .env.local
+   ```
+
+4. **Sesuaikan isi `.env.local`** (buka file tersebut dengan editor):
+   
+   - Jika Anda **hanya mengakses dari browser di mesin yang sama** (`localhost`), Anda tidak perlu mengubah apapun.
+   - Jika Anda **mengakses dari HP atau perangkat lain** di jaringan lokal (Wi-Fi yang sama), isi `ALLOWED_DEV_ORIGINS` dengan IP lokal mesin Anda:
+   
+   ```env
+   # Cari IP lokal Anda dengan perintah: ip addr (Linux) atau ipconfig (Windows)
+   ALLOWED_DEV_ORIGINS=192.168.X.X
+   ```
+
+   > **Mengapa perlu ini?** Next.js Dev Server memblokir akses dari IP selain `localhost` untuk keamanan. Ini hanya diperlukan saat *development*.
+
+5. **Jalankan server development**:
+   ```bash
+   npm run dev
+   ```
+   
+   Jika berhasil, terminal akan menampilkan:
+   ```
+   ▲ Next.js 16.x.x (Turbopack)
+     - Local:   http://localhost:3000
+   ✓ Ready in Xms
+   ```
+
+6. **Buka di browser**: [http://localhost:3000](http://localhost:3000)
+
+### Troubleshooting Umum
+
+| Masalah | Kemungkinan Penyebab | Solusi |
+|---|---|---|
+| Login berhasil tapi tidak pindah halaman | Backend tidak berjalan | Pastikan `make run` di folder `backend/` sudah aktif |
+| Error `next: command not found` | Dependensi belum di-install | Jalankan `npm install` terlebih dahulu |
+| `Blocked cross-origin request` | IP belum terdaftar di `ALLOWED_DEV_ORIGINS` | Tambahkan IP Anda ke `.env.local` lalu restart `npm run dev` |
+| Grafik tidak tampil / crash | Ukuran container tidak terdeteksi | Ini sudah ditangani, pastikan versi kode sudah yang terbaru |
+
+---
+
 ## 🤝 Aturan Main Pembagian Tugas
 
 - Buat file struct (tabel) baru hanya di dalam folder `models/`.
