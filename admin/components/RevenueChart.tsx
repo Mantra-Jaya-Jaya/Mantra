@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function RevenueChart({ rawData }) {
+export default function RevenueChart({ rawData }: { rawData: any[] }) {
   const [periode, setPeriode] = useState('minggu');
   const [currentDate, setCurrentDate] = useState(new Date()); // Start dari hari ini
 
@@ -107,7 +107,7 @@ export default function RevenueChart({ rawData }) {
   };
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm h-[400px]">
+    <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm h-100">
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="font-bold text-zinc-800 text-lg">Revenue Over Time</h3>
@@ -120,7 +120,7 @@ export default function RevenueChart({ rawData }) {
             <button onClick={handlePrev} className="p-1 hover:bg-white rounded shadow-sm text-zinc-600 transition">
               <ChevronLeft size={18} />
             </button>
-            <span className="text-sm font-semibold text-zinc-700 min-w-[140px] text-center">
+            <span className="text-sm font-semibold text-zinc-700 min-w-35 text-center">
               {getLabelTanggal()}
             </span>
             <button onClick={handleNext} className="p-1 hover:bg-white rounded shadow-sm text-zinc-600 transition">
@@ -143,7 +143,7 @@ export default function RevenueChart({ rawData }) {
         </div>
       </div>
 
-      <div className="w-full h-[250px] mt-4">
+      <div className="w-full h-62.5 mt-4">
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
           <BarChart data={chartDataToShow}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
@@ -152,7 +152,7 @@ export default function RevenueChart({ rawData }) {
             <Tooltip 
               cursor={{fill: '#f9fafb'}} 
               contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-              formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, 'Total Revenue']}
+              formatter={(value) => [`Rp ${Number(value || 0).toLocaleString('id-ID')}`, 'Total Revenue']}
             />
             <Bar dataKey="total" fill="#a8571d" radius={[6, 6, 0, 0]} barSize={40} />
           </BarChart>

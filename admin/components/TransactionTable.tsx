@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Search } from 'lucide-react';
 
-export default function TransactionTable({ data }) {
+export default function TransactionTable({ data }: { data: any[] }) {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
@@ -114,7 +114,7 @@ export default function TransactionTable({ data }) {
               return (
                 <button 
                   key={index} 
-                  onClick={() => setCurrentPage(page)}
+                  onClick={() => setCurrentPage(Number(page))}
                   className={`w-8 h-8 flex items-center justify-center rounded-lg ${currentPage === page ? 'bg-[#c26027] text-white font-bold' : 'hover:bg-zinc-100'}`}
                 >
                   {page}
