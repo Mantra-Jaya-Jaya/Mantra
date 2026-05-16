@@ -1,6 +1,6 @@
 import { Package } from 'lucide-react';
 
-export default function CriticalStock({ data }) {
+export default function CriticalStock({ data }: { data: any[] }) {
   // Urutkan dari stok terkecil, lalu ambil 4 data saja
   const limitedData = [...data].sort((a, b) => a.sisa - b.sisa).slice(0, 4);
 

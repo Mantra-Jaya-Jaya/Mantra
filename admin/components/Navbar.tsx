@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { Bell, LogOut } from 'lucide-react'; // Tambah icon LogOut
+import { Bell, LogOut } from 'lucide-react';
+import Image from "next/image";
 
 export default function Navbar() {
   const pathname = usePathname(); 
@@ -31,9 +32,13 @@ export default function Navbar() {
     <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-sm relative z-40">
       {/* Logo Kiri */}
       <div className="flex items-center gap-2">
-        <div className="w-8 h-8 bg-[#AF520C] rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold text-xl italic">M</span>
-        </div>
+        <Image 
+          src="/logo_mantra.png" 
+          alt="Logo Mantra" 
+          width={32} 
+          height={32} 
+          className="object-contain" 
+        />
         <span className="text-xl font-bold text-zinc-800">Mantra</span>
       </div>
       
@@ -52,9 +57,9 @@ export default function Navbar() {
         </div>
         
         <div className="flex items-center gap-4 border-l border-zinc-200 pl-6">
-          <button className="p-2 bg-zinc-50 rounded-full text-zinc-500 hover:bg-zinc-100 transition">
+          <Link href="/notifikasi" className="p-2 bg-zinc-50 rounded-full text-zinc-500 hover:bg-zinc-100 transition">
             <Bell size={18} />
-          </button>
+          </Link>
           
           {/* PROFILE SECTION DENGAN DROPDOWN */}
           <div className="relative">

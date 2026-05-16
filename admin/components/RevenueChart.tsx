@@ -3,7 +3,7 @@ import { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function RevenueChart({ rawData }) {
+export default function RevenueChart({ rawData }: { rawData: any[] }) {
   const [periode, setPeriode] = useState('minggu');
   const [currentDate, setCurrentDate] = useState(new Date()); // Start dari hari ini
 
@@ -152,7 +152,7 @@ export default function RevenueChart({ rawData }) {
             <Tooltip 
               cursor={{fill: '#f9fafb'}} 
               contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)' }}
-              formatter={(value) => [`Rp ${value.toLocaleString('id-ID')}`, 'Total Revenue']}
+              formatter={(value) => [`Rp ${Number(value || 0).toLocaleString('id-ID')}`, 'Total Revenue']}
             />
             <Bar dataKey="total" fill="#a8571d" radius={[6, 6, 0, 0]} barSize={40} />
           </BarChart>

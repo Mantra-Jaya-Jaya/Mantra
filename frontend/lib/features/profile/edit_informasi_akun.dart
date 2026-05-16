@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'berhasil_edit_info.dart';
+import 'package:frontend/features/profile/edit_informasi_akun.dart';
 
 class EditInformasiAkun extends StatefulWidget {
   const EditInformasiAkun({super.key});

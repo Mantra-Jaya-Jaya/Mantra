@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'edit_informasi_akun.dart';
+import 'ubah_password.dart';
+import 'tambah_alamat.dart';
 
 class Profil extends StatefulWidget {
   const Profil({super.key});
@@ -9,15 +11,14 @@ class Profil extends StatefulWidget {
 }
 
 class _ProfilState extends State<Profil> {
-  void _showSuccessDialog() {
+  // Fungsi Dialog Reusable - Bisa dipakai untuk Edit Profil maupun Ubah Password
+  void _showSuccessDialog({required String title, required String message}) {
     showDialog(
       context: context,
-      barrierDismissible: false, // User wajib klik OK
+      barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
           child: Container(
             width: 300,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
@@ -28,57 +29,43 @@ class _ProfilState extends State<Profil> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // ICON
                 Container(
                   padding: const EdgeInsets.all(14),
                   decoration: BoxDecoration(
                     color: const Color(0x33AF510C),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const Icon(
-                    Icons.check_circle,
-                    color: Color(0xFFAF510C),
-                    size: 42,
-                  ),
+                  child: const Icon(Icons.check_circle, color: Color(0xFFAF510C), size: 42),
                 ),
                 const SizedBox(height: 18),
-                // TITLE
-                const Text(
-                  "Data berhasil\ndiubah!",
+                Text(
+                  title,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Color(0xFFAF510C),
                     fontSize: 22,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 12),
-                // SUBTITLE
-                const Text(
-                  "Perubahan profil Anda telah\nberhasil disimpan.",
+                Text(
+                  message,
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
                 ),
                 const SizedBox(height: 25),
-                // BUTTON
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
-                    onPressed: () => Navigator.pop(context), // Tutup popup saja
+                    onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFAF510C),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                     ),
                     child: const Text(
                       "OK",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                   ),
                 ),
@@ -94,55 +81,32 @@ class _ProfilState extends State<Profil> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-
-      // ================= BODY =================
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // ================= HEADER =================
+              // Header
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
-                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 color: const Color(0xFFAF510C),
                 child: const Text(
                   "Profil Saya",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // ================= FOTO PROFIL =================
-              CircleAvatar(
+              const CircleAvatar(
                 radius: 55,
                 backgroundImage: AssetImage("assets/images/profile.jpg"),
               ),
-
               const SizedBox(height: 12),
-
-              const Text(
-                "Aarav Lysander",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
-              ),
-
+              const Text("Aarav Lysander", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
               const SizedBox(height: 4),
-
-              const Text(
-                "lysander@gmail.com",
-                style: TextStyle(color: Colors.grey),
-              ),
-
+              const Text("lysander@gmail.com", style: TextStyle(color: Colors.grey)),
               const SizedBox(height: 24),
 
-              // ================= INFORMASI AKUN =================
+              // Informasi Akun
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(16),
@@ -152,72 +116,39 @@ class _ProfilState extends State<Profil> {
                 ),
                 child: Column(
                   children: [
-                    // HEADER CARD
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         const Text(
                           "Informasi Akun",
-                          style: TextStyle(
-                            color: Color(0xFFAF510C),
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                          style: TextStyle(color: Color(0xFFAF510C), fontSize: 20, fontWeight: FontWeight.bold),
                         ),
-
                         OutlinedButton.icon(
                           onPressed: () async {
-                            // 1. Pergi ke halaman edit dan tunggu hasilnya
                             final result = await Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const EditInformasiAkun(),
-                              ),
+                              MaterialPageRoute(builder: (context) => const EditInformasiAkun()),
                             );
-
-                            // 2. Jika kembali dengan membawa data 'success', munculkan popup
                             if (result == 'success') {
-                              _showSuccessDialog();
+                              _showSuccessDialog(
+                                title: "Data berhasil\ndiubah!",
+                                message: "Perubahan profil Anda telah\nberhasil disimpan.",
+                              );
                             }
                           },
-                          icon: const Icon(
-                            Icons.edit,
-                            size: 16,
-                            color: Color(0xFFAF510C),
-                          ),
-                          label: const Text(
-                            "Edit",
-                            style: TextStyle(color: Color(0xFFAF510C)),
-                          ),
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: Color(0xFFAF510C)),
-                          ),
+                          icon: const Icon(Icons.edit, size: 16, color: Color(0xFFAF510C)),
+                          label: const Text("Edit", style: TextStyle(color: Color(0xFFAF510C))),
+                          style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFAF510C))),
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 20),
-
-                    buildInfoTile(
-                      Icons.person_outline,
-                      "Nama Lengkap",
-                      "Aarav Lysander",
-                    ),
-
-                    buildInfoTile(
-                      Icons.phone,
-                      "Nomor Telephone",
-                      "+62 89000000000",
-                    ),
-
-                    buildInfoTile(
-                      Icons.email_outlined,
-                      "Email",
-                      "lysander@gmail.com",
-                    ),
-
+                    buildInfoTile(Icons.person_outline, "Nama Lengkap", "Aarav Lysander"),
+                    buildInfoTile(Icons.phone, "Nomor Telephone", "+62 89000000000"),
+                    buildInfoTile(Icons.email_outlined, "Email", "lysander@gmail.com"),
                     buildInfoTile(Icons.key_outlined, "Username", "@aarav_"),
-
+                    
+                    // Baris Password
                     Row(
                       children: [
                         Container(
@@ -228,104 +159,36 @@ class _ProfilState extends State<Profil> {
                           ),
                           child: const Icon(Icons.lock_outline),
                         ),
-
                         const SizedBox(width: 12),
-
-                        const Expanded(
-                          child: Text(
-                            "Password",
-                            style: TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                        ),
-
+                        const Expanded(child: Text("Password", style: TextStyle(fontWeight: FontWeight.bold))),
                         ElevatedButton(
-                          onPressed: () {},
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFAF510C),
-                          ),
-                          child: const Text(
-                            "Ubah",
-                            style: TextStyle(color: Colors.white),
-                          ),
+                          onPressed: () async {
+                            // Menunggu sinyal 'true' dari halaman UbahPassword
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const UbahPassword()),
+                            );
+                            if (result == true) {
+                              _showSuccessDialog(
+                                title: "Password berhasil\ndiubah!",
+                                message: "Perubahan password Anda telah\nberhasil disimpan.",
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAF510C)),
+                          child: const Text("Ubah", style: TextStyle(color: Colors.white)),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // ================= DAFTAR ALAMAT =================
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAEFEF),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  children: [
-                    const Text(
-                      "Daftar Alamat",
-                      style: TextStyle(
-                        color: Color(0xFFAF510C),
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-
-                    const SizedBox(height: 20),
-
-                    buildAddressCard(
-                      "Cozy House",
-                      "Jl. Cempaka Putih No. 12, RT 04/RW 02, Semarang Tengah",
-                      true,
-                    ),
-
-                    const SizedBox(height: 14),
-
-                    buildAddressCard(
-                      "Sujarwo Shockbreaker",
-                      "Jl. Sumurboto No. 04, Kota Semarang",
-                      false,
-                    ),
-
-                    const SizedBox(height: 16),
-
-                    TextButton(
-                      onPressed: () {},
-                      child: const Text(
-                        "+ Tambah Alamat Baru",
-                        style: TextStyle(
-                          color: Color(0xFFAF510C),
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
+              
+              // Daftar Alamat & Logout (Tetap sama)
+              _buildDaftarAlamat(),
               const SizedBox(height: 20),
-
-              // ================= LOGOUT =================
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.logout, color: Color(0xFFAF510C)),
-                  label: const Text(
-                    "Keluar dari Akun",
-                    style: TextStyle(color: Color(0xFFAF510C)),
-                  ),
-                  style: OutlinedButton.styleFrom(
-                    minimumSize: const Size(double.infinity, 50),
-                    side: const BorderSide(color: Color(0xFFAF510C)),
-                  ),
-                ),
-              ),
-
+              _buildLogoutButton(),
               const SizedBox(height: 20),
             ],
           ),
@@ -334,7 +197,7 @@ class _ProfilState extends State<Profil> {
     );
   }
 
-  // ================= TILE INFO =================
+  // Widget pendukung agar kode build utama tidak terlalu panjang
   Widget buildInfoTile(IconData icon, String title, String subtitle) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -348,16 +211,12 @@ class _ProfilState extends State<Profil> {
             ),
             child: Icon(icon),
           ),
-
           const SizedBox(width: 12),
-
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-
               const SizedBox(height: 2),
-
               Text(subtitle, style: const TextStyle(color: Colors.grey)),
             ],
           ),
@@ -366,14 +225,44 @@ class _ProfilState extends State<Profil> {
     );
   }
 
-  // ================= CARD ALAMAT =================
+  Widget _buildDaftarAlamat() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(color: const Color(0xFFEAEFEF), borderRadius: BorderRadius.circular(18)),
+      child: Column(
+        children: [
+          const Text("Daftar Alamat", style: TextStyle(color: Color(0xFFAF510C), fontSize: 20, fontWeight: FontWeight.bold)),
+          const SizedBox(height: 20),
+          buildAddressCard("Cozy House", "Jl. Cempaka Putih No. 12, RT 04/RW 02, Semarang Tengah", true),
+          const SizedBox(height: 14),
+          buildAddressCard("Sujarwo Shockbreaker", "Jl. Sumurboto No. 04, Kota Semarang", false),
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () async {
+              //Menunggu hasil dari halaman TambahAlamat
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlamatBaru()),
+              );
+
+              // Jika AlamatBaru mengembalikan string 'succes', tampilkan dialog
+              if (result == 'success') {
+                _showSuccessDialog(
+                  title: "Alamat berhasil\ndisimpan!",
+                  message: "Alamat baru Anda telah\nberhasil ditambahkan.",
+                );
+              }
+            }, child: const Text("+ Tambah Alamat Baru", style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.bold))),
+        ],
+      ),
+    );
+  }
+
   Widget buildAddressCard(String title, String address, bool isPrimary) {
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(14),
-      ),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -381,64 +270,29 @@ class _ProfilState extends State<Profil> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-
               if (isPrimary)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: const Color(0x33AF510C),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Text(
-                    "Utama",
-                    style: TextStyle(
-                      color: Color(0xFFAF510C),
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0x33AF510C), borderRadius: BorderRadius.circular(10)),
+                  child: const Text("Utama", style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.bold)),
                 ),
             ],
           ),
-
           const SizedBox(height: 8),
-
           Text(address, style: const TextStyle(color: Colors.grey)),
-
-          const SizedBox(height: 12),
-
-          Row(
-            children: [
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.edit, size: 18),
-                  label: const Text("Edit"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFFAF510C),
-                    side: const BorderSide(color: Color(0xFFAF510C)),
-                  ),
-                ),
-              ),
-
-              const SizedBox(width: 10),
-
-              Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {},
-                  icon: const Icon(Icons.delete, size: 18),
-                  label: const Text("Hapus"),
-                  style: OutlinedButton.styleFrom(
-                    foregroundColor: Colors.red,
-                    side: const BorderSide(color: Colors.red),
-                  ),
-                ),
-              ),
-            ],
-          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: OutlinedButton.icon(
+        onPressed: () {},
+        icon: const Icon(Icons.logout, color: Color(0xFFAF510C)),
+        label: const Text("Keluar dari Akun", style: TextStyle(color: Color(0xFFAF510C))),
+        style: OutlinedButton.styleFrom(minimumSize: const Size(double.infinity, 50), side: const BorderSide(color: Color(0xFFAF510C))),
       ),
     );
   }
