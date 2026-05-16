@@ -7,12 +7,12 @@ const icons = {
   "Low Stock Items": <AlertCircle className="text-red-500" size={20} />,
 };
 
-export default function StatCard({ item }) {
+export default function StatCard({ item }: { item: any }) {
   return (
     <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex flex-col gap-4">
       <div className="flex justify-between items-start">
         <span className="text-zinc-500 font-medium">{item.title}</span>
-        {icons[item.title]}
+        {icons[item.title as keyof typeof icons]}
       </div>
       <div>
         <h3 className="text-2xl font-bold text-zinc-800">{item.value}</h3>

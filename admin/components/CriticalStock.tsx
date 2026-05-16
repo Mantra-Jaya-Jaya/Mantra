@@ -1,11 +1,11 @@
 import { Package } from 'lucide-react';
 
-export default function CriticalStock({ data }) {
+export default function CriticalStock({ data }: { data: any[] }) {
   // Urutkan dari stok terkecil, lalu ambil 4 data saja
   const limitedData = [...data].sort((a, b) => a.sisa - b.sisa).slice(0, 4);
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex-1 flex flex-col h-[400px]">
+    <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm flex-1 flex flex-col h-100">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h3 className="font-bold text-zinc-800 text-lg">Stok Barang Kritis</h3>
