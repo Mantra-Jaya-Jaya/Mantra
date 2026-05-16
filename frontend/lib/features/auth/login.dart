@@ -1,4 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../core/network/api_client.dart';
+import '../../core/utils/api_error.dart';
+import 'services/auth_service.dart';
+import '../home/home_kasir.dart'; // import kasir
+// import admin jika ada
+
 import 'signup.dart'; // Pastikan file signup.dart sudah ada
 import '../home/home_customer.dart';
 
@@ -18,12 +26,69 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _obscurePassword = true;
   bool _isFormValid = false;
 
+
+  bool _isLoading = false;
+  late final AuthService _authService;
+
   @override
   void initState() {
     super.initState();
+    _authService = AuthService(ApiClient().dio, const FlutterSecureStorage());
     _usernameController.addListener(_validateForm);
     _passwordController.addListener(_validateForm);
   }
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  Future<void> _handleLogin() async {
+    setState(() => _isLoading = true);
+    try {
+      final user = await _authService.login(
+        _usernameController.text.trim(),
+        _passwordController.text,
+      );
+
+      if (!mounted) return;
+
+      switch (user.role) {
+        case 'customer':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+          break;
+        case 'kasir':
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const DashboardKasirPage()),
+          );
+          break;
+        case 'kurir':
+          // Navigator.pushReplacementNamed(context, '/kurir/home'); // TODO: Sesuaikan dengan Kurir
+          break;
+        case 'admin':
+          // Navigator.pushReplacementNamed(context, '/admin/home'); // TODO: Sesuaikan dengan Admin
+          break;
+        default:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+      }
+    } on DioException catch (e) {
+      final apiError = ApiError.fromDioException(e);
+      _showError(apiError.userMessage);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
+  }
+
 
   void _validateForm() {
     setState(() {
@@ -165,17 +230,8 @@ class _LoginScreenState extends State<LoginScreen> {
                               width: double.infinity,
                               height: 55,
                               child: ElevatedButton(
-                                onPressed: _isFormValid
-                                    ? () {
-                                        // Navigasi ke home customer
-                                        Navigator.pushReplacement(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                const HomeScreen(),
-                                          ),
-                                        );
-                                      }
+                                onPressed: _isFormValid && !_isLoading
+                                    ? _handleLogin
                                     : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: _isFormValid
@@ -185,14 +241,23 @@ class _LoginScreenState extends State<LoginScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Log In',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          color: Colors.white,
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                    : const Text(
+                                        'Log In',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                               ),
                             ),
                             const Spacer(),
