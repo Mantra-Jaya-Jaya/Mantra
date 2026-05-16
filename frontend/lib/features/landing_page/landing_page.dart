@@ -1,5 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/features/landing_page/onboarding_page.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../core/network/api_client.dart';
+import '../auth/services/auth_service.dart';
+import 'package:frontend/features/auth/login.dart';
+import 'package:frontend/features/home/home_customer.dart';
+import 'package:frontend/features/home/home_kasir.dart';
 
 class LandingPage extends StatefulWidget {
   const LandingPage({super.key});
@@ -9,9 +15,43 @@ class LandingPage extends StatefulWidget {
 }
 
 class _LandingPageState extends State<LandingPage> {
-  // 1. Controller untuk mengatur slide
   final PageController _pageController = PageController();
   int _currentIndex = 0;
+  bool _isLoading = true;
+  late final AuthService _authService;
+
+  @override
+  void initState() {
+    super.initState();
+    _authService = AuthService(ApiClient().dio, const FlutterSecureStorage());
+    _checkSession();
+  }
+
+  Future<void> _checkSession() async {
+    final isLoggedIn = await _authService.isLoggedIn();
+    if (!isLoggedIn) {
+      if (mounted) setState(() => _isLoading = false);
+      return; // Tetap di onboarding
+    }
+
+    final role = await _authService.getSavedRole();
+    if (!mounted) return;
+    
+    switch (role) {
+      case 'customer':
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+        break;
+      case 'kasir':
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const DashboardKasirPage()));
+        break;
+      case 'admin':
+        // Navigator.pushReplacementNamed(context, '/admin/home');
+        break;
+      default:
+        setState(() => _isLoading = false);
+    }
+  }
+
 
   // 2. Data konten untuk masing-masing halaman
   final List<Map<String, String>> _landingData = [
@@ -37,6 +77,9 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
     return Scaffold(
       backgroundColor: Colors.white,
       body: Column(

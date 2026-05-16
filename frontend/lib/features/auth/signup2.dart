@@ -1,8 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../../core/network/api_client.dart';
+import '../../core/utils/api_error.dart';
+import 'services/auth_service.dart';
 import 'package:frontend/features/auth/login.dart';
 
 class Signup2 extends StatefulWidget {
-  const Signup2({super.key});
+  final String email;
+  final String username;
+  final String password;
+  const Signup2({super.key, required this.email, required this.username, required this.password});
 
   @override
   State<Signup2> createState() => _Signup2State();
@@ -13,10 +21,13 @@ class _Signup2State extends State<Signup2> {
   final TextEditingController _alamatController = TextEditingController();
   final TextEditingController _telpController = TextEditingController();
   bool _isFormValid = false;
+  bool _isLoading = false;
+  late final AuthService _authService;
 
   @override
   void initState() {
     super.initState();
+    _authService = AuthService(ApiClient().dio, const FlutterSecureStorage());
     _namaController.addListener(_validateForm);
     _alamatController.addListener(_validateForm);
     _telpController.addListener(_validateForm);
@@ -29,6 +40,36 @@ class _Signup2State extends State<Signup2> {
           _alamatController.text.isNotEmpty &&
           _telpController.text.isNotEmpty;
     });
+  }
+
+
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
+  }
+
+  Future<void> _handleRegister() async {
+    setState(() => _isLoading = true);
+    try {
+      await _authService.register(
+        username: widget.username,
+        email: widget.email,
+        password: widget.password,
+        konfirmasiPassword: widget.password,
+        namaLengkap: _namaController.text,
+        noTelp: _telpController.text,
+      );
+      if (!mounted) return;
+      _showSuccessDialog(context);
+    } on DioException catch (e) {
+      final apiError = ApiError.fromDioException(e);
+      _showError(apiError.userMessage);
+    } finally {
+      if (mounted) {
+        setState(() => _isLoading = false);
+      }
+    }
   }
 
   @override
@@ -141,13 +182,7 @@ class _Signup2State extends State<Signup2> {
                                 const SizedBox(width: 15),
                                 Expanded(
                                   child: ElevatedButton(
-                                    onPressed: _isFormValid
-                                        ? () {
-                                            _showSuccessDialog(
-                                              context,
-                                            ); // Panggil fungsi dialog
-                                          }
-                                        : null,
+                                    onPressed: _isFormValid && !_isLoading ? _handleRegister : null,
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: _isFormValid
                                           ? const Color(0xFFB45309)
@@ -159,7 +194,7 @@ class _Signup2State extends State<Signup2> {
                                         borderRadius: BorderRadius.circular(12),
                                       ),
                                     ),
-                                    child: const Text(
+                                    child: _isLoading ? const SizedBox(height:24, width:24, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : const Text(
                                       'Sign Up',
                                       style: TextStyle(
                                         color: Colors.white,
