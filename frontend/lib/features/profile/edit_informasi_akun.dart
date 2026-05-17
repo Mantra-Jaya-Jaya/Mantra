@@ -1,8 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/features/profile/edit_informasi_akun.dart';
+
+import 'services/profile_service.dart';
 
 class EditInformasiAkun extends StatefulWidget {
-  const EditInformasiAkun({super.key});
+  final String namaAwal;
+  final String teleponAwal;
+  final String emailAwal;
+  final String usernameAwal;
+
+  const EditInformasiAkun({
+    super.key,
+    required this.namaAwal,
+    required this.teleponAwal,
+    required this.emailAwal,
+    required this.usernameAwal,
+  });
 
   @override
   State<EditInformasiAkun> createState() => _EditInformasiAkunState();
@@ -10,21 +22,22 @@ class EditInformasiAkun extends StatefulWidget {
 
 class _EditInformasiAkunState extends State<EditInformasiAkun> {
   // ================= CONTROLLER =================
-  final TextEditingController namaController = TextEditingController(
-    text: "Aarav Lysander",
-  );
+  late TextEditingController namaController;
+  late TextEditingController phoneController;
+  late TextEditingController emailController;
+  late TextEditingController usernameController;
 
-  final TextEditingController phoneController = TextEditingController(
-    text: "+62 89000000000",
-  );
+  final ProfileService _profileService = ProfileService();
+  bool _isLoading = false;
 
-  final TextEditingController emailController = TextEditingController(
-    text: "lysander@gmail.com",
-  );
-
-  final TextEditingController usernameController = TextEditingController(
-    text: "@aarav_",
-  );
+  @override
+  void initState() {
+    super.initState();
+    namaController = TextEditingController(text: widget.namaAwal);
+    phoneController = TextEditingController(text: widget.teleponAwal);
+    emailController = TextEditingController(text: widget.emailAwal);
+    usernameController = TextEditingController(text: widget.usernameAwal);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,10 +132,26 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
 
                     // ================= BUTTON SIMPAN =================
                     ElevatedButton(
-                      onPressed: () {
-                        // 2. Tunggu sebentar atau langsung kembali ke halaman sebelumnya (Profil)
-                        Navigator.pop(context, 'success');
-                      },
+                      onPressed: _isLoading
+                          ? null
+                          : () async {
+                              setState(() => _isLoading = true);
+                              try {
+                                await _profileService.updateAkun(
+                                  namaLengkap: namaController.text,
+                                  noTelp: phoneController.text,
+                                  email: emailController.text,
+                                );
+                                if (mounted) Navigator.pop(context, 'success');
+                              } catch (e) {
+                                if (mounted) {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(content: Text('Gagal menyimpan perubahan')),
+                                  );
+                                  setState(() => _isLoading = false);
+                                }
+                              }
+                            },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFAF510C),
                         minimumSize: const Size(double.infinity, 50),
@@ -130,14 +159,20 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      child: const Text(
-                        "Simpan Perubahan",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 24,
+                              height: 24,
+                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            )
+                          : const Text(
+                              "Simpan Perubahan",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                     ),
                   ],
                 ),

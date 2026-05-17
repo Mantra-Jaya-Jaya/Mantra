@@ -10,7 +10,7 @@ class ApiError {
     final data = e.response?.data;
     return ApiError(
       code: data?['error']?['code'] ?? 'SERVER_001',
-      message: data?['message'] ?? 'Terjadi kesalahan, coba lagi',
+      message: data?['error']?['detail'] ?? data?['message'] ?? 'Terjadi kesalahan, coba lagi',
     );
   }
 

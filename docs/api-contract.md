@@ -321,12 +321,12 @@ Gunakan setiap kali mengubah dokumentasi endpoint yang sudah ada.
     "token_type": "Bearer",
     "expires_in": 900,
     "user": {
-      "id_user": 1,
+      "public_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
       "username": "john_doe",
       "email": "john@email.com",
       "nama_lengkap": "John Doe",
-      "role": "customer",
-      "profile_id": 10
+      "foto_profil": "https://api.mantra.com/storage/users/john.jpg",
+      "role": "customer"
     }
   }
 }
@@ -339,9 +339,10 @@ Gunakan setiap kali mengubah dokumentasi endpoint yang sudah ada.
   "message": "Login berhasil",
   "data": {
     "user": {
-      "id_user": 1,
+      "public_id": "b2c3d4e5-f678-90ab-cdef-1234567890ab",
       "username": "admin_mantra",
       "nama_lengkap": "Admin Mantra",
+      "foto_profil": "https://api.mantra.com/storage/users/admin.jpg",
       "role": "admin"
     }
   }
@@ -472,7 +473,7 @@ Body:   { "refresh_token": "string" }
   "status": "success",
   "message": "Registrasi berhasil",
   "data": {
-    "id_user": 1,
+    "public_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "username": "john_doe",
     "email": "john@email.com",
     "nama_lengkap": "John Doe",
@@ -933,7 +934,7 @@ Body:   { "refresh_token": "string" }
   "message": "Daftar pesanan berhasil diambil",
   "data": [
     {
-      "id_pesanan": "12345678",
+      "id_pesanan": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
       "status": "diproses",
       "tanggal_pesan": "2026-04-10T22:39:00Z",
       "total_bayar": 50000,
@@ -998,7 +999,7 @@ Body:   { "refresh_token": "string" }
   "status": "success",
   "message": "Pesanan berhasil dibuat",
   "data": {
-    "id_pesanan": "12345678",
+    "id_pesanan": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "midtrans_token": "token-untuk-sdk-flutter",
     "redirect_url": "https://app.sandbox.midtrans.com/snap/v2/vtweb/..."
   }
@@ -1063,7 +1064,7 @@ Body:   { "refresh_token": "string" }
   "status": "success",
   "message": "Detail pesanan berhasil diambil",
   "data": {
-    "no_pesanan": "12345678",
+    "no_pesanan": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "status": "diproses",
     "tanggal_pesan": "2026-05-05T22:39:00Z",
     "items": [
@@ -1112,7 +1113,7 @@ Body:   { "refresh_token": "string" }
   "status": "success",
   "message": "Data lacak pesanan berhasil diambil",
   "data": {
-    "id_pesanan": "12345678",
+    "id_pesanan": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
     "kurir": {
       "nama": "Ricardo Holahilo",
       "plat_nomor": "H 6582 TH",
@@ -1844,7 +1845,13 @@ Body:   { "refresh_token": "string" }
     "email": "budi@mantra.com",
     "role": "kasir",
     "shift": "Pagi",
-    "status_akun": "aktif"
+    "status_akun": "aktif",
+    "tempat_lahir": "Surakarta",
+    "tanggal_lahir": "1995-03-15",
+    "jenis_kelamin": "Laki-laki",
+    "pendidikan_terakhir": "SMA",
+    "nik": "3372012345678901",
+    "status": "Tetap"
   }
 }
 ```
@@ -1989,6 +1996,7 @@ Body:   { "refresh_token": "string" }
 **Request Body (multipart/form-data):**
 ```
 nama_barang   : string
+deskripsi     : string
 kategori_id   : integer
 satuan_id     : integer
 gambar        : file (opsional)
@@ -2025,6 +2033,7 @@ varian[]      : array of { nama_detail_spesifikasi, harga_barang, jumlah }
   "data": {
     "id_barang": 1,
     "nama_barang": "Laptop Gaming X",
+    "deskripsi": "Laptop gaming dengan performa tinggi",
     "kategori": "Elektronik",
     "satuan": "Unit",
     "gambar": "https://api.mantra.com/storage/barang/laptop-x.jpg",

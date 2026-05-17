@@ -24,6 +24,10 @@ class _Signup2State extends State<Signup2> {
   bool _isLoading = false;
   late final AuthService _authService;
 
+  String? _namaError;
+  String? _alamatError;
+  String? _telpError;
+
   @override
   void initState() {
     super.initState();
@@ -34,11 +38,32 @@ class _Signup2State extends State<Signup2> {
   }
 
   void _validateForm() {
+    final nama = _namaController.text;
+    final alamat = _alamatController.text;
+    final telp = _telpController.text;
+
     setState(() {
-      _isFormValid =
-          _namaController.text.isNotEmpty &&
-          _alamatController.text.isNotEmpty &&
-          _telpController.text.isNotEmpty;
+      if (nama.isNotEmpty && nama.trim().isEmpty) {
+        _namaError = "Nama tidak boleh kosong";
+      } else {
+        _namaError = null;
+      }
+
+      if (alamat.isNotEmpty && alamat.trim().isEmpty) {
+        _alamatError = "Alamat tidak boleh kosong";
+      } else {
+        _alamatError = null;
+      }
+
+      if (telp.isNotEmpty && (!RegExp(r'^[0-9]+$').hasMatch(telp) || telp.length < 10)) {
+        _telpError = "Nomor telepon harus angka & minimal 10 digit";
+      } else {
+        _telpError = null;
+      }
+
+      _isFormValid = nama.trim().isNotEmpty && _namaError == null &&
+                     alamat.trim().isNotEmpty && _alamatError == null &&
+                     telp.isNotEmpty && _telpError == null;
     });
   }
 
@@ -139,6 +164,7 @@ class _Signup2State extends State<Signup2> {
                               controller: _namaController,
                               label: 'Nama',
                               hint: 'Nama Lengkap',
+                              errorText: _namaError,
                             ),
                             const SizedBox(height: 20),
                             _buildTextField(
@@ -146,12 +172,14 @@ class _Signup2State extends State<Signup2> {
                               label: 'Alamat',
                               hint: 'Alamat Lengkap',
                               maxLines: 3,
+                              errorText: _alamatError,
                             ),
                             const SizedBox(height: 20),
                             _buildTextField(
                               controller: _telpController,
                               label: 'Nomor Telepon',
                               hint: '08xxxx',
+                              errorText: _telpError,
                             ),
                             const SizedBox(height: 30),
                             Row(
@@ -279,6 +307,7 @@ class _Signup2State extends State<Signup2> {
     required String label,
     required String hint,
     int maxLines = 1,
+    String? errorText,
   }) {
     return TextField(
       controller: controller,
@@ -286,6 +315,7 @@ class _Signup2State extends State<Signup2> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
+        errorText: errorText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFB45309)),

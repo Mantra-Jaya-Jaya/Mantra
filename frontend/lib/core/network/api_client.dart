@@ -27,8 +27,11 @@ class _AuthInterceptor extends Interceptor {
 
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+    // Tandai semua request dari Flutter agar backend bisa membedakan dari NextJS
+    options.headers['X-Client-Type'] = 'flutter';
+
     final token = await _storage.read(key: 'access_token');
-    if (token != null) {
+    if (token != null && token != 'null') {
       options.headers['Authorization'] = 'Bearer $token';
     }
     handler.next(options);
