@@ -17,6 +17,10 @@ class _SignUpScreenState extends State<SignUpScreen> {
   bool _obscurePassword = true;
   bool _isFormValid = false;
 
+  String? _emailError;
+  String? _usernameError;
+  String? _passwordError;
+
   @override
   void initState() {
     super.initState();
@@ -26,11 +30,35 @@ class _SignUpScreenState extends State<SignUpScreen> {
   }
 
   void _validateForm() {
+    final email = _emailController.text;
+    final username = _usernameController.text;
+    final password = _passwordController.text;
+
     setState(() {
-      _isFormValid =
-          _emailController.text.isNotEmpty &&
-          _usernameController.text.isNotEmpty &&
-          _passwordController.text.isNotEmpty;
+      // Validate Email (simple regex)
+      if (email.isNotEmpty && !RegExp(r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+").hasMatch(email)) {
+        _emailError = "Format email tidak valid";
+      } else {
+        _emailError = null;
+      }
+
+      // Validate Username
+      if (username.isNotEmpty && username.length < 3) {
+        _usernameError = "Username minimal 3 karakter";
+      } else {
+        _usernameError = null;
+      }
+
+      // Validate Password
+      if (password.isNotEmpty && password.length < 8) {
+        _passwordError = "Password minimal 8 karakter";
+      } else {
+        _passwordError = null;
+      }
+
+      _isFormValid = email.isNotEmpty && _emailError == null &&
+                     username.isNotEmpty && _usernameError == null &&
+                     password.isNotEmpty && _passwordError == null;
     });
   }
 
@@ -120,12 +148,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               controller: _emailController,
                               label: 'Email',
                               hint: 'Email',
+                              errorText: _emailError,
                             ),
                             const SizedBox(height: 20),
                             _buildTextField(
                               controller: _usernameController,
                               label: 'Username',
                               hint: 'Username',
+                              errorText: _usernameError,
                             ),
                             const SizedBox(height: 20),
                             _buildTextField(
@@ -133,6 +163,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               label: 'Password',
                               hint: 'Password',
                               isPassword: true,
+                              errorText: _passwordError,
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
@@ -243,6 +274,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     required String label,
     required String hint,
     bool isPassword = false,
+    String? errorText,
   }) {
     return TextField(
       controller: controller,
@@ -250,6 +282,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
+        errorText: errorText,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: Color(0xFFB45309)),
