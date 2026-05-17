@@ -67,6 +67,7 @@ Request masuk
 ```json
 {
   "user_id": 123,
+  "public_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
   "role": "kasir",
   "iat": 1746691200,
   "exp": 1746692100
@@ -76,10 +77,11 @@ Request masuk
 > `store_id` **tidak digunakan** karena MANTRA adalah single-tenant.
 > Satu instalasi = satu toko. Tidak ada multi-tenant.
 
-| Field     | Tipe      | Keterangan                                    |
-|-----------|-----------|-----------------------------------------------|
-| `user_id` | integer   | ID dari tabel `user`                          |
-| `role`    | string    | `customer` / `kasir` / `admin` / `kurir`      |
+| Field       | Tipe      | Keterangan                                    |
+|-------------|-----------|-----------------------------------------------|
+| `user_id`   | integer   | ID internal dari tabel `user`                 |
+| `public_id` | string    | UUID dari tabel `user`                        |
+| `role`      | string    | `customer` / `kasir` / `admin` / `kurir`      |
 | `iat`     | timestamp | Waktu token dibuat (Unix timestamp)           |
 | `exp`     | timestamp | Waktu token expired (Unix timestamp)          |
 
@@ -144,8 +146,9 @@ WHERE token = $1
 ```go
 // Struct JWT Claims
 type JWTClaims struct {
-    UserID int64  `json:"user_id"`
-    Role   string `json:"role"`
+    UserID   uint   `json:"user_id"`
+    PublicID string `json:"public_id"`
+    Role     string `json:"role"`
     jwt.RegisteredClaims
 }
 
@@ -557,11 +560,15 @@ Gunakan dua kolom ID di tabel sensitif:
 
 | Tabel        | Alasan                                                        |
 |--------------|---------------------------------------------------------------|
+| `user`       | ID user diekspos di JWT claim dan API profil                  |
+| `kasir`      | Mencegah ID enumeration pada profil kasir                     |
+| `customer`   | Mencegah ID enumeration pada data customer                    |
+| `kurir`      | Mencegah ID enumeration pada profil kurir                     |
 | `pesanan`    | Nomor pesanan diekspos ke customer di URL dan invoice         |
 | `pembayaran` | ID pembayaran dikirim ke Midtrans dan diterima via webhook    |
 | `pengantaran`| Diekspos ke customer saat fitur lacak                         |
 
-> Tabel seperti `barang`, `kategori`, `kasir` tidak terlalu sensitif karena tidak menyimpan data personal.
+> Tabel seperti `barang` atau `kategori` tidak terlalu sensitif karena merupakan data publik (katalog), namun untuk user, kasir, kurir, dan pesanan sangat sensitif.
 
 ### 6.4 Implementasi PostgreSQL
 
