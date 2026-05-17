@@ -139,32 +139,63 @@ Atlas CLI adalah engine untuk menyinkronkan struktur tabel di PostgreSQL secara 
    CREATE DATABASE mantra_dev;
    ```
 
-### 4.2 Workflow Migrasi (Makefile vs PowerShell)
+### 4.2 Instalasi `make`
+
+Perintah `make` digunakan untuk menjalankan skrip migrasi di proyek ini. Periksa dulu apakah `make` sudah ada di sistem:
+```bash
+make --version
+```
+
+Jika **belum ada**, ikuti panduan instalasi sesuai OS:
+
+**Linux (Ubuntu / Debian):**
+```bash
+sudo apt-get update && sudo apt-get install -y make
+```
+
+**Linux (Fedora / RHEL / CentOS):**
+```bash
+sudo dnf install make
+```
+
+**Linux (Arch):**
+```bash
+sudo pacman -S make
+```
+
+**Windows — Cara 1: Via Chocolatey (Direkomendasikan):**
+```powershell
+# Jalankan PowerShell sebagai Administrator
+choco install make
+```
+> Jika Chocolatey belum terinstal, buka PowerShell sebagai **Administrator** dan jalankan:
+> ```powershell
+> Set-ExecutionPolicy Bypass -Scope Process -Force; [System.Net.ServicePointManager]::SecurityProtocol = [System.Net.ServicePointManager]::SecurityProtocol -bor 3072; iex ((New-Object System.Net.WebClient).DownloadString('https://community.chocolatey.org/install.ps1'))
+> ```
+
+**Windows — Cara 2: Via Scoop:**
+```powershell
+scoop install make
+```
+> Jika Scoop belum terinstal:
+> ```powershell
+> irm get.scoop.sh | iex
+> ```
+
+> [!IMPORTANT]
+> Setelah instalasi selesai, **tutup seluruh jendela terminal dan VS Code**, lalu buka kembali agar PATH Windows ter-refresh dan perintah `make` dapat dikenali.
+
+### 4.3 Workflow Migrasi
 
 > [!NOTE]
-> Perintah `make` secara *default* langsung tersedia di Linux/macOS. Bagi pengguna **Windows**, disarankan menggunakan terminal **Git Bash** agar dapat langsung mengeksekusi `make` dengan mudah.
+> Setelah menginstal Atlas (4.1) dan `make` (4.2), semua perintah di bawah ini bisa langsung dijalankan dari dalam folder `backend/`.
 
-#### Opsi 1: Menggunakan `make` (Linux / macOS / Git Bash)
 Jalankan perintah ini di dalam direktori `backend/`:
 - `make db-diff` : Mendeteksi dan menampilkan perubahan skema dari model ke database sandbox.
 - `make db-plan` : Simulasi *raw SQL* yang akan dieksekusi (*Dry Run*).
 - `make db-apply`: Menerapkan perubahan struktur tabel secara permanen ke database utama (`mantra_db`).
 - `make db-inspect`: Melihat representasi HCL/SQL dari tabel yang ada di DB utama.
 - `make db-ui` : Membuka visualisasi relasi tabel secara interaktif di browser lokal.
-
-#### Opsi 2: Menggunakan PowerShell Manual (Windows tanpa Make)
-Jika menggunakan PowerShell biasa, lakukan ekspor variabel `.env` lalu panggil *binary* `atlas` secara langsung:
-```powershell
-# 1. Set environment variables (sesuaikan nilai password/port PostgreSQL Anda)
-$env:DB_HOST="localhost"; $env:DB_USER="postgres"; $env:DB_PASSWORD="yourpassword"; $env:DB_NAME="mantra_db"; $env:DB_PORT="5432"
-
-# 2. Jalankan perintah atlas langsung
-# Setara dengan 'make db-diff'
-atlas schema diff --env local --from "env://from" --to "env://to"
-
-# Setara dengan 'make db-apply'
-atlas schema apply --env local --to "env://to"
-```
 
 ---
 
