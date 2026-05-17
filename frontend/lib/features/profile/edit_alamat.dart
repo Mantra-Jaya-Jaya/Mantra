@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 
+import 'services/profile_service.dart';
+
 class EditAlamat extends StatefulWidget {
+  final int idAlamat;
   final String labelAwal;
   final String namaAwal;
   final String teleponAwal;
@@ -8,6 +11,7 @@ class EditAlamat extends StatefulWidget {
 
   const EditAlamat({
     super.key,
+    required this.idAlamat,
     required this.labelAwal,
     required this.namaAwal,
     required this.teleponAwal,
@@ -24,7 +28,9 @@ class EditAlamatState extends State<EditAlamat> {
   late TextEditingController _teleponController;
   late TextEditingController _alamatController;
 
+  final ProfileService _profileService = ProfileService();
   bool _isFormValid = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -62,15 +68,7 @@ class EditAlamatState extends State<EditAlamat> {
     super.dispose();
   }
 
-  void _simpan() {
-    // Langsung pop dengan data — dialog sukses ditampilkan di profil.dart
-    Navigator.pop(context, {
-      'label': _labelController.text.trim(),
-      'nama': _namaController.text.trim(),
-      'telepon': _teleponController.text.trim(),
-      'alamat': _alamatController.text.trim(),
-    });
-  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -117,25 +115,56 @@ class EditAlamatState extends State<EditAlamat> {
               ),
             ),
 
-            const SizedBox(height: 30),
-
-            SizedBox(
-              width: double.infinity,
-              height: 50,
-              child: ElevatedButton(
-                onPressed: _isFormValid ? _simpan : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFAF510C),
-                  disabledBackgroundColor: Colors.grey[400],
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  elevation: 0,
-                ),
-                child: Text(
-                  "Simpan Perubahan",
-                  style: TextStyle(
-                    color: _isFormValid ? Colors.white : Colors.white70,
-                    fontWeight: FontWeight.bold,
+            // Tombol Simpan
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+              color: Colors.white,
+              child: SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  onPressed: _isFormValid && !_isLoading
+                      ? () async {
+                          setState(() => _isLoading = true);
+                          try {
+                            await _profileService.updateAlamat(
+                              widget.idAlamat,
+                              label: _labelController.text,
+                              nama: _namaController.text,
+                              telepon: _teleponController.text,
+                              alamatLengkap: _alamatController.text,
+                            );
+                            if (mounted) Navigator.pop(context, true);
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Gagal menyimpan alamat')),
+                              );
+                              setState(() => _isLoading = false);
+                            }
+                          }
+                        }
+                      : null,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFAF510C),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(25),
+                    ),
                   ),
+                  child: _isLoading
+                      ? const SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        )
+                      : const Text(
+                          'Simpan',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                 ),
               ),
             ),

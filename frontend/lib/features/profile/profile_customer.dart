@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'edit_informasi_akun.dart';
 import 'ubah_password.dart';
 import 'tambah_alamat.dart';
 import 'edit_alamat.dart';
-import '../../main.dart'; // sesuaikan path jika berbeda
-import '../landing_page/landing_page.dart'; // sesuaikan path jika berbeda
+import '../auth/login.dart';
+import 'services/profile_service.dart';
 
 class Profil extends StatefulWidget {
   const Profil({super.key});
@@ -14,22 +15,52 @@ class Profil extends StatefulWidget {
 }
 
 class _ProfilState extends State<Profil> {
-  List<Map<String, dynamic>> _daftarAlamat = [
-    {
-      'label': 'Rumah',
-      'nama': 'Aarav Lysander',
-      'telepon': '+62 89000000000',
-      'alamat': 'Jl. Cempaka Putih No. 12, RT 04/RW 02, Semarang Tengah',
-      'isPrimary': true,
-    },
-    {
-      'label': 'Kantor',
-      'nama': 'Sujarwo',
-      'telepon': '+62 81200000000',
-      'alamat': 'Jl. Sumurboto No. 04, Kota Semarang',
-      'isPrimary': false,
-    },
-  ];
+  final ProfileService _profileService = ProfileService();
+  bool _isLoading = true;
+  bool _hasLoaded = false;  // cegah re-fetch saat ganti tab
+  String? _errorMessage;
+  Map<String, dynamic>? _profil;
+  List<Map<String, dynamic>> _daftarAlamat = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData({bool forceRefresh = false}) async {
+    // Kalau sudah pernah load dan tidak di-force refresh, skip
+    if (_hasLoaded && !forceRefresh) return;
+
+    // Hanya tampilkan spinner pada load pertama
+    if (!_hasLoaded) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
+    try {
+      final profilData = await _profileService.getProfil();
+      final alamatData = await _profileService.getAlamat();
+      if (mounted) {
+        setState(() {
+          _profil = profilData;
+          _daftarAlamat = alamatData;
+          _isLoading = false;
+          _hasLoaded = true;
+          _errorMessage = null;
+        });
+      }
+    } catch (e) {
+      print("Error loading profile: $e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
 
   void _showSuccessDialog({required String title, required String message}) {
     showDialog(
@@ -96,7 +127,7 @@ class _ProfilState extends State<Profil> {
     );
   }
 
-  void _showDeleteDialog(int index) {
+  void _showDeleteDialog(int index, int idAlamat) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -150,11 +181,18 @@ class _ProfilState extends State<Profil> {
                     const SizedBox(width: 12),
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _daftarAlamat.removeAt(index);
-                          });
-                          Navigator.pop(context);
+                        onPressed: () async {
+                          Navigator.pop(context); // Tutup dialog
+                          try {
+                            await _profileService.hapusAlamat(idAlamat);
+                            setState(() {
+                              _daftarAlamat.removeAt(index);
+                            });
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Gagal menghapus alamat')),
+                            );
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
@@ -228,14 +266,19 @@ class _ProfilState extends State<Profil> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    // Tombol Iya — arahkan ke LandingPage, hapus semua history
+                    // Tombol Iya — hapus token lalu ke halaman login
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
+                          Navigator.pop(context); // Tutup dialog dulu
+                          // Hapus semua token dari storage
+                          await const FlutterSecureStorage().deleteAll();
+                          if (!mounted) return;
+                          // Arahkan ke login, hapus semua history
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => const LandingPage()),
-                            (route) => false, // hapus semua route sebelumnya
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            (route) => false,
                           );
                         },
                         style: ElevatedButton.styleFrom(
@@ -275,17 +318,38 @@ class _ProfilState extends State<Profil> {
                 ),
               ),
               const SizedBox(height: 20),
-              const CircleAvatar(
-                radius: 55,
-                backgroundImage: AssetImage("assets/images/profile.jpg"),
-              ),
-              const SizedBox(height: 12),
-              const Text("Aarav Lysander", style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              const Text("lysander@gmail.com", style: TextStyle(color: Colors.grey)),
-              const SizedBox(height: 24),
+              if (_isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40.0),
+                    child: CircularProgressIndicator(color: Color(0xFFAF510C)),
+                  ),
+                )
+              else if (_errorMessage != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Text(
+                      "Gagal memuat profil:\n$_errorMessage",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                )
+              else ...[
+                CircleAvatar(
+                  radius: 55,
+                  backgroundImage: _profil?['foto_profil'] != null && _profil!['foto_profil'].isNotEmpty
+                      ? NetworkImage(_profil!['foto_profil']) as ImageProvider
+                      : const AssetImage("assets/images/profile.jpg"),
+                ),
+                const SizedBox(height: 12),
+                Text(_profil?['nama_lengkap'] ?? "-", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(_profil?['email'] ?? "-", style: const TextStyle(color: Colors.grey)),
+                const SizedBox(height: 24),
 
-              // Informasi Akun
+                // Informasi Akun
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(16),
@@ -306,9 +370,17 @@ class _ProfilState extends State<Profil> {
                           onPressed: () async {
                             final result = await Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => const EditInformasiAkun()),
+                              MaterialPageRoute(
+                                builder: (context) => EditInformasiAkun(
+                                  namaAwal: _profil?['nama_lengkap'] ?? '',
+                                  teleponAwal: _profil?['no_telp'] ?? '',
+                                  emailAwal: _profil?['email'] ?? '',
+                                  usernameAwal: _profil?['username'] ?? '',
+                                ),
+                              ),
                             );
                             if (result == 'success') {
+                              _loadData(forceRefresh: true);
                               _showSuccessDialog(
                                 title: "Data berhasil\ndiubah!",
                                 message: "Perubahan profil Anda telah\nberhasil disimpan.",
@@ -322,10 +394,10 @@ class _ProfilState extends State<Profil> {
                       ],
                     ),
                     const SizedBox(height: 20),
-                    buildInfoTile(Icons.person_outline, "Nama Lengkap", "Aarav Lysander"),
-                    buildInfoTile(Icons.phone, "Nomor Telephone", "+62 89000000000"),
-                    buildInfoTile(Icons.email_outlined, "Email", "lysander@gmail.com"),
-                    buildInfoTile(Icons.key_outlined, "Username", "@aarav_"),
+                    buildInfoTile(Icons.person_outline, "Nama Lengkap", _profil?['nama_lengkap'] ?? "-"),
+                    buildInfoTile(Icons.phone, "Nomor Telephone", _profil?['no_telp'] ?? "-"),
+                    buildInfoTile(Icons.email_outlined, "Email", _profil?['email'] ?? "-"),
+                    buildInfoTile(Icons.key_outlined, "Username", "@${_profil?['username'] ?? "-"}"),
 
                     // Baris Password
                     Row(
@@ -361,8 +433,8 @@ class _ProfilState extends State<Profil> {
                   ],
                 ),
               ),
+              ],
               const SizedBox(height: 20),
-
               _buildDaftarAlamat(),
               const SizedBox(height: 20),
               _buildLogoutButton(),
@@ -423,11 +495,12 @@ class _ProfilState extends State<Profil> {
               children: [
                 buildAddressCard(
                   index: index,
-                  label: item['label'],
-                  nama: item['nama'],
-                  telepon: item['telepon'],
-                  alamat: item['alamat'],
-                  isPrimary: item['isPrimary'],
+                  idAlamat: item['id_alamat'] ?? 0,
+                  label: item['label_alamat'] ?? 'Tanpa Label',
+                  nama: item['nama_penerima'] ?? '-',
+                  telepon: item['no_telp_penerima'] ?? '-',
+                  alamat: item['alamat_lengkap'] ?? '-',
+                  isPrimary: item['is_utama'] ?? false,
                 ),
                 if (index < _daftarAlamat.length - 1) const SizedBox(height: 14),
               ],
@@ -441,10 +514,8 @@ class _ProfilState extends State<Profil> {
                 context,
                 MaterialPageRoute(builder: (context) => const AlamatBaru()),
               );
-              if (result != null && result is Map<String, dynamic>) {
-                setState(() {
-                  _daftarAlamat.add(result);
-                });
+              if (result == true) {
+                _loadData(forceRefresh: true); // Reload data setelah tambah alamat
                 _showSuccessDialog(
                   title: "Alamat berhasil\ndisimpan!",
                   message: "Alamat baru Anda telah\nberhasil ditambahkan.",
@@ -463,6 +534,7 @@ class _ProfilState extends State<Profil> {
 
   Widget buildAddressCard({
     required int index,
+    required int idAlamat,
     required String label,
     required String nama,
     required String telepon,
@@ -509,6 +581,7 @@ class _ProfilState extends State<Profil> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => EditAlamat(
+                        idAlamat: idAlamat,
                         labelAwal: label,
                         namaAwal: nama,
                         teleponAwal: telepon,
@@ -516,13 +589,8 @@ class _ProfilState extends State<Profil> {
                       ),
                     ),
                   );
-                  if (result != null && result is Map) {
-                    setState(() {
-                      _daftarAlamat[index]['label'] = result['label'];
-                      _daftarAlamat[index]['nama'] = result['nama'];
-                      _daftarAlamat[index]['telepon'] = result['telepon'];
-                      _daftarAlamat[index]['alamat'] = result['alamat'];
-                    });
+                  if (result == true) {
+                    _loadData(forceRefresh: true); // Reload data dari API
                     _showSuccessDialog(
                       title: "Alamat berhasil\ndiubah!",
                       message: "Perubahan alamat Anda telah\nberhasil disimpan.",
@@ -539,7 +607,7 @@ class _ProfilState extends State<Profil> {
               ),
               const SizedBox(width: 10),
               OutlinedButton.icon(
-                onPressed: () => _showDeleteDialog(index),
+                onPressed: () => _showDeleteDialog(index, idAlamat),
                 icon: const Icon(Icons.delete_outline, size: 16, color: Color(0xFFAF510C)),
                 label: const Text("Hapus", style: TextStyle(color: Color(0xFFAF510C))),
                 style: OutlinedButton.styleFrom(

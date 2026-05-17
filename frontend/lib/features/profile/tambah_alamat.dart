@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'services/profile_service.dart';
 
 class AlamatBaru extends StatefulWidget {
   const AlamatBaru({super.key});
@@ -13,7 +14,9 @@ class AlamatBaruState extends State<AlamatBaru> {
   final TextEditingController _teleponController = TextEditingController();
   final TextEditingController _alamatController = TextEditingController();
 
+  final ProfileService _profileService = ProfileService();
   bool _isFormValid = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -130,15 +133,26 @@ class AlamatBaruState extends State<AlamatBaru> {
               width: double.infinity,
               height: 50,
               child: ElevatedButton(
-                onPressed: _isFormValid
-                    ? () {
-                        Navigator.pop(context, {
-                          'label': _labelController.text,
-                          'nama': _namaController.text,
-                          'telepon': _teleponController.text,
-                          'alamat': _alamatController.text,
-                          'isPrimary': false,
-                        });
+                onPressed: _isFormValid && !_isLoading
+                    ? () async {
+                        setState(() => _isLoading = true);
+                        try {
+                          await _profileService.tambahAlamat(
+                            label: _labelController.text,
+                            nama: _namaController.text,
+                            telepon: _teleponController.text,
+                            alamatLengkap: _alamatController.text,
+                            isUtama: false, // Default
+                          );
+                          if (mounted) Navigator.pop(context, true);
+                        } catch (e) {
+                          if (mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Gagal menambahkan alamat')),
+                            );
+                            setState(() => _isLoading = false);
+                          }
+                        }
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
@@ -149,15 +163,19 @@ class AlamatBaruState extends State<AlamatBaru> {
                   ),
                   elevation: 0,
                 ),
-                child: Text(
-                  "Simpan Alamat",
-                  style: TextStyle(
-                    color: _isFormValid
-                        ? Colors.white
-                        : Colors.white70,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: _isLoading
+                    ? const SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      )
+                    : Text(
+                        "Simpan Alamat",
+                        style: TextStyle(
+                          color: _isFormValid ? Colors.white : Colors.white70,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
               ),
             ),
           ],
