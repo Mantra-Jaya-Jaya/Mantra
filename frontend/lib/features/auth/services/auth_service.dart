@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../../../core/models/user_model.dart';
@@ -64,7 +65,33 @@ class AuthService {
   // CEK SESI — dipakai di splash screen
   Future<bool> isLoggedIn() async {
     final token = await _storage.read(key: 'access_token');
-    return token != null;
+    if (token == null || token.isEmpty) return false;
+
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return false;
+
+      // Base64Url decode requires padding
+      String payloadStr = parts[1];
+      while (payloadStr.length % 4 != 0) {
+        payloadStr += '=';
+      }
+      
+      final payloadMap = json.decode(utf8.decode(base64Url.decode(payloadStr)));
+      if (payloadMap['exp'] == null) return true;
+
+      // exp is in seconds, convert to milliseconds
+      final expTime = DateTime.fromMillisecondsSinceEpoch(payloadMap['exp'] * 1000);
+      
+      // Jika token sudah expired, hapus dari storage dan return false
+      if (DateTime.now().isAfter(expTime)) {
+        await _storage.deleteAll();
+        return false;
+      }
+      return true;
+    } catch (_) {
+      return false;
+    }
   }
 
   // AMBIL ROLE DARI STORAGE — untuk routing setelah login
