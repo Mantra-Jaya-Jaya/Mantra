@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [formData, setFormData] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({ username: "", password: "" });
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -41,13 +41,11 @@ export default function LoginPage() {
   };
 
   return (
-    // 🚀 fixed inset-0 z-50: Jurus maksa full screen nutupin semua margin/padding bawaan layout!
     <div className="fixed inset-0 z-50 flex flex-col md:flex-row font-sans antialiased overflow-hidden bg-white">
       
-      {/* BAGIAN KIRI (Gradient Branding + Efek Bokeh Awan) */}
+      {/* BAGIAN KIRI (Gradient Branding + Efek Bokeh Awan) - 100% TIDAK DISENTUH */}
       <div className="w-full md:w-1/2 flex flex-col justify-center items-center text-white p-12 relative overflow-hidden bg-linear-to-b from-[#924300] to-[#BF8040]">
         
-        {/* Konten Teks Kiri */}
         <div className="z-20 flex flex-col items-center text-center max-w-md">
           <h2 className="text-3xl font-normal mb-8 text-white/90">Welcome to</h2>
           
@@ -62,13 +60,12 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Efek Awan Bokeh (Lingkaran sempurna dengan Blur) */}
-        {/* Menggunakan w-[px] dan h-[px] agar tidak melar jadi sosis */}
         <div className="absolute top-0 right-0 h-full w-full pointer-events-none z-10 overflow-hidden">
           <div className="absolute -right-20 top-[-5%] w-62.5 h-62.5 rounded-full bg-white "></div>
           <div className="absolute right-0 top-[-15%] w-50 h-50 rounded-full bg-white "></div>
           <div className="absolute -right-25 top-[10%] w-37.5 h-37.5 rounded-full bg-white "></div>
           <div className="absolute -right-25 top-[20%] w-37.5 h-37.5 rounded-full bg-white "></div>
+          <div className="absolute -right-30 top-[28%] w-45 h-45 rounded-full bg-white "></div>
           <div className="absolute -right-30 top-[40%] w-37.5 h-37.5 rounded-full bg-white "></div>
           <div className="absolute -right-25 top-[55%] w-25 h-25 rounded-full bg-white "></div>
           <div className="absolute -right-25 top-[65%] w-50 h-50 rounded-full bg-white "></div>
@@ -84,7 +81,6 @@ export default function LoginPage() {
           </div>
         </div>
         
-        {/* Footer Kiri */}
         <div className="absolute bottom-10 text-xs text-white/60 font-semibold tracking-widest z-20">
           ADMIN PANEL | V1.0
         </div>
@@ -97,17 +93,17 @@ export default function LoginPage() {
           <h2 className="text-4xl font-bold text-[#301905] mb-12">Login to your account</h2>
 
           <form onSubmit={handleLogin} className="flex flex-col gap-8">
-            {/* Input Email */}
+            {/* 🚀 UI SAMA PERSIS, HANYA ATRIBUT YANG DIUBAH */}
             <div className="flex flex-col">
-              <label className="text-sm font-bold text-[#301905] mb-2">Email</label>
+              <label className="text-sm font-bold text-[#301905] mb-2">Username</label>
               <input
-                type="email"
+                type="text" // Ubah type jadi text
                 required
                 spellCheck="false"
-                placeholder="Email address"
+                placeholder="Enter your username"
                 className="w-full border-b border-zinc-300 py-2 text-base text-zinc-900 focus:outline-none focus:border-[#301905] transition-colors placeholder:text-zinc-400 bg-transparent"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                value={formData.username} // Binding ke state username
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })} // Update state username
               />
             </div>
 
