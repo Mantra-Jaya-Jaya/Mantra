@@ -3,14 +3,14 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../main.dart'
     as app; // ✅ Import untuk mengakses RouteObserver global
 
-class ScanPage extends StatefulWidget {
-  const ScanPage({super.key});
+class ScanCustomerPage extends StatefulWidget {
+  const ScanCustomerPage({super.key});
 
   @override
-  State<ScanPage> createState() => _ScanPageState();
+  State<ScanCustomerPage> createState() => _ScanCustomerPageState();
 }
 
-class _ScanPageState extends State<ScanPage>
+class _ScanCustomerPageState extends State<ScanCustomerPage>
     with WidgetsBindingObserver, RouteAware {
   // Variabel untuk menampung hasil scan
   final MobileScannerController scannerController = MobileScannerController();

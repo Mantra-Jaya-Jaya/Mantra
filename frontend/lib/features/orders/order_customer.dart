@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class MyOrderPage extends StatefulWidget {
   const MyOrderPage({super.key});
@@ -14,39 +15,20 @@ class _MyOrderPageState extends State<MyOrderPage> {
   @override
   Widget build(BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // HEADER SECTION
-        Container(
-          padding: const EdgeInsets.only(top: 60, bottom: 20),
-          width: double.infinity,
-          decoration: const BoxDecoration(color: Color(0xFFAD510D)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        const BaseHeaderWidget(title: "Pesanan Saya"),
+
+        const SizedBox(height: 20),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 15),
+          child: Row(
             children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  "Pesanan Saya",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  children: [
-                    _buildTabItem("Dikemas"),
-                    _buildTabItem("Dikirim"),
-                    _buildTabItem("Selesai"),
-                    _buildTabItem("Dibatalkan"),
-                  ],
-                ),
-              ),
+              _buildTabItem("Dikemas"),
+              _buildTabItem("Dikirim"),
+              _buildTabItem("Selesai"),
+              _buildTabItem("Dibatalkan"),
             ],
           ),
         ),
@@ -79,14 +61,14 @@ class _MyOrderPageState extends State<MyOrderPage> {
         margin: const EdgeInsets.symmetric(horizontal: 5),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFDF2F2) : Colors.transparent,
+          color: isSelected ? const Color(0xFFAD510D) : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           title,
           style: TextStyle(
-            color: isSelected ? const Color(0xFFAD510D) : Colors.white70,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? Colors.white : const Color(0xFFAD510D),
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
           ),
         ),
       ),

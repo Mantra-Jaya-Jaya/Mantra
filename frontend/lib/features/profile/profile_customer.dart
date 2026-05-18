@@ -7,17 +7,17 @@ import 'edit_alamat.dart';
 import '../auth/login.dart';
 import 'services/profile_service.dart';
 
-class Profil extends StatefulWidget {
-  const Profil({super.key});
+class ProfileCustomer extends StatefulWidget {
+  const ProfileCustomer({super.key});
 
   @override
-  State<Profil> createState() => _ProfilState();
+  State<ProfileCustomer> createState() => _ProfileCustomerState();
 }
 
-class _ProfilState extends State<Profil> {
+class _ProfileCustomerState extends State<ProfileCustomer> {
   final ProfileService _profileService = ProfileService();
   bool _isLoading = true;
-  bool _hasLoaded = false;  // cegah re-fetch saat ganti tab
+  bool _hasLoaded = false; // cegah re-fetch saat ganti tab
   String? _errorMessage;
   Map<String, dynamic>? _profil;
   List<Map<String, dynamic>> _daftarAlamat = [];
@@ -68,7 +68,9 @@ class _ProfilState extends State<Profil> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           child: Container(
             width: 300,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
@@ -85,7 +87,11 @@ class _ProfilState extends State<Profil> {
                     color: const Color(0x33AF510C),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const Icon(Icons.check_circle, color: Color(0xFFAF510C), size: 42),
+                  child: const Icon(
+                    Icons.check_circle,
+                    color: Color(0xFFAF510C),
+                    size: 42,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 Text(
@@ -111,11 +117,17 @@ class _ProfilState extends State<Profil> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFAF510C),
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
                     child: const Text(
                       "OK",
-                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ),
                 ),
@@ -133,7 +145,9 @@ class _ProfilState extends State<Profil> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           child: Container(
             width: 300,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
@@ -150,7 +164,11 @@ class _ProfilState extends State<Profil> {
                     color: const Color(0x1FE53935),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const Icon(Icons.delete_outline, color: Colors.red, size: 42),
+                  child: const Icon(
+                    Icons.delete_outline,
+                    color: Colors.red,
+                    size: 42,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 const Text(
@@ -173,9 +191,14 @@ class _ProfilState extends State<Profil> {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           side: const BorderSide(color: Color(0xFFAF510C)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text("Batal", style: TextStyle(color: Color(0xFFAF510C))),
+                        child: const Text(
+                          "Batal",
+                          style: TextStyle(color: Color(0xFFAF510C)),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -190,16 +213,23 @@ class _ProfilState extends State<Profil> {
                             });
                           } catch (e) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Gagal menghapus alamat')),
+                              const SnackBar(
+                                content: Text('Gagal menghapus alamat'),
+                              ),
                             );
                           }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.red,
                           padding: const EdgeInsets.symmetric(vertical: 13),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          "Hapus",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
@@ -219,7 +249,9 @@ class _ProfilState extends State<Profil> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return Dialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
           child: Container(
             width: 300,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
@@ -236,7 +268,11 @@ class _ProfilState extends State<Profil> {
                     color: const Color(0x1FAF510C),
                     borderRadius: BorderRadius.circular(50),
                   ),
-                  child: const Icon(Icons.logout, color: Color(0xFFAF510C), size: 42),
+                  child: const Icon(
+                    Icons.logout,
+                    color: Color(0xFFAF510C),
+                    size: 42,
+                  ),
                 ),
                 const SizedBox(height: 18),
                 const Text(
@@ -260,9 +296,14 @@ class _ProfilState extends State<Profil> {
                         style: OutlinedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 13),
                           side: const BorderSide(color: Color(0xFFAF510C)),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text("Tidak", style: TextStyle(color: Color(0xFFAF510C))),
+                        child: const Text(
+                          "Tidak",
+                          style: TextStyle(color: Color(0xFFAF510C)),
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -277,16 +318,23 @@ class _ProfilState extends State<Profil> {
                           // Arahkan ke login, hapus semua history
                           Navigator.pushAndRemoveUntil(
                             context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            MaterialPageRoute(
+                              builder: (context) => const LoginScreen(),
+                            ),
                             (route) => false,
                           );
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFFAF510C),
                           padding: const EdgeInsets.symmetric(vertical: 13),
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        child: const Text("Iya", style: TextStyle(color: Colors.white)),
+                        child: const Text(
+                          "Iya",
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ),
                     ),
                   ],
@@ -310,11 +358,18 @@ class _ProfilState extends State<Profil> {
               // Header
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 24,
+                ),
                 color: const Color(0xFFAF510C),
                 child: const Text(
                   "Profil Saya",
-                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
@@ -339,100 +394,154 @@ class _ProfilState extends State<Profil> {
               else ...[
                 CircleAvatar(
                   radius: 55,
-                  backgroundImage: _profil?['foto_profil'] != null && _profil!['foto_profil'].isNotEmpty
+                  backgroundImage:
+                      _profil?['foto_profil'] != null &&
+                          _profil!['foto_profil'].isNotEmpty
                       ? NetworkImage(_profil!['foto_profil']) as ImageProvider
                       : const AssetImage("assets/images/profile.jpg"),
                 ),
                 const SizedBox(height: 12),
-                Text(_profil?['nama_lengkap'] ?? "-", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                Text(
+                  _profil?['nama_lengkap'] ?? "-",
+                  style: const TextStyle(
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text(_profil?['email'] ?? "-", style: const TextStyle(color: Colors.grey)),
+                Text(
+                  _profil?['email'] ?? "-",
+                  style: const TextStyle(color: Colors.grey),
+                ),
                 const SizedBox(height: 24),
 
                 // Informasi Akun
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAEFEF),
-                  borderRadius: BorderRadius.circular(18),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          "Informasi Akun",
-                          style: TextStyle(color: Color(0xFFAF510C), fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        OutlinedButton.icon(
-                          onPressed: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => EditInformasiAkun(
-                                  namaAwal: _profil?['nama_lengkap'] ?? '',
-                                  teleponAwal: _profil?['no_telp'] ?? '',
-                                  emailAwal: _profil?['email'] ?? '',
-                                  usernameAwal: _profil?['username'] ?? '',
-                                ),
-                              ),
-                            );
-                            if (result == 'success') {
-                              _loadData(forceRefresh: true);
-                              _showSuccessDialog(
-                                title: "Data berhasil\ndiubah!",
-                                message: "Perubahan profil Anda telah\nberhasil disimpan.",
-                              );
-                            }
-                          },
-                          icon: const Icon(Icons.edit, size: 16, color: Color(0xFFAF510C)),
-                          label: const Text("Edit", style: TextStyle(color: Color(0xFFAF510C))),
-                          style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFAF510C))),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    buildInfoTile(Icons.person_outline, "Nama Lengkap", _profil?['nama_lengkap'] ?? "-"),
-                    buildInfoTile(Icons.phone, "Nomor Telephone", _profil?['no_telp'] ?? "-"),
-                    buildInfoTile(Icons.email_outlined, "Email", _profil?['email'] ?? "-"),
-                    buildInfoTile(Icons.key_outlined, "Username", "@${_profil?['username'] ?? "-"}"),
-
-                    // Baris Password
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFD8B08C),
-                            borderRadius: BorderRadius.circular(12),
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFEAEFEF),
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Informasi Akun",
+                            style: TextStyle(
+                              color: Color(0xFFAF510C),
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                          child: const Icon(Icons.lock_outline),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(child: Text("Password", style: TextStyle(fontWeight: FontWeight.bold))),
-                        ElevatedButton(
-                          onPressed: () async {
-                            final result = await Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => const UbahPassword()),
-                            );
-                            if (result == true) {
-                              _showSuccessDialog(
-                                title: "Password berhasil\ndiubah!",
-                                message: "Perubahan password Anda telah\nberhasil disimpan.",
+                          OutlinedButton.icon(
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditInformasiAkun(
+                                    namaAwal: _profil?['nama_lengkap'] ?? '',
+                                    teleponAwal: _profil?['no_telp'] ?? '',
+                                    emailAwal: _profil?['email'] ?? '',
+                                    usernameAwal: _profil?['username'] ?? '',
+                                  ),
+                                ),
                               );
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAF510C)),
-                          child: const Text("Ubah", style: TextStyle(color: Colors.white)),
-                        ),
-                      ],
-                    ),
-                  ],
+                              if (result == 'success') {
+                                _loadData(forceRefresh: true);
+                                _showSuccessDialog(
+                                  title: "Data berhasil\ndiubah!",
+                                  message:
+                                      "Perubahan profil Anda telah\nberhasil disimpan.",
+                                );
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: Color(0xFFAF510C),
+                            ),
+                            label: const Text(
+                              "Edit",
+                              style: TextStyle(color: Color(0xFFAF510C)),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFFAF510C)),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 20),
+                      buildInfoTile(
+                        Icons.person_outline,
+                        "Nama Lengkap",
+                        _profil?['nama_lengkap'] ?? "-",
+                      ),
+                      buildInfoTile(
+                        Icons.phone,
+                        "Nomor Telephone",
+                        _profil?['no_telp'] ?? "-",
+                      ),
+                      buildInfoTile(
+                        Icons.email_outlined,
+                        "Email",
+                        _profil?['email'] ?? "-",
+                      ),
+                      buildInfoTile(
+                        Icons.key_outlined,
+                        "Username",
+                        "@${_profil?['username'] ?? "-"}",
+                      ),
+
+                      // Baris Password
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFD8B08C),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: const Icon(Icons.lock_outline),
+                          ),
+                          const SizedBox(width: 12),
+                          const Expanded(
+                            child: Text(
+                              "Password",
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: () async {
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const UbahPassword(),
+                                ),
+                              );
+                              if (result == true) {
+                                _showSuccessDialog(
+                                  title: "Password berhasil\ndiubah!",
+                                  message:
+                                      "Perubahan password Anda telah\nberhasil disimpan.",
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFAF510C),
+                            ),
+                            child: const Text(
+                              "Ubah",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
-              ),
               ],
               const SizedBox(height: 20),
               _buildDaftarAlamat(),
@@ -485,7 +594,11 @@ class _ProfilState extends State<Profil> {
         children: [
           const Text(
             "Daftar Alamat",
-            style: TextStyle(color: Color(0xFFAF510C), fontSize: 20, fontWeight: FontWeight.bold),
+            style: TextStyle(
+              color: Color(0xFFAF510C),
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
           ),
           const SizedBox(height: 20),
 
@@ -502,7 +615,8 @@ class _ProfilState extends State<Profil> {
                   alamat: item['alamat_lengkap'] ?? '-',
                   isPrimary: item['is_utama'] ?? false,
                 ),
-                if (index < _daftarAlamat.length - 1) const SizedBox(height: 14),
+                if (index < _daftarAlamat.length - 1)
+                  const SizedBox(height: 14),
               ],
             );
           }),
@@ -515,7 +629,9 @@ class _ProfilState extends State<Profil> {
                 MaterialPageRoute(builder: (context) => const AlamatBaru()),
               );
               if (result == true) {
-                _loadData(forceRefresh: true); // Reload data setelah tambah alamat
+                _loadData(
+                  forceRefresh: true,
+                ); // Reload data setelah tambah alamat
                 _showSuccessDialog(
                   title: "Alamat berhasil\ndisimpan!",
                   message: "Alamat baru Anda telah\nberhasil ditambahkan.",
@@ -524,7 +640,10 @@ class _ProfilState extends State<Profil> {
             },
             child: const Text(
               "+ Tambah Alamat Baru",
-              style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Color(0xFFAF510C),
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
         ],
@@ -556,14 +675,20 @@ class _ProfilState extends State<Profil> {
               Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
               if (isPrimary)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 4,
+                  ),
                   decoration: BoxDecoration(
                     color: const Color(0x33AF510C),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Text(
                     "Utama",
-                    style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: Color(0xFFAF510C),
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
             ],
@@ -593,28 +718,53 @@ class _ProfilState extends State<Profil> {
                     _loadData(forceRefresh: true); // Reload data dari API
                     _showSuccessDialog(
                       title: "Alamat berhasil\ndiubah!",
-                      message: "Perubahan alamat Anda telah\nberhasil disimpan.",
+                      message:
+                          "Perubahan alamat Anda telah\nberhasil disimpan.",
                     );
                   }
                 },
-                icon: const Icon(Icons.edit, size: 16, color: Color(0xFFAF510C)),
-                label: const Text("Edit", style: TextStyle(color: Color(0xFFAF510C))),
+                icon: const Icon(
+                  Icons.edit,
+                  size: 16,
+                  color: Color(0xFFAF510C),
+                ),
+                label: const Text(
+                  "Edit",
+                  style: TextStyle(color: Color(0xFFAF510C)),
+                ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(0xFFAF510C)),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
               OutlinedButton.icon(
                 onPressed: () => _showDeleteDialog(index, idAlamat),
-                icon: const Icon(Icons.delete_outline, size: 16, color: Color(0xFFAF510C)),
-                label: const Text("Hapus", style: TextStyle(color: Color(0xFFAF510C))),
+                icon: const Icon(
+                  Icons.delete_outline,
+                  size: 16,
+                  color: Color(0xFFAF510C),
+                ),
+                label: const Text(
+                  "Hapus",
+                  style: TextStyle(color: Color(0xFFAF510C)),
+                ),
                 style: OutlinedButton.styleFrom(
                   side: const BorderSide(color: Color(0xFFAF510C)),
                   backgroundColor: const Color(0x22AF510C),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                 ),
               ),
             ],
@@ -630,7 +780,10 @@ class _ProfilState extends State<Profil> {
       child: OutlinedButton.icon(
         onPressed: _showLogoutDialog, // panggil dialog konfirmasi
         icon: const Icon(Icons.logout, color: Color(0xFFAF510C)),
-        label: const Text("Keluar dari Akun", style: TextStyle(color: Color(0xFFAF510C))),
+        label: const Text(
+          "Keluar dari Akun",
+          style: TextStyle(color: Color(0xFFAF510C)),
+        ),
         style: OutlinedButton.styleFrom(
           minimumSize: const Size(double.infinity, 50),
           side: const BorderSide(color: Color(0xFFAF510C)),

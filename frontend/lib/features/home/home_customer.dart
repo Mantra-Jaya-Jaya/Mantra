@@ -23,9 +23,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     const HomeContent(),
-    const ScanPage(),
+    const ScanCustomerPage(),
     const MyOrderPage(),
-    const Profil(),
+    const ProfileCustomer(),
   ];
 
   final List<NavMenuModel> customerMenus = [
@@ -81,8 +81,11 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   final KatalogService _katalogService = KatalogService();
-  final _currencyFormat =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final _currencyFormat = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
 
   List<KategoriModel> _kategoriList = [];
   List<BarangModel> _barangList = [];
@@ -271,9 +274,7 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-
   Widget _buildPromoBanner() {
-
     // Jika tidak ada promo dari API, tampilkan gambar statis
     if (_promoList.isEmpty) {
       return ClipRRect(
@@ -286,8 +287,11 @@ class _HomeContentState extends State<HomeContent> {
             'assets/images/promo.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => const Center(
-              child: Icon(Icons.local_offer_outlined,
-                  size: 48, color: Colors.orange),
+              child: Icon(
+                Icons.local_offer_outlined,
+                size: 48,
+                color: Colors.orange,
+              ),
             ),
           ),
         ),
@@ -316,18 +320,18 @@ class _HomeContentState extends State<HomeContent> {
                           width: double.infinity,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                            color: Colors.orange.shade100,
-                            child: Center(
-                              child: Text(
-                                promo.namaDiskon,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFAD510D),
+                                color: Colors.orange.shade100,
+                                child: Center(
+                                  child: Text(
+                                    promo.namaDiskon,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFAD510D),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
                         )
                       : Container(
                           color: Colors.orange.shade100,
@@ -372,7 +376,6 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   Widget _buildKategoriSection() {
-
     if (_isLoadingKategori) {
       return const SizedBox(
         height: 90,
@@ -445,15 +448,17 @@ class _HomeContentState extends State<HomeContent> {
             children: [
               const Icon(Icons.wifi_off, size: 48, color: Colors.grey),
               const SizedBox(height: 8),
-              Text(_errorBarang!,
-                  style: const TextStyle(color: Colors.grey)),
+              Text(_errorBarang!, style: const TextStyle(color: Colors.grey)),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _loadBarang,
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFAD510D)),
-                child: const Text('Coba Lagi',
-                    style: TextStyle(color: Colors.white)),
+                  backgroundColor: const Color(0xFFAD510D),
+                ),
+                child: const Text(
+                  'Coba Lagi',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -530,15 +535,20 @@ class _HomeContentState extends State<HomeContent> {
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey.shade100,
-                        child: const Icon(Icons.image_not_supported,
-                            color: Colors.grey),
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
                       ),
                     )
                   : Container(
                       color: Colors.grey.shade100,
                       child: const Center(
-                        child: Icon(Icons.inventory_2_outlined,
-                            color: Colors.grey, size: 40),
+                        child: Icon(
+                          Icons.inventory_2_outlined,
+                          color: Colors.grey,
+                          size: 40,
+                        ),
                       ),
                     ),
             ),
@@ -576,7 +586,9 @@ class _HomeContentState extends State<HomeContent> {
                   Text(
                     _currencyFormat.format(barang.hargaTerendah),
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 13),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ],
