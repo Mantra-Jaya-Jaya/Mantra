@@ -1,0 +1,641 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'edit_informasi_akun.dart';
+import 'ubah_password.dart';
+import 'tambah_alamat.dart';
+import 'edit_alamat.dart';
+import '../auth/login.dart';
+import 'services/profile_service.dart';
+
+class Profil extends StatefulWidget {
+  const Profil({super.key});
+
+  @override
+  State<Profil> createState() => _ProfilState();
+}
+
+class _ProfilState extends State<Profil> {
+  final ProfileService _profileService = ProfileService();
+  bool _isLoading = true;
+  bool _hasLoaded = false;  // cegah re-fetch saat ganti tab
+  String? _errorMessage;
+  Map<String, dynamic>? _profil;
+  List<Map<String, dynamic>> _daftarAlamat = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData({bool forceRefresh = false}) async {
+    // Kalau sudah pernah load dan tidak di-force refresh, skip
+    if (_hasLoaded && !forceRefresh) return;
+
+    // Hanya tampilkan spinner pada load pertama
+    if (!_hasLoaded) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
+    try {
+      final profilData = await _profileService.getProfil();
+      final alamatData = await _profileService.getAlamat();
+      if (mounted) {
+        setState(() {
+          _profil = profilData;
+          _daftarAlamat = alamatData;
+          _isLoading = false;
+          _hasLoaded = true;
+          _errorMessage = null;
+        });
+      }
+    } catch (e) {
+      print("Error loading profile: $e");
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _errorMessage = e.toString();
+        });
+      }
+    }
+  }
+
+  void _showSuccessDialog({required String title, required String message}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0x33AF510C),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Icon(Icons.check_circle, color: Color(0xFFAF510C), size: 42),
+                ),
+                const SizedBox(height: 18),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    color: Color(0xFFAF510C),
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  message,
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 25),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFAF510C),
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                    child: const Text(
+                      "OK",
+                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showDeleteDialog(int index, int idAlamat) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1FE53935),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Icon(Icons.delete_outline, color: Colors.red, size: 42),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  "Hapus Alamat?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Alamat ini akan dihapus secara permanen.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 25),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          side: const BorderSide(color: Color(0xFFAF510C)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text("Batal", style: TextStyle(color: Color(0xFFAF510C))),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context); // Tutup dialog
+                          try {
+                            await _profileService.hapusAlamat(idAlamat);
+                            setState(() {
+                              _daftarAlamat.removeAt(index);
+                            });
+                          } catch (e) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Gagal menghapus alamat')),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.red,
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text("Hapus", style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // Dialog konfirmasi logout
+  void _showLogoutDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+          child: Container(
+            width: 300,
+            padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0x1FAF510C),
+                    borderRadius: BorderRadius.circular(50),
+                  ),
+                  child: const Icon(Icons.logout, color: Color(0xFFAF510C), size: 42),
+                ),
+                const SizedBox(height: 18),
+                const Text(
+                  "Keluar dari Akun?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Kamu yakin ingin keluar\ndari akun ini?",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey, fontSize: 14),
+                ),
+                const SizedBox(height: 25),
+                Row(
+                  children: [
+                    // Tombol Tidak — kembali ke profil
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          side: const BorderSide(color: Color(0xFFAF510C)),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text("Tidak", style: TextStyle(color: Color(0xFFAF510C))),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    // Tombol Iya — hapus token lalu ke halaman login
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(context); // Tutup dialog dulu
+                          // Hapus semua token dari storage
+                          await const FlutterSecureStorage().deleteAll();
+                          if (!mounted) return;
+                          // Arahkan ke login, hapus semua history
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            (route) => false,
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFFAF510C),
+                          padding: const EdgeInsets.symmetric(vertical: 13),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                        child: const Text("Iya", style: TextStyle(color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // Header
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                color: const Color(0xFFAF510C),
+                child: const Text(
+                  "Profil Saya",
+                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                ),
+              ),
+              const SizedBox(height: 20),
+              if (_isLoading)
+                const Center(
+                  child: Padding(
+                    padding: EdgeInsets.all(40.0),
+                    child: CircularProgressIndicator(color: Color(0xFFAF510C)),
+                  ),
+                )
+              else if (_errorMessage != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(40.0),
+                    child: Text(
+                      "Gagal memuat profil:\n$_errorMessage",
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
+                )
+              else ...[
+                CircleAvatar(
+                  radius: 55,
+                  backgroundImage: _profil?['foto_profil'] != null && _profil!['foto_profil'].isNotEmpty
+                      ? NetworkImage(_profil!['foto_profil']) as ImageProvider
+                      : const AssetImage("assets/images/profile.jpg"),
+                ),
+                const SizedBox(height: 12),
+                Text(_profil?['nama_lengkap'] ?? "-", style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(_profil?['email'] ?? "-", style: const TextStyle(color: Colors.grey)),
+                const SizedBox(height: 24),
+
+                // Informasi Akun
+              Container(
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAEFEF),
+                  borderRadius: BorderRadius.circular(18),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        const Text(
+                          "Informasi Akun",
+                          style: TextStyle(color: Color(0xFFAF510C), fontSize: 20, fontWeight: FontWeight.bold),
+                        ),
+                        OutlinedButton.icon(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => EditInformasiAkun(
+                                  namaAwal: _profil?['nama_lengkap'] ?? '',
+                                  teleponAwal: _profil?['no_telp'] ?? '',
+                                  emailAwal: _profil?['email'] ?? '',
+                                  usernameAwal: _profil?['username'] ?? '',
+                                ),
+                              ),
+                            );
+                            if (result == 'success') {
+                              _loadData(forceRefresh: true);
+                              _showSuccessDialog(
+                                title: "Data berhasil\ndiubah!",
+                                message: "Perubahan profil Anda telah\nberhasil disimpan.",
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.edit, size: 16, color: Color(0xFFAF510C)),
+                          label: const Text("Edit", style: TextStyle(color: Color(0xFFAF510C))),
+                          style: OutlinedButton.styleFrom(side: const BorderSide(color: Color(0xFFAF510C))),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    buildInfoTile(Icons.person_outline, "Nama Lengkap", _profil?['nama_lengkap'] ?? "-"),
+                    buildInfoTile(Icons.phone, "Nomor Telephone", _profil?['no_telp'] ?? "-"),
+                    buildInfoTile(Icons.email_outlined, "Email", _profil?['email'] ?? "-"),
+                    buildInfoTile(Icons.key_outlined, "Username", "@${_profil?['username'] ?? "-"}"),
+
+                    // Baris Password
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFD8B08C),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(Icons.lock_outline),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(child: Text("Password", style: TextStyle(fontWeight: FontWeight.bold))),
+                        ElevatedButton(
+                          onPressed: () async {
+                            final result = await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => const UbahPassword()),
+                            );
+                            if (result == true) {
+                              _showSuccessDialog(
+                                title: "Password berhasil\ndiubah!",
+                                message: "Perubahan password Anda telah\nberhasil disimpan.",
+                              );
+                            }
+                          },
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAF510C)),
+                          child: const Text("Ubah", style: TextStyle(color: Colors.white)),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              ],
+              const SizedBox(height: 20),
+              _buildDaftarAlamat(),
+              const SizedBox(height: 20),
+              _buildLogoutButton(),
+              const SizedBox(height: 20),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildInfoTile(IconData icon, String title, String subtitle) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: const Color(0xFFD8B08C),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(icon),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
+              const SizedBox(height: 2),
+              Text(subtitle, style: const TextStyle(color: Colors.grey)),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDaftarAlamat() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFEAEFEF),
+        borderRadius: BorderRadius.circular(18),
+      ),
+      child: Column(
+        children: [
+          const Text(
+            "Daftar Alamat",
+            style: TextStyle(color: Color(0xFFAF510C), fontSize: 20, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 20),
+
+          ...List.generate(_daftarAlamat.length, (index) {
+            final item = _daftarAlamat[index];
+            return Column(
+              children: [
+                buildAddressCard(
+                  index: index,
+                  idAlamat: item['id_alamat'] ?? 0,
+                  label: item['label_alamat'] ?? 'Tanpa Label',
+                  nama: item['nama_penerima'] ?? '-',
+                  telepon: item['no_telp_penerima'] ?? '-',
+                  alamat: item['alamat_lengkap'] ?? '-',
+                  isPrimary: item['is_utama'] ?? false,
+                ),
+                if (index < _daftarAlamat.length - 1) const SizedBox(height: 14),
+              ],
+            );
+          }),
+
+          const SizedBox(height: 16),
+          TextButton(
+            onPressed: () async {
+              final result = await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const AlamatBaru()),
+              );
+              if (result == true) {
+                _loadData(forceRefresh: true); // Reload data setelah tambah alamat
+                _showSuccessDialog(
+                  title: "Alamat berhasil\ndisimpan!",
+                  message: "Alamat baru Anda telah\nberhasil ditambahkan.",
+                );
+              }
+            },
+            child: const Text(
+              "+ Tambah Alamat Baru",
+              style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAddressCard({
+    required int index,
+    required int idAlamat,
+    required String label,
+    required String nama,
+    required String telepon,
+    required String alamat,
+    required bool isPrimary,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+              if (isPrimary)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: const Color(0x33AF510C),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: const Text(
+                    "Utama",
+                    style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.bold),
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Text(alamat, style: const TextStyle(color: Colors.grey)),
+          const SizedBox(height: 12),
+
+          // Tombol Edit & Hapus
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: () async {
+                  final result = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => EditAlamat(
+                        idAlamat: idAlamat,
+                        labelAwal: label,
+                        namaAwal: nama,
+                        teleponAwal: telepon,
+                        alamatAwal: alamat,
+                      ),
+                    ),
+                  );
+                  if (result == true) {
+                    _loadData(forceRefresh: true); // Reload data dari API
+                    _showSuccessDialog(
+                      title: "Alamat berhasil\ndiubah!",
+                      message: "Perubahan alamat Anda telah\nberhasil disimpan.",
+                    );
+                  }
+                },
+                icon: const Icon(Icons.edit, size: 16, color: Color(0xFFAF510C)),
+                label: const Text("Edit", style: TextStyle(color: Color(0xFFAF510C))),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFAF510C)),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton.icon(
+                onPressed: () => _showDeleteDialog(index, idAlamat),
+                icon: const Icon(Icons.delete_outline, size: 16, color: Color(0xFFAF510C)),
+                label: const Text("Hapus", style: TextStyle(color: Color(0xFFAF510C))),
+                style: OutlinedButton.styleFrom(
+                  side: const BorderSide(color: Color(0xFFAF510C)),
+                  backgroundColor: const Color(0x22AF510C),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLogoutButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: OutlinedButton.icon(
+        onPressed: _showLogoutDialog, // panggil dialog konfirmasi
+        icon: const Icon(Icons.logout, color: Color(0xFFAF510C)),
+        label: const Text("Keluar dari Akun", style: TextStyle(color: Color(0xFFAF510C))),
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(double.infinity, 50),
+          side: const BorderSide(color: Color(0xFFAF510C)),
+        ),
+      ),
+    );
+  }
+}
