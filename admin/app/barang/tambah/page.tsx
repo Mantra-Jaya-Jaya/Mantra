@@ -2,16 +2,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CloudUpload, ScanLine, Trash2, Plus, ChevronRight, ChevronDown, Package, Barcode } from "lucide-react"; 
+import { CloudUpload, ScanLine, Trash2, Plus, ChevronRight, ChevronDown, Package, Barcode, Loader2 } from "lucide-react"; 
 
 export default function TambahBarangPage() {
   const router = useRouter();
   
   // STATE INFORMASI DASAR
-  const [media, setMedia] = useState(null);
+  const [media, setMedia] = useState(""); // Ubah dari null ke string kosong
   const [info, setInfo] = useState({ nama: "", hargaBeli: "", kategori: "", satuan: "", deskripsi: "" });
   
-  // 🚀 STATE SPESIFIKASI (Sekarang punya array 'barcodes' di dalamnya)
+  // STATE SPESIFIKASI 
   const [spesifikasi, setSpesifikasi] = useState([
     { 
       id: 1, 
@@ -19,16 +19,12 @@ export default function TambahBarangPage() {
       nilai: "", 
       stok: "", 
       hargaJual: "", 
-      barcodes: [{ b_id: 101, code: "", qty: "" }] // Default 1 barcode kosong
+      barcodes: [{ b_id: 101, code: "", qty: "" }] 
     }
   ]);
 
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-
-  const dummySatuan = ["Pcs", "Box", "Lusin", "Rim", "Pack", "Kg", "Gram"];
-  const [showSatuan, setShowSatuan] = useState(false);
-  const filteredSatuan = dummySatuan.filter(s => s.toLowerCase().includes(info.satuan.toLowerCase()));
 
   const formatRupiah = (value: any) => {
     if (!value) return "";
@@ -49,9 +45,7 @@ export default function TambahBarangPage() {
     setSpesifikasi(spesifikasi.map(s => s.id === id ? { ...s, [field]: value } : s));
   };
 
-  // --- 🚀 HANDLER BARCODE (SUB-VARIAN) ---
-  
-  // 🚀 Tambahin ": number" di parameter spekId
+  // --- HANDLER BARCODE (SUB-VARIAN) ---
   const addBarcodeToSpesifikasi = (spekId: number) => {
     setSpesifikasi(spesifikasi.map(s => {
       if (s.id === spekId) {
@@ -61,7 +55,6 @@ export default function TambahBarangPage() {
     }));
   };
   
-  // 🚀 Tambahin ": number" di spekId dan barcodeId
   const removeBarcodeFromSpesifikasi = (spekId: number, barcodeId: number) => {
     setSpesifikasi(spesifikasi.map(s => {
       if (s.id === spekId) {
@@ -71,7 +64,6 @@ export default function TambahBarangPage() {
     }));
   };
   
-  // 🚀 Tambahin ": number" di spekId & barcodeId, ": string" di field, dan ": any" di value
   const updateBarcodeInSpek = (spekId: number, barcodeId: number, field: string, value: any) => {
     setSpesifikasi(spesifikasi.map(s => {
       if (s.id === spekId) {
@@ -84,10 +76,11 @@ export default function TambahBarangPage() {
     }));
   };
 
-  // --- LOGIKA SIMPAN API ---
+  // --- 🚀 LOGIKA SIMPAN API KE GOLANG ---
   const handleSimpan = async () => {
     setErrorMsg("");
 
+    // Validasi Frontend
     if (!info.nama || !info.hargaBeli || !info.kategori || !info.satuan) {
       return setErrorMsg("Semua kolom Informasi Barang wajib diisi (kecuali deskripsi).");
     }
@@ -95,20 +88,48 @@ export default function TambahBarangPage() {
     setLoading(true);
 
     try {
+      // Pastikan format data 100% sama dengan struct di Golang
       const payload = {
         media: media,
-        informasi_barang: info,
-        spesifikasi: spesifikasi 
+        informasi_barang: {
+          nama: info.nama,
+          hargaBeli: info.hargaBeli,
+          kategori: info.kategori,
+          satuan: info.satuan,
+          deskripsi: info.deskripsi
+        },
+        spesifikasi: spesifikasi.map(spek => ({
+          atribut: spek.atribut,
+          nilai: spek.nilai,
+          stok: spek.stok.toString(), // Pastikan string biar Golang nggak nangis
+          hargaJual: spek.hargaJual.toString(),
+          barcodes: spek.barcodes.map(bc => ({
+            code: bc.code,
+            qty: bc.qty.toString()
+          }))
+        }))
       };
 
-      console.log("Payload disiapkan:", JSON.stringify(payload, null, 2));
+      const res = await fetch("/api/v1/admin/barang", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
 
-      setTimeout(() => {
-        router.push("/barang");
-      }, 1000);
+      const json = await res.json();
 
-    } catch (error) {
-      setErrorMsg("Terjadi kesalahan saat menyimpan data.");
+      if (!res.ok) {
+        throw new Error(json.message || "Gagal menyimpan data barang.");
+      }
+
+      // Kalau sukses, lempar admin balik ke halaman daftar barang
+      router.push("/barang");
+
+    } catch (error: any) {
+      console.error("Save error:", error);
+      setErrorMsg(error.message || "Terjadi kesalahan saat menyimpan data.");
     } finally {
       setLoading(false);
     }
@@ -134,9 +155,9 @@ export default function TambahBarangPage() {
           </Link>
           <button 
             onClick={handleSimpan} disabled={loading}
-            className="px-6 py-2.5 bg-[#AF520C] text-white rounded-lg text-sm font-bold hover:bg-[#8e4209] transition shadow-sm disabled:opacity-50"
+            className="px-6 py-2.5 bg-[#AF520C] text-white rounded-lg text-sm font-bold hover:bg-[#8e4209] transition shadow-sm flex items-center gap-2 disabled:opacity-50"
           >
-            {loading ? "Menyimpan..." : "Simpan Perubahan"}
+            {loading ? <><Loader2 className="animate-spin" size={16} /> Menyimpan...</> : "Simpan Perubahan"}
           </button>
         </div>
       </div>
