@@ -2,7 +2,7 @@ package models
 
 // Memaksa nama tabel
 func (Barcode) TableName() string {
-  return "barcode"
+	return "barcode"
 }
 
 type Barcode struct {
@@ -14,6 +14,9 @@ type Barcode struct {
   // Relasi ke Satuan (Diambil dari branch feat/flutter-auth-integration)
   SatuanId            uint `gorm:"column:id_satuan" json:"id_satuan"`
 
-  // Relasi ke Barang/SpesifikasiBarang (Mengikuti penamaan terbaru di branch dev)
-  SpesifikasiBarang SpesifikasiBarang `gorm:"foreignKey:SpesifikasiBarangId;references:IdSpesifikasiBarang" json:"spesifikasi_barang"`
+	// Relasi ke Satuan (Diambil dari branch feat/flutter-auth-integration)
+	SatuanId uint `gorm:"column:id_satuan;unique" json:"id_satuan"`
+
+	// Relasi ke Barang/SpesifikasiBarang (Mengikuti penamaan terbaru di branch dev)
+	SpesifikasiBarang SpesifikasiBarang `gorm:"foreignKey:SpesifikasiBarangId;references:IdSpesifikasiBarang" json:"spesifikasi_barang"`
 }

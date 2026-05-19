@@ -1,11 +1,38 @@
 "use client";
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 
-export default function RevenueChart({ rawData }: { rawData: any[] }) {
+export default function RevenueChart() {
   const [periode, setPeriode] = useState('minggu');
   const [currentDate, setCurrentDate] = useState(new Date()); // Start dari hari ini
+  
+  const [chartBars, setChartBars] = useState<any[]>([]);
+  const [chartLabel, setChartLabel] = useState("");
+  const [chartLoading, setChartLoading] = useState(false);
+
+  // Fetch data tiap periode atau currentDate berubah
+  useEffect(() => {
+    const fetchChart = async () => {
+      setChartLoading(true);
+      try {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        const res = await fetch(`/api/v1/admin/dashboard/chart?periode=${periode}&tanggal=${dateStr}`);
+        const json = await res.json();
+        
+        if (res.ok && json.data) {
+          setChartBars(json.data.bars || []);
+          setChartLabel(json.data.label || "");
+        }
+      } catch (err) {
+        console.error("Fetch chart error:", err);
+      } finally {
+        setChartLoading(false);
+      }
+    };
+    
+    fetchChart();
+  }, [periode, currentDate]);
 
   // 1. Logika Geser Waktu (Mesin Waktu)
   const handlePrev = () => {
@@ -24,90 +51,14 @@ export default function RevenueChart({ rawData }: { rawData: any[] }) {
     setCurrentDate(newDate);
   };
 
-  // 2. Pabrik Pengolah Data Mentah (Dihitung ulang kalau tanggal/periode berubah)
-  const chartDataToShow = useMemo(() => {
-    if (!rawData) return [];
-
-    const year = currentDate.getFullYear();
-    const month = currentDate.getMonth();
-
-    if (periode === 'minggu') {
-      // Cari hari Senin di minggu yang dipilih
-      const day = currentDate.getDay() || 7; 
-      const senin = new Date(currentDate);
-      senin.setDate(currentDate.getDate() - day + 1);
-
-      const result = [];
-      const namaHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
-
-      for (let i = 0; i < 7; i++) {
-        const targetDate = new Date(senin);
-        targetDate.setDate(senin.getDate() + i);
-        // Penting: Bikin jadi YYYY-MM-DD biar cocok sama format API
-        const dateStr = targetDate.toISOString().split('T')[0]; 
-        
-        const found = rawData.find(d => d.date === dateStr);
-        result.push({ name: namaHari[i], total: found ? found.total : 0 });
-      }
-      return result;
-    }
-
-    if (periode === 'bulan') {
-      // Agregasi jadi 4/5 Minggu
-      const result = [
-        { name: 'Minggu 1', total: 0 }, { name: 'Minggu 2', total: 0 },
-        { name: 'Minggu 3', total: 0 }, { name: 'Minggu 4', total: 0 },
-        { name: 'Minggu 5', total: 0 },
-      ];
-
-      rawData.forEach(d => {
-        const dateObj = new Date(d.date);
-        if (dateObj.getFullYear() === year && dateObj.getMonth() === month) {
-          const weekIndex = Math.floor((dateObj.getDate() - 1) / 7);
-          if (weekIndex < 5) result[weekIndex].total += d.total;
-        }
-      });
-      // Hapus minggu ke-5 kalau gak ada isinya
-      if (result[4].total === 0) result.pop();
-      return result;
-    }
-
-    if (periode === 'tahun') {
-      // Agregasi jadi 12 Bulan
-      const result = [
-        { name: 'Jan', total: 0 }, { name: 'Feb', total: 0 }, { name: 'Mar', total: 0 },
-        { name: 'Apr', total: 0 }, { name: 'Mei', total: 0 }, { name: 'Jun', total: 0 },
-        { name: 'Jul', total: 0 }, { name: 'Ags', total: 0 }, { name: 'Sep', total: 0 },
-        { name: 'Okt', total: 0 }, { name: 'Nov', total: 0 }, { name: 'Des', total: 0 },
-      ];
-
-      rawData.forEach(d => {
-        const dateObj = new Date(d.date);
-        if (dateObj.getFullYear() === year) {
-          result[dateObj.getMonth()].total += d.total;
-        }
-      });
-      return result;
-    }
-  }, [rawData, periode, currentDate]);
-
-  // 3. Bikin Teks Label Tanggal Dinamis
-  const getLabelTanggal = () => {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    if (periode === 'tahun') return currentDate.getFullYear().toString();
-    if (periode === 'bulan') return `${monthNames[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
-
-    const day = currentDate.getDay() || 7;
-    const senin = new Date(currentDate);
-    senin.setDate(currentDate.getDate() - day + 1);
-    const minggu = new Date(senin);
-    minggu.setDate(senin.getDate() + 6);
-
-    return `${senin.getDate()} ${monthNames[senin.getMonth()].substring(0,3)} - ${minggu.getDate()} ${monthNames[minggu.getMonth()].substring(0,3)} ${minggu.getFullYear()}`;
-  };
-
   return (
-    <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm h-100">
+    <div className="bg-white p-6 rounded-2xl border border-zinc-100 shadow-sm h-100 relative">
+      {chartLoading && (
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-sm z-10 flex items-center justify-center rounded-2xl">
+          <Loader2 className="animate-spin text-[#AF520C]" size={32} />
+        </div>
+      )}
+      
       <div className="flex justify-between items-start mb-6">
         <div>
           <h3 className="font-bold text-zinc-800 text-lg">Revenue Over Time</h3>
@@ -121,7 +72,7 @@ export default function RevenueChart({ rawData }: { rawData: any[] }) {
               <ChevronLeft size={18} />
             </button>
             <span className="text-sm font-semibold text-zinc-700 min-w-35 text-center">
-              {getLabelTanggal()}
+              {chartLabel}
             </span>
             <button onClick={handleNext} className="p-1 hover:bg-white rounded shadow-sm text-zinc-600 transition">
               <ChevronRight size={18} />
@@ -145,7 +96,7 @@ export default function RevenueChart({ rawData }: { rawData: any[] }) {
 
       <div className="w-full h-62.5 mt-4">
         <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
-          <BarChart data={chartDataToShow}>
+          <BarChart data={chartBars}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
             <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} dy={10} />
             <YAxis axisLine={false} tickLine={false} tick={{fill: '#9ca3af', fontSize: 12}} tickFormatter={(value) => `Rp ${value / 1000000}M`} width={80} />

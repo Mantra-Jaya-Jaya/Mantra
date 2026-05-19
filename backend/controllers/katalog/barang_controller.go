@@ -237,7 +237,7 @@ func TambahBarang(c *gin.Context) {
 		"status":  "success",
 		"message": "Barang berhasil ditambahkan",
 		"data": gin.H{
-			"id_barang":   barang.IdBarang,
+			"id_barang":   barang.PublicId,
 			"nama_barang": barang.NamaBarang,
 		},
 	})
@@ -248,17 +248,9 @@ func TambahBarang(c *gin.Context) {
 // Auth: Wajib login, role admin
 func UpdateBarang(c *gin.Context) {
 	idBarangStr := c.Param("id_barang")
-	idBarang, err := strconv.Atoi(idBarangStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
-			"message": "ID barang tidak valid",
-		})
-		return
-	}
 
 	var barang models.Barang
-	if err := config.DB.First(&barang, "id_barang = ?", idBarang).Error; err != nil {
+	if err := config.DB.First(&barang, "public_id = ?", idBarangStr).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  "error",
 			"message": "Barang tidak ditemukan",
@@ -322,17 +314,9 @@ func UpdateBarang(c *gin.Context) {
 // Auth: Wajib login, role admin
 func HapusBarang(c *gin.Context) {
 	idBarangStr := c.Param("id_barang")
-	idBarang, err := strconv.Atoi(idBarangStr)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"status":  "error",
-			"message": "ID barang tidak valid",
-		})
-		return
-	}
 
 	var barang models.Barang
-	if err := config.DB.First(&barang, "id_barang = ?", idBarang).Error; err != nil {
+	if err := config.DB.First(&barang, "public_id = ?", idBarangStr).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"status":  "error",
 			"message": "Barang tidak ditemukan",
