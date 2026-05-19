@@ -47,7 +47,7 @@ class KategoriModel {
 
 // Model Barang (ringkasan untuk list)
 class BarangModel {
-  final int idBarang;
+  final String idBarang;
   final String namaBarang;
   final int hargaTerendah;
   final int hargaTertinggi;
@@ -67,7 +67,7 @@ class BarangModel {
 
   factory BarangModel.fromJson(Map<String, dynamic> json) {
     return BarangModel(
-      idBarang: json['id_barang'] ?? 0,
+      idBarang: (json['id_barang'] ?? json['public_id'] ?? '').toString(),
       namaBarang: json['nama_barang'] ?? '',
       hargaTerendah: json['harga_terendah'] ?? 0,
       hargaTertinggi: json['harga_tertinggi'] ?? 0,

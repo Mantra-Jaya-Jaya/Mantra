@@ -4,7 +4,7 @@ import 'package:frontend/core/widgets/base_header_widget.dart';
 import 'services/profile_service.dart';
 
 class EditAlamat extends StatefulWidget {
-  final int idAlamat;
+  final String idAlamat;
   final String labelAwal;
   final String namaAwal;
   final String teleponAwal;
