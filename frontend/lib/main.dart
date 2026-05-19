@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'features/auth/signup.dart';
 import 'features/landing_page/landing_page.dart';
+import 'features/home/home_customer.dart';
 
 // 1. TAMBAHKAN INI: Deklarasikan variabel secara global di luar class
 final RouteObserver<Route> routeObserver = RouteObserver<Route>();

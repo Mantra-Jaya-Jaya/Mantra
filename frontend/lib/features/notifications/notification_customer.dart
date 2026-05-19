@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class NotificationCustomerPage extends StatelessWidget {
   const NotificationCustomerPage({super.key});
@@ -7,82 +8,62 @@ class NotificationCustomerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+
+      appBar: BaseHeaderWidget(
+        title: 'Notifikasi',
+
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+      ),
+
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+
         children: [
-          Container(
-            width: double.infinity,
-            decoration: const BoxDecoration(
-              color: Color(0xFFAD510D),
-              borderRadius: BorderRadius.only(
-                bottomLeft: Radius.circular(30),
-                bottomRight: Radius.circular(30),
-              ),
-            ),
-            padding: const EdgeInsets.fromLTRB(20, 55, 20, 22),
-            child: Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(
-                    Icons.arrow_back,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: 16),
-                const Text(
-                  'Notifikasi',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
+          const Text(
+            'Hari ini',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
           ),
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-              children: [
-                const Text(
-                  'Hari ini',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
-                _notificationCard(
-                  icon: Icons.discount_outlined,
-                  title: 'Diskon spesial untukmu!',
-                  description:
-                      'Dapatkan diskon 30% untuk semua buku pelajaran. Promo berlaku s.d 10 Mei 2026.',
-                ),
-                _notificationCard(
-                  icon: Icons.payment_outlined,
-                  title: 'Pembayaran berhasil',
-                  description:
-                      'Pesanan #123 telah dikonfirmasi. Total pembayaran Rp. 300.000 via Dana.',
-                ),
-                _notificationCard(
-                  icon: Icons.local_shipping_outlined,
-                  title: 'Pesanan hampir sampai!',
-                  description:
-                      'Pesanan #123 sedang dalam perjalanan menuju lokasi anda.',
-                ),
-                const SizedBox(height: 20),
-                const Text(
-                  'Kemarin',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 15),
-                _notificationCard(
-                  icon: Icons.location_on_outlined,
-                  title: 'Pesanan telah sampai',
-                  description:
-                      'Pesanan #234 telah diterima. Semoga kamu puas ya!',
-                ),
-              ],
-            ),
+
+          const SizedBox(height: 15),
+
+          _notificationCard(
+            icon: Icons.discount_outlined,
+            title: 'Diskon spesial untukmu!',
+            description:
+                'Dapatkan diskon 30% untuk semua buku pelajaran. Promo berlaku s.d 10 Mei 2026.',
+          ),
+
+          _notificationCard(
+            icon: Icons.payment_outlined,
+            title: 'Pembayaran berhasil',
+            description:
+                'Pesanan #123 telah dikonfirmasi. Total pembayaran Rp. 300.000 via Dana.',
+          ),
+
+          _notificationCard(
+            icon: Icons.local_shipping_outlined,
+            title: 'Pesanan hampir sampai!',
+            description:
+                'Pesanan #123 sedang dalam perjalanan menuju lokasi anda.',
+          ),
+
+          const SizedBox(height: 20),
+
+          const Text(
+            'Kemarin',
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+
+          const SizedBox(height: 15),
+
+          _notificationCard(
+            icon: Icons.location_on_outlined,
+            title: 'Pesanan telah sampai',
+            description: 'Pesanan #234 telah diterima. Semoga kamu puas ya!',
           ),
         ],
       ),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'services/profile_service.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class AlamatBaru extends StatefulWidget {
   const AlamatBaru({super.key});
@@ -30,7 +31,8 @@ class AlamatBaruState extends State<AlamatBaru> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _labelController.text.isNotEmpty &&
+      _isFormValid =
+          _labelController.text.isNotEmpty &&
           _namaController.text.isNotEmpty &&
           _teleponController.text.isNotEmpty &&
           _alamatController.text.isNotEmpty;
@@ -51,20 +53,12 @@ class AlamatBaruState extends State<AlamatBaru> {
     return Scaffold(
       backgroundColor: Colors.white,
 
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFAF510C),
-        elevation: 0,
-        centerTitle: true,
+      appBar: BaseHeaderWidget(
+        title: 'Alamat Baru',
+
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Alamat Baru",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
         ),
       ),
 
@@ -75,18 +69,12 @@ class AlamatBaruState extends State<AlamatBaru> {
           children: [
             const Text(
               "Label Alamat",
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 8),
 
-            _buildField(
-              "Contoh: Rumah / Kantor",
-              _labelController,
-            ),
+            _buildField("Contoh: Rumah / Kantor", _labelController),
 
             const SizedBox(height: 20),
 
@@ -148,7 +136,9 @@ class AlamatBaruState extends State<AlamatBaru> {
                         } catch (e) {
                           if (mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Gagal menambahkan alamat')),
+                              const SnackBar(
+                                content: Text('Gagal menambahkan alamat'),
+                              ),
                             );
                             setState(() => _isLoading = false);
                           }
@@ -167,7 +157,10 @@ class AlamatBaruState extends State<AlamatBaru> {
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
                       )
                     : Text(
                         "Simpan Alamat",
@@ -184,28 +177,20 @@ class AlamatBaruState extends State<AlamatBaru> {
     );
   }
 
-  Widget _buildField(
-    String hint,
-    TextEditingController controller,
-  ) {
+  Widget _buildField(String hint, TextEditingController controller) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
         hintText: hint,
         filled: true,
         fillColor: Colors.white,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 15),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 15),
         enabledBorder: OutlineInputBorder(
-          borderSide:
-              const BorderSide(color: Color(0xFFAF510C)),
+          borderSide: const BorderSide(color: Color(0xFFAF510C)),
           borderRadius: BorderRadius.circular(8),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(
-            color: Color(0xFFAF510C),
-            width: 2,
-          ),
+          borderSide: const BorderSide(color: Color(0xFFAF510C), width: 2),
           borderRadius: BorderRadius.circular(8),
         ),
       ),
@@ -228,11 +213,7 @@ class AlamatBaruState extends State<AlamatBaru> {
             color: const Color(0xFFD8B08C),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(
-            icon,
-            size: 20,
-            color: Colors.black87,
-          ),
+          child: Icon(icon, size: 20, color: Colors.black87),
         ),
 
         const SizedBox(width: 12),
@@ -259,19 +240,14 @@ class AlamatBaruState extends State<AlamatBaru> {
                   isDense: true,
                   filled: true,
                   fillColor: Colors.white,
-                  contentPadding:
-                      const EdgeInsets.all(10),
+                  contentPadding: const EdgeInsets.all(10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFAF510C),
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFFAF510C)),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(5),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFAF510C),
-                    ),
+                    borderSide: const BorderSide(color: Color(0xFFAF510C)),
                   ),
                 ),
               ),
