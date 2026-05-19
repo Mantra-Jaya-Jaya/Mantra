@@ -89,8 +89,41 @@ flutter build apk --release --dart-define=BASE_URL=https://mantra.web.id/api/v1
 *(APK hasil build akan berada di `build/app/outputs/flutter-apk/app-release.apk`)*
 
 ### 3.4 Catatan Konfigurasi Tambahan (Android)
-- **Keystore & Signing:** APK Production membutuhkan Keystore (`.jks`) resmi yang disimpan secara rahasia dan tidak di-commit ke Git. Buat file `android/key.properties` yang berisi konfigurasi Keystore (`storePassword`, `keyPassword`, `keyAlias`, `storeFile`), lalu rujuk di `android/app/build.gradle.kts`. Pastikan `.jks` dan `key.properties` masuk ke `.gitignore`.
-- **Icon Aplikasi:** Gunakan package `flutter_launcher_icons` di `pubspec.yaml` untuk mengenerate icon aplikasi secara otomatis dari file gambar minimal 1024x1024 px.
+
+**1. Keystore & Signing (Wajib untuk APK Production)**
+APK Production membutuhkan Keystore (`.jks`) resmi yang disimpan secara rahasia dan **tidak boleh di-commit ke Git**. Agar tim dapat membuild APK Release dengan aman, ikuti langkah berikut:
+
+*   **Generate Keystore (Jika belum punya):**
+    Jalankan perintah ini di terminal proyek Anda untuk membuat file `upload-keystore.jks` di dalam folder `android/app/`:
+    
+    **Mac / Linux:**
+    ```bash
+    keytool -genkey -v -keystore android/app/upload-keystore.jks \
+      -keyalg RSA -keysize 2048 -validity 10000 \
+      -alias upload
+    ```
+
+    **Windows (Command Prompt / PowerShell):**
+    ```cmd
+    keytool -genkey -v -keystore android\app\upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+    ```
+    *(Ingat baik-baik password yang Anda masukkan saat proses ini).*
+
+*   **Buat File `key.properties`:**
+    Buat file baru bernama `key.properties` di dalam folder `android/` (sejajar dengan folder `app/`). Isi dengan konfigurasi berikut:
+    ```properties
+    storePassword=PASSWORD_KEYSTORE_ANDA
+    keyPassword=PASSWORD_KEYSTORE_ANDA
+    keyAlias=upload
+    storeFile=upload-keystore.jks
+    ```
+    *(Ganti `PASSWORD_KEYSTORE_ANDA` dengan password yang Anda buat sebelumnya).*
+
+> [!NOTE]
+> Konfigurasi Gradle kita sudah disesuaikan. Jika `key.properties` tidak ditemukan (misalnya saat baru _clone_ repo), aplikasi tetap bisa di-_build_ atau di-_run_ secara lokal menggunakan konfigurasi debug _default_. File `.jks` dan `key.properties` sudah otomatis diabaikan oleh `.gitignore` proyek ini.
+
+**2. Icon Aplikasi**
+- Gunakan package `flutter_launcher_icons` di `pubspec.yaml` untuk mengenerate icon aplikasi secara otomatis dari file gambar minimal 1024x1024 px.
 
 ---
 
