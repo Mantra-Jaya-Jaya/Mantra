@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../auth/lupa_password.dart';
 
 class UbahPassword extends StatefulWidget {
   const UbahPassword({super.key});
@@ -89,7 +90,14 @@ class UbahPasswordState extends State<UbahPassword> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const LupaPassword(),
+                    ),
+                  );
+                },
                 child: const Text(
                   "Lupa Password",
                   style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.w600),
