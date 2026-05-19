@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:frontend/core/widgets/bottom_navbar.dart';
 import 'package:frontend/features/home/services/dashboard_kasir_service.dart';
+import 'package:frontend/features/summary/summary.dart';
 import 'package:intl/intl.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../auth/login.dart';
+import '../orders/order_kasir.dart';
+import '../summary/summary.dart';
 
 class DashboardKasirPage extends StatefulWidget {
   const DashboardKasirPage({super.key});
@@ -19,9 +22,9 @@ class _DashboardKasirPageState extends State<DashboardKasirPage> {
   // Placeholder untuk halaman lain
   final List<Widget> _pages = [
     const DashboardContent(),
-    const Center(child: Text('Halaman Orders')),
+    const OrderKasir(),
     const Center(child: Text('Halaman Payments')),
-    const Center(child: Text('Halaman Summary')),
+    const SummaryPage(),
     const ProfileKasirPlaceholder(),
   ];
 
@@ -36,9 +39,37 @@ class _DashboardKasirPageState extends State<DashboardKasirPage> {
 
   @override
   Widget build(BuildContext context) {
+    // 1. Ambil lebar layar untuk menghitung posisi koordinat X FAB secara dinamis
+    double screenWidth = MediaQuery.of(context).size.width;
+    double navPadding = 20.0; // Sesuaikan dengan padding horizontal di CustomDynamicNavbar jika ada
+    double rowWidth = screenWidth - (navPadding * 2);
+    double itemWidth = rowWidth / kasirMenus.length;
+    
+    // 2. Hitung posisi X agar lekukan & FAB berada tepat di tengah menu yang aktif
+    double fabX = (itemWidth * _currentIndex) + (itemWidth / 2) - 28 + navPadding;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      body: IndexedStack(index: _currentIndex, children: _pages),
+      backgroundColor: Colors.white,
+      body: IndexedStack(index: _currentIndex, children: _pages), // Menggunakan IndexedStack agar state halaman terjaga
+      
+      // 3. Gunakan DynamicFabLocation custom yang sama seperti customer
+      floatingActionButtonLocation: DynamicFabLocation(fabX),
+      
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // Tetap mempertahankan index yang sedang aktif saat FAB diklik (opsional)
+          // Atau jika ingin memaksa ke halaman payments (index 2):
+          setState(() => _currentIndex = _currentIndex); 
+        },
+        backgroundColor: const Color(0xFFAD510D), // Menggunakan warna coklat agar match dengan gambar 1
+        shape: const CircleBorder(),
+        child: Icon(
+          kasirMenus[_currentIndex].icon,
+          color: Colors.white,
+          size: 30,
+        ),
+      ),
+
       bottomNavigationBar: CustomDynamicNavbar(
         currentIndex: _currentIndex,
         menus: kasirMenus,
@@ -49,6 +80,8 @@ class _DashboardKasirPageState extends State<DashboardKasirPage> {
     );
   }
 }
+
+// ... Sisanya ke bawah (ProfileKasirPlaceholder dan DashboardContent) tetap sama seperti kode aslimu
 
 class ProfileKasirPlaceholder extends StatelessWidget {
   const ProfileKasirPlaceholder({super.key});
