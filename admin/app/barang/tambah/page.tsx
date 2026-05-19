@@ -2,13 +2,16 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { CloudUpload, ScanLine, Trash2, Plus, ChevronRight, ChevronDown, Package, Barcode, Loader2 } from "lucide-react"; 
+import { CloudUpload, ScanLine, Trash2, Plus, ChevronRight, ChevronDown, Package, Barcode, Loader2, Image as ImageIcon } from "lucide-react"; 
 
 export default function TambahBarangPage() {
   const router = useRouter();
   
   // STATE INFORMASI DASAR
-  const [media, setMedia] = useState(""); // Ubah dari null ke string kosong
+  const [fileGambar, setFileGambar] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
+  const [isDragging, setIsDragging] = useState(false); // State buat efek Drag & Drop
+
   const [info, setInfo] = useState({ nama: "", hargaBeli: "", kategori: "", satuan: "", deskripsi: "" });
   
   // STATE SPESIFIKASI 
@@ -33,6 +36,54 @@ export default function TambahBarangPage() {
     return new Intl.NumberFormat('id-ID').format(angkaMurni);
   };
 
+  // --- 🚀 HANDLER FILE (VALIDASI 1MB & PREVIEW) ---
+  const processFile = (file: File | undefined) => {
+    setErrorMsg(""); // Bersihin error lama
+    if (!file) return;
+
+    // 1. Validasi Tipe (Wajib Gambar)
+    if (!file.type.startsWith("image/")) {
+      return setErrorMsg("⚠️ Format file tidak didukung. Harap upload gambar (JPG/PNG).");
+    }
+
+    // 2. Validasi Ukuran (Maksimal 1 MB = 1 * 1024 * 1024 bytes)
+    if (file.size > 1024 * 1024) {
+      return setErrorMsg("⚠️ Ukuran gambar terlalu besar! Maksimal 1 MB ya abangku biar server gak meledak.");
+    }
+
+    // Kalau aman, masukin ke state
+    setFileGambar(file);
+    setPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    processFile(file);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    processFile(file);
+  };
+
+  const hapusGambar = () => {
+    setFileGambar(null);
+    setPreviewUrl("");
+  };
+
+
   // --- HANDLER SPESIFIKASI (VARIAN INDUK) ---
   const addSpesifikasiRow = () => {
     setSpesifikasi([...spesifikasi, { 
@@ -54,7 +105,6 @@ export default function TambahBarangPage() {
       return s;
     }));
   };
-  
   const removeBarcodeFromSpesifikasi = (spekId: number, barcodeId: number) => {
     setSpesifikasi(spesifikasi.map(s => {
       if (s.id === spekId) {
@@ -63,7 +113,6 @@ export default function TambahBarangPage() {
       return s;
     }));
   };
-  
   const updateBarcodeInSpek = (spekId: number, barcodeId: number, field: string, value: any) => {
     setSpesifikasi(spesifikasi.map(s => {
       if (s.id === spekId) {
@@ -80,7 +129,6 @@ export default function TambahBarangPage() {
   const handleSimpan = async () => {
     setErrorMsg("");
 
-    // Validasi Frontend
     if (!info.nama || !info.hargaBeli || !info.kategori || !info.satuan) {
       return setErrorMsg("Semua kolom Informasi Barang wajib diisi (kecuali deskripsi).");
     }
@@ -88,9 +136,31 @@ export default function TambahBarangPage() {
     setLoading(true);
 
     try {
-      // Pastikan format data 100% sama dengan struct di Golang
+      let finalMediaUrl = "";
+
+      // 1. JALANKAN UPLOAD GAMBAR DULU (JIKA ADA)
+      if (fileGambar) {
+        const formData = new FormData();
+        formData.append("gambar", fileGambar);
+
+        // Nembak ke endpoint upload yang baru lu bikin
+        const uploadRes = await fetch("/api/v1/admin/barang/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const uploadJson = await uploadRes.json();
+        
+        if (!uploadRes.ok) {
+          throw new Error(uploadJson.message || "Gagal mengunggah gambar ke server.");
+        }
+        
+        finalMediaUrl = uploadJson.url; // Dapet URL dari MinIO
+      }
+
+      // 2. KIRIM DATA JSON BARANG 
       const payload = {
-        media: media,
+        media: finalMediaUrl, // Masukin URL MinIO ke sini
         informasi_barang: {
           nama: info.nama,
           hargaBeli: info.hargaBeli,
@@ -101,7 +171,7 @@ export default function TambahBarangPage() {
         spesifikasi: spesifikasi.map(spek => ({
           atribut: spek.atribut,
           nilai: spek.nilai,
-          stok: spek.stok.toString(), // Pastikan string biar Golang nggak nangis
+          stok: spek.stok.toString(),
           hargaJual: spek.hargaJual.toString(),
           barcodes: spek.barcodes.map(bc => ({
             code: bc.code,
@@ -110,11 +180,10 @@ export default function TambahBarangPage() {
         }))
       };
 
+      // Nembak ke endpoint simpan barang
       const res = await fetch("/api/v1/admin/barang", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
@@ -124,7 +193,6 @@ export default function TambahBarangPage() {
         throw new Error(json.message || "Gagal menyimpan data barang.");
       }
 
-      // Kalau sukses, lempar admin balik ke halaman daftar barang
       router.push("/barang");
 
     } catch (error: any) {
@@ -164,20 +232,54 @@ export default function TambahBarangPage() {
 
       {errorMsg && (
         <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-600 rounded-lg text-sm font-semibold">
-          ⚠️ {errorMsg}
+          {errorMsg}
         </div>
       )}
 
-      {/* MEDIA PRODUK */}
+      {/* 🚀 MEDIA PRODUK DENGAN DRAG & DROP */}
       <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm mb-6">
         <h2 className="text-lg font-bold text-zinc-800 mb-4">Media Produk</h2>
-        <div className="w-full border-2 border-dashed border-zinc-300 rounded-xl p-12 flex flex-col items-center justify-center text-center hover:bg-zinc-50 transition cursor-pointer">
-          <div className="w-12 h-12 bg-orange-50 text-[#AF520C] rounded-full flex items-center justify-center mb-4">
-            <CloudUpload size={24} />
+        
+        <label 
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`w-full border-2 border-dashed rounded-xl p-1 relative flex flex-col items-center justify-center text-center transition cursor-pointer overflow-hidden min-h-60
+            ${isDragging ? "border-[#AF520C] bg-orange-50" : "border-zinc-300 hover:bg-zinc-50"}
+          `}
+        >
+          {/* Input file sembunyi, aktif kalau label di-klik */}
+          <input 
+            type="file" 
+            accept="image/png, image/jpeg, image/jpg" 
+            className="hidden" 
+            onChange={handleFileChange} 
+          />
+          
+          {previewUrl ? (
+            <div className="w-full h-full absolute inset-0 flex items-center justify-center bg-zinc-100">
+               <img src={previewUrl} alt="Preview" className="max-h-full max-w-full object-contain" />
+            </div>
+          ) : (
+            <div className="flex flex-col items-center p-12 pointer-events-none">
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 transition ${isDragging ? "bg-[#AF520C] text-white" : "bg-orange-50 text-[#AF520C]"}`}>
+                <CloudUpload size={28} />
+              </div>
+              <p className="font-bold text-zinc-700 mb-1">
+                {isDragging ? "Lepaskan gambar di sini!" : "Tarik & Lepas, atau Klik File"}
+              </p>
+              <p className="text-sm text-zinc-400 max-w-xs">Gunakan format JPG, PNG. (Maks. 1MB)</p>
+            </div>
+          )}
+        </label>
+        
+        {previewUrl && (
+          <div className="mt-3 flex justify-end">
+            <button onClick={hapusGambar} className="text-sm text-red-500 font-bold hover:text-red-700 flex items-center gap-1">
+              <Trash2 size={16} /> Hapus Gambar
+            </button>
           </div>
-          <p className="font-bold text-zinc-700 mb-1">Unggah Foto Produk</p>
-          <p className="text-sm text-zinc-400 max-w-xs">Tarik dan lepas gambar di sini, atau klik untuk memilih file. Gunakan format JPG, PNG (Maks. 5MB).</p>
-        </div>
+        )}
       </div>
 
       {/* INFORMASI BARANG */}
@@ -226,7 +328,7 @@ export default function TambahBarangPage() {
         </div>
       </div>
 
-      {/* SPESIFIKASI BARANG & BARCODE (UI BERTINGKAT) */}
+      {/* SPESIFIKASI BARANG & BARCODE */}
       <div className="bg-white p-6 rounded-xl border border-zinc-200 shadow-sm">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-lg font-bold text-zinc-800 flex items-center gap-2">
@@ -280,7 +382,7 @@ export default function TambahBarangPage() {
                 </div>
               </div>
 
-              {/* BAGIAN BAWAH: Daftar Barcode (Abu-abu muda) */}
+              {/* BAGIAN BAWAH: Daftar Barcode */}
               <div className="p-5 bg-zinc-50">
                 <div className="flex justify-between items-center mb-3">
                   <label className="text-xs font-bold text-zinc-600 flex items-center gap-1.5">

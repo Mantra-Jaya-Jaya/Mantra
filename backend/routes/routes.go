@@ -5,8 +5,6 @@ import (
 	"backend-mantra/controllers/katalog"
 	"backend-mantra/controllers/keranjang"
 	"backend-mantra/controllers/notifikasi"
-	"backend-mantra/controllers/pengantaran"
-	"backend-mantra/controllers/stok"
 	"backend-mantra/controllers/transaksi"
 	"backend-mantra/controllers/user"
 	"backend-mantra/middleware"
@@ -40,7 +38,6 @@ func SetupRoutes(r *gin.Engine) {
 			customerGroup.GET("/promo", katalog.GetPromo)
 			customerGroup.GET("/kategori", katalog.GetKategori)
 			customerGroup.GET("/barang", katalog.GetDaftarBarang)
-			customerGroup.GET("/keranjang", keranjang.GetKeranjang)
 			customerGroup.POST("/keranjang", keranjang.TambahKeKeranjang)
 			customerGroup.PATCH("/keranjang/:id_keranjang", keranjang.UpdateKeranjang)
 			customerGroup.DELETE("/keranjang/:id_keranjang", keranjang.HapusItemKeranjang)
@@ -78,27 +75,23 @@ func SetupRoutes(r *gin.Engine) {
 			kasirGroup.GET("/notifikasi", notifikasi.GetNotifikasi)
 		}
 
-		// Kurir Routes
-		kurirGroup := v1.Group("/kurir")
-		kurirGroup.Use(middleware.AuthMiddleware())
-		{
-			kurirGroup.GET("/pengantaran", pengantaran.GetDaftarPengantaran)
-			kurirGroup.PATCH("/pengantaran/:id_pengantaran/lokasi", pengantaran.UpdateLokasiKurir)
-		}
-
 		// Admin Routes
 		adminGroup := v1.Group("/admin")
 		adminGroup.Use(middleware.AuthMiddleware())
 		{
 			adminGroup.GET("/dashboard", user.GetDashboardAdmin)
+<<<<<<< HEAD
+=======
 			adminGroup.GET("/dashboard/chart", user.GetChartDashboardAdmin)
 			adminGroup.GET("/kategori", katalog.GetKategori)
 			adminGroup.POST("/kategori", katalog.TambahKategori)
 			adminGroup.PUT("/kategori/:id_kategori", katalog.UpdateKategori)
 			adminGroup.DELETE("/kategori/:id_kategori", katalog.HapusKategori)
+>>>>>>> c7388ad36c44b06dee7d3b6348a99f5903761e59
 			adminGroup.GET("/barang", katalog.GetDaftarBarang)
 			adminGroup.POST("/barang", katalog.TambahBarang)
 			adminGroup.GET("/barang/detail/:public_id", katalog.GetDetailBarang)
+			adminGroup.POST("/barang/upload", katalog.UploadGambarBarang)
 			adminGroup.PUT("/barang/:id_barang", katalog.UpdateBarang)
 			adminGroup.DELETE("/barang/:id_barang", katalog.HapusBarang)
 			adminGroup.POST("/barang/:id_barang/diskon", katalog.TambahDiskon)
@@ -114,11 +107,8 @@ func SetupRoutes(r *gin.Engine) {
 			adminGroup.PUT("/karyawan/kurir/:id_kurir", user.UpdateKurir)
 			adminGroup.DELETE("/karyawan/kurir/:id_kurir", user.HapusKurir)
 			adminGroup.GET("/notifikasi", notifikasi.GetNotifikasiAdmin)
-			adminGroup.GET("/pengantaran", pengantaran.GetDaftarPengantaran)
 			adminGroup.GET("/profil", user.GetProfilAdmin)
 			adminGroup.PUT("/profil", user.UpdateProfilAdmin)
-			adminGroup.GET("/stok/riwayat", stok.GetRiwayatStok)
-			adminGroup.POST("/stok/opname", stok.OpnameStok)
 		}
 	}
 }
