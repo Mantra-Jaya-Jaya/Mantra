@@ -66,10 +66,31 @@ Pastikan:
 3. Jika menggunakan HP fisik asli, pastikan HP dan Laptop terhubung di WiFi yang sama, lalu ganti URL Base API di kodingan Flutter menjadi IP Address laptop Anda (contoh: `192.168.1.15:8080`).
 
 ### 3.3 Build & Run
-Jalankan aplikasi di emulator atau perangkat fisik Anda:
+
+Aplikasi memiliki dua mode utama saat dijalankan atau di-build:
+
+**Mode Offline Lokal (Backend di Laptop):**
+Gunakan mode ini saat backend berjalan secara lokal di laptop Anda.
 ```bash
 flutter run
 ```
+
+**Mode Online Production (Konek ke mantra.web.id):**
+Gunakan mode ini untuk terhubung langsung ke server production. Sangat cocok untuk menguji fitur dengan data nyata.
+```bash
+flutter run --dart-define=BASE_URL=https://mantra.web.id/api/v1
+```
+
+**Build APK Production:**
+Untuk mem-build APK final yang akan di-install di HP untuk testing (terhubung ke server production):
+```bash
+flutter build apk --release --dart-define=BASE_URL=https://mantra.web.id/api/v1
+```
+*(APK hasil build akan berada di `build/app/outputs/flutter-apk/app-release.apk`)*
+
+### 3.4 Catatan Konfigurasi Tambahan (Android)
+- **Keystore & Signing:** APK Production membutuhkan Keystore (`.jks`) resmi yang disimpan secara rahasia dan tidak di-commit ke Git. Buat file `android/key.properties` yang berisi konfigurasi Keystore (`storePassword`, `keyPassword`, `keyAlias`, `storeFile`), lalu rujuk di `android/app/build.gradle.kts`. Pastikan `.jks` dan `key.properties` masuk ke `.gitignore`.
+- **Icon Aplikasi:** Gunakan package `flutter_launcher_icons` di `pubspec.yaml` untuk mengenerate icon aplikasi secara otomatis dari file gambar minimal 1024x1024 px.
 
 ---
 
