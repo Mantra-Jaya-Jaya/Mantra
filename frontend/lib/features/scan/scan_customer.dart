@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../main.dart'
     as app; // ✅ Import untuk mengakses RouteObserver global
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -181,13 +182,9 @@ class _ScanPageState extends State<ScanPage>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFAF510C),
-        elevation: 0,
-        title: const Text(
-          "Cek Harga",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-        ),
+      appBar: BaseHeaderWidget(
+        title: "Cek Harga",
+
         actions: [
           IconButton(
             icon: Icon(

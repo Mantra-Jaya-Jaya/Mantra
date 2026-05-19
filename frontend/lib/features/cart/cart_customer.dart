@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class CartCustomerPage extends StatelessWidget {
   const CartCustomerPage({super.key});
@@ -7,131 +8,116 @@ class CartCustomerPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFFAD510D),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Text(
-                    'Keranjang Saya',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
-                children: [
-                  _buildCartItem(
-                    imagePath: 'assets/images/produk.png',
-                    title: 'Mug Coffe 510 ml',
-                    subtitle: 'Detail Pemesanan',
-                    price: 'Rp. 50.000',
-                    quantity: 1,
-                  ),
-                  _buildCartItem(
-                    imagePath: 'assets/images/produk.png',
-                    title: 'Totebag',
-                    subtitle: 'Detail Pemesanan',
-                    price: 'Rp. 50.000',
-                    quantity: 2,
-                  ),
-                  _buildCartItem(
-                    imagePath: 'assets/images/produk.png',
-                    title: 'Heels Wanita',
-                    subtitle: 'Detail Pemesanan',
-                    price: 'Rp. 100.000',
-                    quantity: 2,
-                  ),
-                  _buildCartItem(
-                    imagePath: 'assets/images/produk.png',
-                    title: 'Dress Elegan',
-                    subtitle: 'Detail Pemesanan',
-                    price: 'Rp. 50.000',
-                    quantity: 1,
-                  ),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Total Pesanan',
-                          style: TextStyle(color: Colors.grey),
-                        ),
-                        const SizedBox(height: 8),
-                        const Text(
-                          'Rp. 250.000',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: () {},
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFAD510D),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                            ),
-                            child: const Text(
-                              'Lanjut ke Checkout',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
+
+      appBar: BaseHeaderWidget(
+        title: 'Keranjang Saya',
+
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
+      ),
+
+      body: ListView(
+        padding: const EdgeInsets.fromLTRB(20, 20, 20, 20),
+        children: [
+          _buildCartItem(
+            imagePath: 'assets/images/produk.png',
+            title: 'Mug Coffe 510 ml',
+            subtitle: 'Detail Pemesanan',
+            price: 'Rp. 50.000',
+            quantity: 1,
+          ),
+
+          _buildCartItem(
+            imagePath: 'assets/images/produk.png',
+            title: 'Totebag',
+            subtitle: 'Detail Pemesanan',
+            price: 'Rp. 50.000',
+            quantity: 2,
+          ),
+
+          _buildCartItem(
+            imagePath: 'assets/images/produk.png',
+            title: 'Heels Wanita',
+            subtitle: 'Detail Pemesanan',
+            price: 'Rp. 100.000',
+            quantity: 2,
+          ),
+
+          _buildCartItem(
+            imagePath: 'assets/images/produk.png',
+            title: 'Dress Elegan',
+            subtitle: 'Detail Pemesanan',
+            price: 'Rp. 50.000',
+            quantity: 1,
+          ),
+
+          const SizedBox(height: 20),
+
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
+                ),
+              ],
+            ),
+
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Total Pesanan',
+                  style: TextStyle(color: Colors.grey),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  'Rp. 250.000',
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+
+                const SizedBox(height: 16),
+
+                SizedBox(
+                  width: double.infinity,
+
+                  child: ElevatedButton(
+                    onPressed: () {},
+
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFAD510D),
+
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+
+                    child: const Text(
+                      'Lanjut ke Checkout',
+
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
