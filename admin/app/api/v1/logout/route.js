@@ -31,7 +31,7 @@ export async function POST(request) {
 
     // 4. JURUS PAMUNGKAS: HAPUS COOKIE SECARA PAKSA DARI SERVER DENGAN PATH SPESIFIK!
     response.cookies.delete({ name: 'access_token', path: '/' });
-    response.cookies.delete({ name: 'refresh_token', path: '/api/v1/auth/refresh' });
+    response.cookies.delete({ name: 'refresh_token', path: '/' }); // Path baru
     response.cookies.delete({ name: 'token', path: '/' });
 
     return response;
@@ -42,7 +42,7 @@ export async function POST(request) {
     // Walaupun Golang temen lu error/down, kita TETEP paksa hapus cookie lokalnya
     const fallbackResponse = NextResponse.json({ status: "error", message: "Terjadi kesalahan, tapi dipaksa logout" });
     fallbackResponse.cookies.delete({ name: 'access_token', path: '/' });
-    fallbackResponse.cookies.delete({ name: 'refresh_token', path: '/api/v1/auth/refresh' });
+    fallbackResponse.cookies.delete({ name: 'refresh_token', path: '/' }); // Path baru
     fallbackResponse.cookies.delete({ name: 'token', path: '/' });
     
     return fallbackResponse;
