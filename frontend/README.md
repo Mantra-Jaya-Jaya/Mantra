@@ -94,16 +94,18 @@ flutter build apk --release --dart-define=BASE_URL=https://mantra.web.id/api/v1
 APK Production membutuhkan Keystore (`.jks`) resmi yang disimpan secara rahasia dan **tidak boleh di-commit ke Git**. Agar tim dapat membuild APK Release dengan aman, ikuti langkah berikut:
 
 *   **Generate Keystore (Jika belum punya):**
-    Jalankan perintah ini di terminal proyek Anda untuk membuat file `upload-keystore.jks` di dalam folder `android/app/`:
-    
-    **Mac / Linux:**
+    > [!IMPORTANT]
+    > Pastikan posisi terminal Anda berada di **root folder frontend** (`/frontend/`) sebelum menjalankan perintah di bawah ini agar file `.jks` tersimpan secara otomatis di lokasi yang benar (`android/app/upload-keystore.jks`).
+    > Jika terminal Anda sudah terlanjur masuk ke folder `android/app/`, hilangkan awalan folder pada perintah dan gunakan `-keystore upload-keystore.jks`.
+
+    **Mac / Linux (dijalankan dari folder `/frontend/`):**
     ```bash
     keytool -genkey -v -keystore android/app/upload-keystore.jks \
       -keyalg RSA -keysize 2048 -validity 10000 \
       -alias upload
     ```
 
-    **Windows (Command Prompt / PowerShell):**
+    **Windows (dijalankan dari folder `\frontend\`):**
     ```cmd
     keytool -genkey -v -keystore android\app\upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
     ```
