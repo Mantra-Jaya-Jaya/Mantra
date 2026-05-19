@@ -66,10 +66,66 @@ Pastikan:
 3. Jika menggunakan HP fisik asli, pastikan HP dan Laptop terhubung di WiFi yang sama, lalu ganti URL Base API di kodingan Flutter menjadi IP Address laptop Anda (contoh: `192.168.1.15:8080`).
 
 ### 3.3 Build & Run
-Jalankan aplikasi di emulator atau perangkat fisik Anda:
+
+Aplikasi memiliki dua mode utama saat dijalankan atau di-build:
+
+**Mode Offline Lokal (Backend di Laptop):**
+Gunakan mode ini saat backend berjalan secara lokal di laptop Anda.
 ```bash
 flutter run
 ```
+
+**Mode Online Production (Konek ke mantra.web.id):**
+Gunakan mode ini untuk terhubung langsung ke server production. Sangat cocok untuk menguji fitur dengan data nyata.
+```bash
+flutter run --dart-define=BASE_URL=https://mantra.web.id/api/v1
+```
+
+**Build APK Production:**
+Untuk mem-build APK final yang akan di-install di HP untuk testing (terhubung ke server production):
+```bash
+flutter build apk --release --dart-define=BASE_URL=https://mantra.web.id/api/v1
+```
+*(APK hasil build akan berada di `build/app/outputs/flutter-apk/app-release.apk`)*
+
+### 3.4 Catatan Konfigurasi Tambahan (Android)
+
+**1. Keystore & Signing (Wajib untuk APK Production)**
+APK Production membutuhkan Keystore (`.jks`) resmi yang disimpan secara rahasia dan **tidak boleh di-commit ke Git**. Agar tim dapat membuild APK Release dengan aman, ikuti langkah berikut:
+
+*   **Generate Keystore (Jika belum punya):**
+    > [!IMPORTANT]
+    > Pastikan posisi terminal Anda berada di **root folder frontend** (`/frontend/`) sebelum menjalankan perintah di bawah ini agar file `.jks` tersimpan secara otomatis di lokasi yang benar (`android/app/upload-keystore.jks`).
+    > Jika terminal Anda sudah terlanjur masuk ke folder `android/app/`, hilangkan awalan folder pada perintah dan gunakan `-keystore upload-keystore.jks`.
+
+    **Mac / Linux (dijalankan dari folder `/frontend/`):**
+    ```bash
+    keytool -genkey -v -keystore android/app/upload-keystore.jks \
+      -keyalg RSA -keysize 2048 -validity 10000 \
+      -alias upload
+    ```
+
+    **Windows (dijalankan dari folder `\frontend\`):**
+    ```cmd
+    keytool -genkey -v -keystore android\app\upload-keystore.jks -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+    ```
+    *(Ingat baik-baik password yang Anda masukkan saat proses ini).*
+
+*   **Buat File `key.properties`:**
+    Buat file baru bernama `key.properties` di dalam folder `android/` (sejajar dengan folder `app/`). Isi dengan konfigurasi berikut:
+    ```properties
+    storePassword=PASSWORD_KEYSTORE_ANDA
+    keyPassword=PASSWORD_KEYSTORE_ANDA
+    keyAlias=upload
+    storeFile=upload-keystore.jks
+    ```
+    *(Ganti `PASSWORD_KEYSTORE_ANDA` dengan password yang Anda buat sebelumnya).*
+
+> [!NOTE]
+> Konfigurasi Gradle kita sudah disesuaikan. Jika `key.properties` tidak ditemukan (misalnya saat baru _clone_ repo), aplikasi tetap bisa di-_build_ atau di-_run_ secara lokal menggunakan konfigurasi debug _default_. File `.jks` dan `key.properties` sudah otomatis diabaikan oleh `.gitignore` proyek ini.
+
+**2. Icon Aplikasi**
+- Gunakan package `flutter_launcher_icons` di `pubspec.yaml` untuk mengenerate icon aplikasi secara otomatis dari file gambar minimal 1024x1024 px.
 
 ---
 
