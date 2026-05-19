@@ -40,7 +40,6 @@ export default function BarangPage() {
 
   // 🚀 BARU: Pembuat List Kategori Otomatis & Dinamis dari DB Lu!
   const daftarKategoriDinamis = useMemo(() => {
-    // Ngumpulin semua kategori unik yang ada di data barang lu
     const kategoriSet = new Set(dataBarang.map((item) => item.kategori).filter(Boolean));
     return ["Semua Kategori", ...Array.from(kategoriSet)];
   }, [dataBarang]);
@@ -54,21 +53,18 @@ export default function BarangPage() {
     }).format(angka);
   };
 
-  // 1. LOGIC FILTERING (Sinkron 100% dengan Key JSON Baru Lu)
+  // 1. LOGIC FILTERING
   const filteredData = dataBarang.filter((item) => {
     const nama = item.nama_barang || "";
     const sku = item.sku || `MTR-${item.id_barang}`; 
     const kategori = item.kategori || "Tanpa Kategori";   
-    const stok = item.stok || 0; // Menarik key "stok" hasil SUM Golang lu
+    const stok = item.stok || 0; 
 
-    // Filter Search (Nama & SKU)
     const matchesSearch = nama.toLowerCase().includes(searchTerm.toLowerCase()) || 
                           sku.toLowerCase().includes(searchTerm.toLowerCase());
     
-    // Filter Kategori (Mencocokkan string kategori dinamis)
     const matchesKategori = kategoriFilter === "Semua Kategori" || kategori === kategoriFilter;
 
-    // Filter Stok
     let matchesStok = true;
     if (stokFilter === "Kritis") matchesStok = stok <= 10;
     if (stokFilter === "Aman") matchesStok = stok > 10;
@@ -138,7 +134,7 @@ export default function BarangPage() {
           />
         </div>
 
-        {/* 🚀 REVISI: Dropdown Kategori Otomatis Nge-looping Data Asli Golang */}
+        {/* Dropdown Kategori */}
         <div className="relative">
           <select 
             className="appearance-none bg-white border border-zinc-200 text-zinc-700 text-sm rounded-lg pl-4 pr-10 py-2 outline-none cursor-pointer hover:bg-zinc-50 focus:border-[#AF520C] capitalize"
@@ -181,19 +177,26 @@ export default function BarangPage() {
           </thead>
           <tbody className="divide-y divide-zinc-100 text-sm text-zinc-800">
             {currentData.length > 0 ? currentData.map((item) => {
-              const itemStok = item.stok || 0; // Murni nangkep hasil SUM dari database
-              const itemKategori = item.kategori || "Tanpa Kategori"; // Murni nangkep nama_kategori hasil JOIN
+              const itemStok = item.stok || 0; 
+              const itemKategori = item.kategori || "Tanpa Kategori";
               const itemSku = item.sku || `MTR-${item.id_barang}`;
+              
+              // 🚀 JALUR AMAN: Ambil target UUID, fallback ke id jika data lama kosong
+              const detailTarget = `/barang/detail/${item.public_id || item.id_barang}`;
 
               return (
                 <tr key={item.id_barang} className="hover:bg-zinc-50 transition-colors">
-                  {/* Kolom Nama Barang */}
+                  {/* 🚀 MODIFIKASI: Kolom Nama Barang Sekarang Clickable Menuju Halaman Detail */}
                   <td className="px-6 py-4 flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-zinc-100 border border-zinc-200">
+                    {/* Link pada foto produk */}
+                    <Link href={detailTarget} className="w-10 h-10 rounded-lg overflow-hidden shrink-0 bg-zinc-100 border border-zinc-200 block hover:opacity-80 transition-opacity cursor-pointer">
                       <img src={item.gambar_barang} alt={item.nama_barang} className="w-full h-full object-cover" />
-                    </div>
+                    </Link>
                     <div>
-                      <p className="font-bold text-zinc-900">{item.nama_barang}</p>
+                      {/* Link pada teks nama produk dengan hover effect warna khas Mantra */}
+                      <Link href={detailTarget} className="font-bold text-zinc-900 hover:text-[#AF520C] transition-colors block cursor-pointer">
+                        {item.nama_barang}
+                      </Link>
                       <p className="text-zinc-400 text-xs mt-0.5">SKU: {itemSku}</p>
                     </div>
                   </td>
@@ -203,7 +206,7 @@ export default function BarangPage() {
                     {formatRupiah(item.harga_terendah)}
                   </td>
                   
-                  {/* Kolom Stok Real-time dari Database */}
+                  {/* Kolom Stok */}
                   <td className="px-6 py-4">
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{itemStok}</span>
@@ -211,7 +214,7 @@ export default function BarangPage() {
                     </div>
                   </td>
 
-                  {/* Kolom Kategori Real-time dari Database */}
+                  {/* Kolom Kategori */}
                   <td className="px-6 py-4 text-zinc-600 capitalize">{itemKategori}</td>
 
                   {/* Kolom Action */}
@@ -240,7 +243,7 @@ export default function BarangPage() {
           </tbody>
         </table>
 
-        {/* Footer Pagination (Gak Kak Gem sentuh biar tetep presisi) */}
+        {/* Footer Pagination */}
         {filteredData.length > 0 && (
           <div className="p-4 border-t border-zinc-200 flex justify-between items-center text-sm text-zinc-500 bg-white">
             <p>Menampilkan {startIndex + 1} hingga {Math.min(startIndex + itemsPerPage, filteredData.length)} dari {filteredData.length} barang</p>
