@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/widgets/base_header_widget.dart';
 
 class MyOrderPage extends StatefulWidget {
   const MyOrderPage({super.key});
@@ -13,80 +14,84 @@ class _MyOrderPageState extends State<MyOrderPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // HEADER SECTION
-        Container(
-          padding: const EdgeInsets.only(top: 60, bottom: 20),
-          width: double.infinity,
-          decoration: const BoxDecoration(color: Color(0xFFAD510D)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20),
-                child: Text(
-                  "Pesanan Saya",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SingleChildScrollView(
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 15),
-                child: Row(
-                  children: [
-                    _buildTabItem("Dikemas"),
-                    _buildTabItem("Dikirim"),
-                    _buildTabItem("Selesai"),
-                    _buildTabItem("Dibatalkan"),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+    return Scaffold(
+      backgroundColor: Colors.white,
 
-        // ORDER LIST SECTION
-        Expanded(
-          child: ListView(
-            padding: const EdgeInsets.all(20),
-            children: [
-              // Di sini kita memanggil fungsi filter untuk menampilkan data yang sesuai
-              _getFilteredOrders(),
-              const SizedBox(height: 80),
-            ],
+      appBar: BaseHeaderWidget(title: "Pesanan Saya"),
+
+      body: Column(
+        children: [
+          // TAB SECTION
+          Container(
+            width: double.infinity,
+
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+
+            child: Row(
+              children: [
+                Expanded(child: _buildTabItem("Dikemas")),
+                const SizedBox(width: 8),
+
+                Expanded(child: _buildTabItem("Dikirim")),
+                const SizedBox(width: 8),
+
+                Expanded(child: _buildTabItem("Selesai")),
+                const SizedBox(width: 8),
+
+                Expanded(child: _buildTabItem("Batal")),
+              ],
+            ),
           ),
-        ),
-      ],
+
+          // ORDER LIST
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+
+              children: [_getFilteredOrders(), const SizedBox(height: 80)],
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   // Widget Tab dengan fungsi Klik (GestureDetector)
   Widget _buildTabItem(String title) {
-    bool isSelected = selectedStatus == title; // Cek apakah tab ini aktif
+    bool isSelected = selectedStatus == title;
+
     return GestureDetector(
       onTap: () {
         setState(() {
-          selectedStatus = title; // Ubah status saat di-klik
+          selectedStatus = title;
         });
       },
+
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 5),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        alignment: Alignment.center,
+
+        padding: const EdgeInsets.symmetric(vertical: 10),
+
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFFFDF2F2) : Colors.transparent,
+          color: isSelected ? const Color(0xFFAD510D) : Colors.white,
+
           borderRadius: BorderRadius.circular(20),
         ),
+
         child: Text(
           title,
+
+          maxLines: 1,
+          softWrap: false,
+          overflow: TextOverflow.visible,
+
+          textAlign: TextAlign.center,
+
           style: TextStyle(
-            color: isSelected ? const Color(0xFFAD510D) : Colors.white70,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? Colors.white : const Color(0xFFAD510D),
+
+            fontWeight: FontWeight.w700,
+            fontSize: 11,
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 import 'services/profile_service.dart';
 
@@ -52,7 +53,8 @@ class EditAlamatState extends State<EditAlamat> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _labelController.text.isNotEmpty &&
+      _isFormValid =
+          _labelController.text.isNotEmpty &&
           _namaController.text.isNotEmpty &&
           _teleponController.text.isNotEmpty &&
           _alamatController.text.isNotEmpty;
@@ -68,23 +70,16 @@ class EditAlamatState extends State<EditAlamat> {
     super.dispose();
   }
 
-
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFAF510C),
-        elevation: 0,
-        centerTitle: true,
+      appBar: BaseHeaderWidget(
+        title: 'Edit Alamat',
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Edit Alamat",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -92,7 +87,10 @@ class EditAlamatState extends State<EditAlamat> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text("Label Alamat", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+            const Text(
+              "Label Alamat",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
             const SizedBox(height: 8),
             _buildField("Contoh: Rumah / Kantor", _labelController),
 
@@ -106,11 +104,27 @@ class EditAlamatState extends State<EditAlamat> {
               ),
               child: Column(
                 children: [
-                  _buildInputRow(Icons.person_outline, "Nama Penerima", _namaController, "Aarav"),
+                  _buildInputRow(
+                    Icons.person_outline,
+                    "Nama Penerima",
+                    _namaController,
+                    "Aarav",
+                  ),
                   const SizedBox(height: 15),
-                  _buildInputRow(Icons.phone_outlined, "No. Telepon", _teleponController, "+62..."),
+                  _buildInputRow(
+                    Icons.phone_outlined,
+                    "No. Telepon",
+                    _teleponController,
+                    "+62...",
+                  ),
                   const SizedBox(height: 15),
-                  _buildInputRow(Icons.location_on_outlined, "Alamat Lengkap", _alamatController, "Detail alamat...", maxLines: 3),
+                  _buildInputRow(
+                    Icons.location_on_outlined,
+                    "Alamat Lengkap",
+                    _alamatController,
+                    "Detail alamat...",
+                    maxLines: 3,
+                  ),
                 ],
               ),
             ),
@@ -138,7 +152,9 @@ class EditAlamatState extends State<EditAlamat> {
                           } catch (e) {
                             if (mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('Gagal menyimpan alamat')),
+                                const SnackBar(
+                                  content: Text('Gagal menyimpan alamat'),
+                                ),
                               );
                               setState(() => _isLoading = false);
                             }
@@ -155,7 +171,10 @@ class EditAlamatState extends State<EditAlamat> {
                       ? const SizedBox(
                           width: 24,
                           height: 24,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
                       : const Text(
                           'Simpan',
@@ -194,7 +213,13 @@ class EditAlamatState extends State<EditAlamat> {
     );
   }
 
-  Widget _buildInputRow(IconData icon, String label, TextEditingController controller, String hint, {int maxLines = 1}) {
+  Widget _buildInputRow(
+    IconData icon,
+    String label,
+    TextEditingController controller,
+    String hint, {
+    int maxLines = 1,
+  }) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -211,7 +236,13 @@ class EditAlamatState extends State<EditAlamat> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+              Text(
+                label,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14,
+                ),
+              ),
               const SizedBox(height: 5),
               TextField(
                 controller: controller,
