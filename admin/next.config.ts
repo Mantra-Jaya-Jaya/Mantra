@@ -8,6 +8,19 @@ const devOrigins = process.env.ALLOWED_DEV_ORIGINS
 const nextConfig: NextConfig = {
   /* config options here */
   allowedDevOrigins: devOrigins,
+  
+  // 🔥 TAMBAHAN BARU: Izin untuk me-render gambar dari MinIO
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'storage.mantra.web.id', // Domain MinIO lu
+        pathname: '/**', // Izinkan semua folder di dalamnya
+      },
+    ],
+  },
+
+  // 🔥 REWRITES LAMA LU: Tetap utuh, Auth dan API ke Golang dijamin aman!
   async rewrites() {
     return [
       {
