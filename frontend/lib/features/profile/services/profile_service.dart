@@ -51,7 +51,7 @@ class ProfileService {
 
   /// Memperbarui alamat yang ada
   Future<Map<String, dynamic>> updateAlamat(
-    int idAlamat, {
+    String idAlamat, {
     required String label,
     required String nama,
     required String telepon,
@@ -69,7 +69,7 @@ class ProfileService {
   }
 
   /// Menghapus alamat
-  Future<void> hapusAlamat(int idAlamat) async {
+  Future<void> hapusAlamat(String idAlamat) async {
     await _client.dio.delete('/customer/alamat/$idAlamat');
   }
 }
