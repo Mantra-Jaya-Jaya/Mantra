@@ -140,7 +140,7 @@ class _ProfilState extends State<Profil> {
     );
   }
 
-  void _showDeleteDialog(int index, int idAlamat) {
+  void _showDeleteDialog(int index, String idAlamat) {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -413,7 +413,16 @@ class _ProfilState extends State<Profil> {
 
               const SizedBox(height: 24),
 
-              // dst...
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    buildInfoTile(Icons.phone, "Nomor Telepon", _profil?['no_telp'] ?? "-"),
+                    buildInfoTile(Icons.badge_outlined, "Username", _profil?['username'] ?? "-"),
+                    buildInfoTile(Icons.email_outlined, "Email", _profil?['email'] ?? "-"),
+                  ],
+                ),
+              ),
             ],
 
             const SizedBox(height: 20),
@@ -484,7 +493,7 @@ class _ProfilState extends State<Profil> {
               children: [
                 buildAddressCard(
                   index: index,
-                  idAlamat: item['id_alamat'] ?? 0,
+                  idAlamat: (item['id_alamat'] ?? item['public_id'] ?? '').toString(),
                   label: item['label_alamat'] ?? 'Tanpa Label',
                   nama: item['nama_penerima'] ?? '-',
                   telepon: item['no_telp_penerima'] ?? '-',
@@ -529,7 +538,7 @@ class _ProfilState extends State<Profil> {
 
   Widget buildAddressCard({
     required int index,
-    required int idAlamat,
+    required String idAlamat,
     required String label,
     required String nama,
     required String telepon,
