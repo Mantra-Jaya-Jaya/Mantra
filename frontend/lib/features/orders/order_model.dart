@@ -38,7 +38,7 @@ class OrderModel {
   factory OrderModel.fromJson(Map<String, dynamic> json) {
     final int totalBayar = (json['total_pembayaran'] ?? json['TotalPembayaran'] ?? 0).toInt();
     final String tipe = (json['tipe_pesanan'] ?? json['TipePesanan'] ?? 'Offline').toString();
-    final int idDatabase = json['id'] ?? 0;
+    final String idDatabase = (json['id_pesanan'] ?? json['public_id'] ?? '').toString();
 
     List<OrderItemModel> items = [];
     if (json['items_list'] != null) {
@@ -55,7 +55,7 @@ class OrderModel {
     }
 
     return OrderModel(
-      orderId: idDatabase != 0 ? "#ORD-$idDatabase" : "#ORD-1000",
+      orderId: idDatabase.isNotEmpty ? "#ORD-$idDatabase" : "#ORD-1000",
       statusText: (json['status_pesanan'] ?? json['StatusPesanan'] ?? 'BARU').toString(),
       itemsDetail: (json['items_detail'] ?? "2x Kopi Susu Aren, 1x Croissant").toString(),
       timeInfo: (json['tanggal_pesanan'] ?? json['TanggalPesanan'] ?? 'Baru saja').toString(),

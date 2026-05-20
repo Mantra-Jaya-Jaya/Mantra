@@ -1,10 +1,10 @@
 class UserModel {
-  final int idUser;
+  final String idUser;
   final String username;
   final String email;
   final String namaLengkap;
   final String role;
-  final int? profileId;
+  final String? profileId;
   final String? fotoProfil;
 
   UserModel({
@@ -19,12 +19,12 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
-      idUser: json['id_user'],
+      idUser: (json['id_user'] ?? json['public_id'] ?? '').toString(),
       username: json['username'],
       email: json['email'] ?? '',
       namaLengkap: json['nama_lengkap'],
       role: json['role'],
-      profileId: json['profile_id'],
+      profileId: json['profile_id']?.toString(),
       fotoProfil: json['foto_profil'],
     );
   }
