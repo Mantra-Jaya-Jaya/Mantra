@@ -4,15 +4,15 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 class ApiClient {
   static const String baseUrl = String.fromEnvironment(
     'BASE_URL',
-    defaultValue: 'http://10.0.2.2:8080/api/v1', // emulator Android
+    defaultValue: 'http://172.16.162.22:8080/api/v1', // emulator Android
   );
 
   final Dio _dio;
   final FlutterSecureStorage _storage;
 
   ApiClient({Dio? dio, FlutterSecureStorage? storage})
-      : _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl)),
-        _storage = storage ?? const FlutterSecureStorage() {
+    : _dio = dio ?? Dio(BaseOptions(baseUrl: baseUrl)),
+      _storage = storage ?? const FlutterSecureStorage() {
     _dio.interceptors.add(_AuthInterceptor(_storage, _dio));
   }
 
@@ -26,7 +26,10 @@ class _AuthInterceptor extends Interceptor {
   _AuthInterceptor(this._storage, this._dio);
 
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     // Tandai semua request dari Flutter agar backend bisa membedakan dari NextJS
     options.headers['X-Client-Type'] = 'flutter';
 
