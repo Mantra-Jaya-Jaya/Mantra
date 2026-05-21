@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../auth/lupa_password.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class UbahPassword extends StatefulWidget {
   const UbahPassword({super.key});
@@ -28,7 +29,8 @@ class UbahPasswordState extends State<UbahPassword> {
 
   void _validateForm() {
     setState(() {
-      _isFormValid = _oldPassController.text.isNotEmpty &&
+      _isFormValid =
+          _oldPassController.text.isNotEmpty &&
           _newPassController.text.isNotEmpty &&
           _confirmPassController.text.isNotEmpty;
     });
@@ -46,17 +48,12 @@ class UbahPasswordState extends State<UbahPassword> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        backgroundColor: const Color(0xFFAF510C),
-        elevation: 0,
-        centerTitle: true,
+      appBar: BaseHeaderWidget(
+        title: "Ubah Password",
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Ubah Password",
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
         ),
       ),
       body: SingleChildScrollView(
@@ -72,18 +69,30 @@ class UbahPasswordState extends State<UbahPassword> {
               padding: const EdgeInsets.all(20),
               child: Column(
                 children: [
-                  _buildField("Password Lama", _oldPassController, _obscureOld, 
-                      () => setState(() => _obscureOld = !_obscureOld)),
+                  _buildField(
+                    "Password Lama",
+                    _oldPassController,
+                    _obscureOld,
+                    () => setState(() => _obscureOld = !_obscureOld),
+                  ),
                   const SizedBox(height: 15),
-                  _buildField("Password Baru", _newPassController, _obscureNew, 
-                      () => setState(() => _obscureNew = !_obscureNew)),
+                  _buildField(
+                    "Password Baru",
+                    _newPassController,
+                    _obscureNew,
+                    () => setState(() => _obscureNew = !_obscureNew),
+                  ),
                   const SizedBox(height: 15),
-                  _buildField("Konfirmasi Password", _confirmPassController, _obscureConfirm, 
-                      () => setState(() => _obscureConfirm = !_obscureConfirm)),
+                  _buildField(
+                    "Konfirmasi Password",
+                    _confirmPassController,
+                    _obscureConfirm,
+                    () => setState(() => _obscureConfirm = !_obscureConfirm),
+                  ),
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 10),
 
             // Link Lupa Password
@@ -100,25 +109,30 @@ class UbahPasswordState extends State<UbahPassword> {
                 },
                 child: const Text(
                   "Lupa Password",
-                  style: TextStyle(color: Color(0xFFAF510C), fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Color(0xFFAF510C),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
 
             const SizedBox(height: 20),
-            
+
             // Tombol Simpan
             SizedBox(
               width: double.infinity,
               height: 48,
               child: ElevatedButton(
-                onPressed: _isFormValid 
-                  ? () => Navigator.pop(context, true) 
-                  : null, 
+                onPressed: _isFormValid
+                    ? () => Navigator.pop(context, true)
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFAF510C),
                   disabledBackgroundColor: Colors.grey[400],
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
                   elevation: 0,
                 ),
                 child: Text(
@@ -172,11 +186,19 @@ class UbahPasswordState extends State<UbahPassword> {
     );
   }
 
-  Widget _buildField(String label, TextEditingController ctrl, bool obscure, VoidCallback toggle) {
+  Widget _buildField(
+    String label,
+    TextEditingController ctrl,
+    bool obscure,
+    VoidCallback toggle,
+  ) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+        Text(
+          label,
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+        ),
         const SizedBox(height: 8),
         TextField(
           controller: ctrl,
@@ -186,7 +208,10 @@ class UbahPasswordState extends State<UbahPassword> {
             fillColor: Colors.white,
             contentPadding: const EdgeInsets.symmetric(horizontal: 12),
             suffixIcon: IconButton(
-              icon: Icon(obscure ? Icons.visibility_off : Icons.visibility, size: 20),
+              icon: Icon(
+                obscure ? Icons.visibility_off : Icons.visibility,
+                size: 20,
+              ),
               onPressed: toggle,
               color: const Color(0xFFAF510C),
             ),

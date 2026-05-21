@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'services/profile_service.dart';
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class EditInformasiAkun extends StatefulWidget {
   final String namaAwal;
@@ -43,142 +44,120 @@ class _EditInformasiAkunState extends State<EditInformasiAkun> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: BaseHeaderWidget(
+        title: "Edit Informasi Akun",
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
 
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.only(bottom: 30),
-          child: Column(
-            children: [
-              // ================= HEADER =================
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 22,
-                ),
-                color: const Color(0xFFAF510C),
-                child: Row(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.arrow_back, color: Colors.white),
-                    ),
-
-                    const SizedBox(width: 8),
-
-                    const Text(
-                      "Informasi Akun",
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.only(bottom: 30),
+        child: Column(
+          children: [
+            const SizedBox(height: 32),
+            // ================= CARD =================
+            Container(
+              margin: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: const Color(0xFFEAEFEF),
+                borderRadius: BorderRadius.circular(20),
               ),
+              child: Column(
+                children: [
+                  // ================= NAMA =================
+                  buildTextField(
+                    icon: Icons.person_outline,
+                    title: "Nama Lengkap",
+                    controller: namaController,
+                  ),
 
-              const SizedBox(height: 30),
+                  const SizedBox(height: 18),
 
-              // ================= CARD =================
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFEAEFEF),
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: Column(
-                  children: [
-                    // ================= NAMA =================
-                    buildTextField(
-                      icon: Icons.person_outline,
-                      title: "Nama Lengkap",
-                      controller: namaController,
-                    ),
+                  // ================= TELEPON =================
+                  buildTextField(
+                    icon: Icons.phone,
+                    title: "Nomor Telephone",
+                    controller: phoneController,
+                    keyboardType: TextInputType.phone,
+                  ),
 
-                    const SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
-                    // ================= TELEPON =================
-                    buildTextField(
-                      icon: Icons.phone,
-                      title: "Nomor Telephone",
-                      controller: phoneController,
-                      keyboardType: TextInputType.phone,
-                    ),
+                  // ================= EMAIL =================
+                  buildTextField(
+                    icon: Icons.email_outlined,
+                    title: "Email",
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
 
-                    const SizedBox(height: 18),
+                  const SizedBox(height: 18),
 
-                    // ================= EMAIL =================
-                    buildTextField(
-                      icon: Icons.email_outlined,
-                      title: "Email",
-                      controller: emailController,
-                      keyboardType: TextInputType.emailAddress,
-                    ),
+                  // ================= USERNAME =================
+                  buildTextField(
+                    icon: Icons.key_outlined,
+                    title: "Username",
+                    controller: usernameController,
+                  ),
 
-                    const SizedBox(height: 18),
+                  const SizedBox(height: 30),
 
-                    // ================= USERNAME =================
-                    buildTextField(
-                      icon: Icons.key_outlined,
-                      title: "Username",
-                      controller: usernameController,
-                    ),
-
-                    const SizedBox(height: 30),
-
-                    // ================= BUTTON SIMPAN =================
-                    ElevatedButton(
-                      onPressed: _isLoading
-                          ? null
-                          : () async {
-                              setState(() => _isLoading = true);
-                              try {
-                                await _profileService.updateAkun(
-                                  namaLengkap: namaController.text,
-                                  noTelp: phoneController.text,
-                                  email: emailController.text,
+                  // ================= BUTTON SIMPAN =================
+                  ElevatedButton(
+                    onPressed: _isLoading
+                        ? null
+                        : () async {
+                            setState(() => _isLoading = true);
+                            try {
+                              await _profileService.updateAkun(
+                                namaLengkap: namaController.text,
+                                noTelp: phoneController.text,
+                                email: emailController.text,
+                              );
+                              if (mounted) Navigator.pop(context, 'success');
+                            } catch (e) {
+                              if (mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Gagal menyimpan perubahan'),
+                                  ),
                                 );
-                                if (mounted) Navigator.pop(context, 'success');
-                              } catch (e) {
-                                if (mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(content: Text('Gagal menyimpan perubahan')),
-                                  );
-                                  setState(() => _isLoading = false);
-                                }
+                                setState(() => _isLoading = false);
                               }
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFAF510C),
-                        minimumSize: const Size(double.infinity, 50),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                            }
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFAF510C),
+                      minimumSize: const Size(double.infinity, 50),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
                       ),
-                      child: _isLoading
-                          ? const SizedBox(
-                              width: 24,
-                              height: 24,
-                              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-                            )
-                          : const Text(
-                              "Simpan Perubahan",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
                     ),
-                  ],
-                ),
+                    child: _isLoading
+                        ? const SizedBox(
+                            width: 24,
+                            height: 24,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Text(
+                            "Simpan Perubahan",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

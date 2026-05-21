@@ -220,6 +220,8 @@ class _ScanPageState extends State<ScanPage>
             child: MobileScanner(
               controller: scannerController,
               onDetect: (capture) {
+                if (_isProcessing) return;
+
                 final List<Barcode> barcodes = capture.barcodes;
                 for (final barcode in barcodes) {
                   if (barcode.rawValue != null) {

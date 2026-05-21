@@ -17,11 +17,10 @@ class ProfileService {
     required String noTelp,
     required String email,
   }) async {
-    final response = await _client.dio.put('/customer/akun', data: {
-      'nama_lengkap': namaLengkap,
-      'no_telp': noTelp,
-      'email': email,
-    });
+    final response = await _client.dio.put(
+      '/customer/akun',
+      data: {'nama_lengkap': namaLengkap, 'no_telp': noTelp, 'email': email},
+    );
     return response.data['data'];
   }
 
@@ -39,13 +38,16 @@ class ProfileService {
     required String alamatLengkap,
     bool isUtama = false,
   }) async {
-    final response = await _client.dio.post('/customer/alamat', data: {
-      'label_alamat': label,
-      'nama_penerima': nama,
-      'no_telp_penerima': telepon,
-      'alamat_lengkap': alamatLengkap,
-      'is_utama': isUtama,
-    });
+    final response = await _client.dio.post(
+      '/customer/alamat',
+      data: {
+        'label_alamat': label,
+        'nama_penerima': nama,
+        'no_telp_penerima': telepon,
+        'alamat_lengkap': alamatLengkap,
+        'is_utama': isUtama,
+      },
+    );
     return response.data['data'];
   }
 
@@ -58,13 +60,16 @@ class ProfileService {
     required String alamatLengkap,
     bool isUtama = false,
   }) async {
-    final response = await _client.dio.put('/customer/alamat/$idAlamat', data: {
-      'label_alamat': label,
-      'nama_penerima': nama,
-      'no_telp_penerima': telepon,
-      'alamat_lengkap': alamatLengkap,
-      'is_utama': isUtama,
-    });
+    final response = await _client.dio.put(
+      '/customer/alamat/$idAlamat',
+      data: {
+        'label_alamat': label,
+        'nama_penerima': nama,
+        'no_telp_penerima': telepon,
+        'alamat_lengkap': alamatLengkap,
+        'is_utama': isUtama,
+      },
+    );
     return response.data['data'];
   }
 

@@ -7,6 +7,7 @@ import 'edit_alamat.dart';
 import '../auth/login.dart';
 import 'services/profile_service.dart';
 import 'package:frontend/core/widgets/base_header_widget.dart';
+import 'package:frontend/core/models/alamat_model.dart';
 
 class Profil extends StatefulWidget {
   const Profil({super.key});
@@ -21,7 +22,7 @@ class _ProfilState extends State<Profil> {
   bool _hasLoaded = false; // cegah re-fetch saat ganti tab
   String? _errorMessage;
   Map<String, dynamic>? _profil;
-  List<Map<String, dynamic>> _daftarAlamat = [];
+  List<AlamatModel> _daftarAlamat = [];
 
   @override
   void initState() {
@@ -30,10 +31,8 @@ class _ProfilState extends State<Profil> {
   }
 
   Future<void> _loadData({bool forceRefresh = false}) async {
-    // Kalau sudah pernah load dan tidak di-force refresh, skip
     if (_hasLoaded && !forceRefresh) return;
 
-    // Hanya tampilkan spinner pada load pertama
     if (!_hasLoaded) {
       setState(() {
         _isLoading = true;
@@ -42,11 +41,17 @@ class _ProfilState extends State<Profil> {
     }
     try {
       final profilData = await _profileService.getProfil();
-      final alamatData = await _profileService.getAlamat();
+      final List<dynamic> alamatRawData = await _profileService.getAlamat();
+
+      // 🌟 3. PARSING data list JSON dari API menjadi List<AlamatModel>
+      final List<AlamatModel> alamatData = alamatRawData
+          .map((json) => AlamatModel.fromJson(json as Map<String, dynamic>))
+          .toList();
+
       if (mounted) {
         setState(() {
           _profil = profilData;
-          _daftarAlamat = alamatData;
+          _daftarAlamat = alamatData; // Sudah aman bertipe List<AlamatModel>
           _isLoading = false;
           _hasLoaded = true;
           _errorMessage = null;
@@ -152,18 +157,14 @@ class _ProfilState extends State<Profil> {
           child: Container(
             width: 300,
             padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 30),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(18),
-            ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
                   padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0x1FE53935),
-                    borderRadius: BorderRadius.circular(50),
+                  decoration: const BoxDecoration(
+                    color: Color(0x1FE53935),
+                    shape: BoxShape.circle,
                   ),
                   child: const Icon(
                     Icons.delete_outline,
@@ -174,7 +175,6 @@ class _ProfilState extends State<Profil> {
                 const SizedBox(height: 18),
                 const Text(
                   "Hapus Alamat?",
-                  textAlign: TextAlign.center,
                   style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 10),
@@ -206,8 +206,9 @@ class _ProfilState extends State<Profil> {
                     Expanded(
                       child: ElevatedButton(
                         onPressed: () async {
-                          Navigator.pop(context); // Tutup dialog
+                          Navigator.pop(context);
                           try {
+                            // 🌟 Mengirim string UUID ke service backend
                             await _profileService.hapusAlamat(idAlamat);
                             setState(() {
                               _daftarAlamat.removeAt(index);
@@ -412,15 +413,162 @@ class _ProfilState extends State<Profil> {
               ),
 
               const SizedBox(height: 24),
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  children: [
-                    buildInfoTile(Icons.phone, "Nomor Telepon", _profil?['no_telp'] ?? "-"),
-                    buildInfoTile(Icons.badge_outlined, "Username", _profil?['username'] ?? "-"),
-                    buildInfoTile(Icons.email_outlined, "Email", _profil?['email'] ?? "-"),
-                  ],
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: const Color(
+                      0xFFEAEFEF,
+                    ), // Warna latar belakang abu-abu muda
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // --- HEADER: JUDUL DAN TOMBOL EDIT ---
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            "Informasi Akun",
+                            style: TextStyle(
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              color: Color(
+                                0xFFB45F06,
+                              ), // Warna cokelat/orange tua sesuai gambar
+                            ),
+                          ),
+                          // Tombol Edit berbentuk Pill/Kapsul
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              // 1. Tambahkan async di sini
+                              // Berpindah ke halaman EditInformasiAkun sambil menunggu hasilnya
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => EditInformasiAkun(
+                                    namaAwal: _profil?['nama_lengkap'] ?? "",
+                                    teleponAwal: _profil?['no_telp'] ?? "",
+                                    emailAwal: _profil?['email'] ?? "",
+                                    usernameAwal: _profil?['username'] ?? "",
+                                  ),
+                                ),
+                              );
+
+                              // 2. Jika kembali membawa string 'success', refresh data profil dari API
+                              if (result == 'success') {
+                                _loadData(forceRefresh: true);
+
+                                // Opsional: Tampilkan dialog sukses seperti pada edit alamat
+                                _showSuccessDialog(
+                                  title: "Profil Berhasil\nDiperbarui!",
+                                  message:
+                                      "Perubahan informasi akun Anda telah berhasil disimpan.",
+                                );
+                              }
+                            },
+                            icon: const Icon(
+                              Icons.edit,
+                              size: 16,
+                              color: Color(0xFFAF510C),
+                            ),
+                            label: const Text(
+                              "Edit",
+                              style: TextStyle(color: Color(0xFFAF510C)),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              side: const BorderSide(color: Color(0xFFAF510C)),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ), // Jarak antara header dan list informasi
+                      // --- DAFTAR INFORMASI ---
+                      buildInfoTile(
+                        Icons.person,
+                        "Nama Lengkap",
+                        _profil?['nama_lengkap'] ?? "-",
+                      ),
+                      buildInfoTile(
+                        Icons.phone,
+                        "Nomor Telepon",
+                        _profil?['no_telp'] ?? "-",
+                      ),
+                      buildInfoTile(
+                        Icons.email,
+                        "Email",
+                        _profil?['email'] ?? "-",
+                      ),
+                      buildInfoTile(
+                        Icons.badge,
+                        "Username",
+                        _profil?['username'] ?? "-",
+                      ),
+                      Row(
+                        children: [
+                          // 1. Kolom Informasi Password (dibuat Expanded agar mengambil sisa ruang kiri)
+                          Expanded(
+                            child: buildInfoTile(
+                              Icons.key,
+                              "Password",
+                              // Opsional: Mengubah tampilan password jadi bintang-bintang agar lebih aman
+                              _profil?['password'] != null
+                                  ? "•" *
+                                        (_profil?['password']
+                                                .toString()
+                                                .length ??
+                                            6)
+                                  : "-",
+                            ),
+                          ),
+
+                          // 2. Tombol Edit Khusus di Sisi Kanan Kolom Password
+                          TextButton.icon(
+                            onPressed: () async {
+                              // Berpindah ke halaman UbahPassword yang sudah Anda import
+                              final result = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      UbahPassword(), // Sesuaikan dengan nama class di ubah_password.dart
+                                ),
+                              );
+
+                              // Jika setelah ubah password butuh refresh data, panggil di sini
+                              if (result == true) {
+                                _loadData(forceRefresh: true);
+                              }
+                            },
+                            label: const Text(
+                              "Edit",
+                              style: TextStyle(
+                                color: Color(0xFFAF510C),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            icon: const Icon(
+                              Icons.edit_outlined,
+                              color: Color(
+                                0xFFAF510C,
+                              ), // Warna cokelat/orange sesuai tema Anda
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -486,26 +634,25 @@ class _ProfilState extends State<Profil> {
             ),
           ),
           const SizedBox(height: 20),
-
           ...List.generate(_daftarAlamat.length, (index) {
-            final item = _daftarAlamat[index];
+            // 🌟 5. Sekarang 'item' sudah berupa cetakan AlamatModel, bukan Map lagi.
+            final AlamatModel item = _daftarAlamat[index];
             return Column(
               children: [
                 buildAddressCard(
                   index: index,
-                  idAlamat: (item['id_alamat'] ?? item['public_id'] ?? '').toString(),
-                  label: item['label_alamat'] ?? 'Tanpa Label',
-                  nama: item['nama_penerima'] ?? '-',
-                  telepon: item['no_telp_penerima'] ?? '-',
-                  alamat: item['alamat_lengkap'] ?? '-',
-                  isPrimary: item['is_utama'] ?? false,
+                  idAlamat: item.idAlamat,
+                  label: item.labelAlamat,
+                  nama: item.namaPenerima,
+                  telepon: item.noTelpPenerima,
+                  alamat: item.alamatLengkap,
+                  isPrimary: item.isUtama,
                 ),
                 if (index < _daftarAlamat.length - 1)
                   const SizedBox(height: 14),
               ],
             );
           }),
-
           const SizedBox(height: 16),
           TextButton(
             onPressed: () async {
@@ -514,9 +661,7 @@ class _ProfilState extends State<Profil> {
                 MaterialPageRoute(builder: (context) => const AlamatBaru()),
               );
               if (result == true) {
-                _loadData(
-                  forceRefresh: true,
-                ); // Reload data setelah tambah alamat
+                _loadData(forceRefresh: true);
                 _showSuccessDialog(
                   title: "Alamat berhasil\ndisimpan!",
                   message: "Alamat baru Anda telah\nberhasil ditambahkan.",
@@ -536,6 +681,7 @@ class _ProfilState extends State<Profil> {
     );
   }
 
+  // 🌟 6. UBAH parameter idAlamat dari int menjadi String
   Widget buildAddressCard({
     required int index,
     required String idAlamat,
@@ -581,8 +727,6 @@ class _ProfilState extends State<Profil> {
           const SizedBox(height: 6),
           Text(alamat, style: const TextStyle(color: Colors.grey)),
           const SizedBox(height: 12),
-
-          // Tombol Edit & Hapus
           Row(
             children: [
               OutlinedButton.icon(
@@ -591,7 +735,8 @@ class _ProfilState extends State<Profil> {
                     context,
                     MaterialPageRoute(
                       builder: (context) => EditAlamat(
-                        idAlamat: idAlamat,
+                        idAlamat:
+                            idAlamat, // 🌟 Mengirim data bertipe String UUID ke halaman Edit
                         labelAwal: label,
                         namaAwal: nama,
                         teleponAwal: telepon,
@@ -600,7 +745,7 @@ class _ProfilState extends State<Profil> {
                     ),
                   );
                   if (result == true) {
-                    _loadData(forceRefresh: true); // Reload data dari API
+                    _loadData(forceRefresh: true);
                     _showSuccessDialog(
                       title: "Alamat berhasil\ndiubah!",
                       message:
@@ -630,7 +775,10 @@ class _ProfilState extends State<Profil> {
               ),
               const SizedBox(width: 10),
               OutlinedButton.icon(
-                onPressed: () => _showDeleteDialog(index, idAlamat),
+                onPressed: () => _showDeleteDialog(
+                  index,
+                  idAlamat,
+                ), // 🌟 idAlamat di sini otomatis mengirim String
                 icon: const Icon(
                   Icons.delete_outline,
                   size: 16,

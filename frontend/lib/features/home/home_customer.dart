@@ -6,6 +6,8 @@ import 'package:frontend/features/profile/profile_customer.dart';
 import 'package:frontend/features/scan/scan_customer.dart';
 import 'package:frontend/core/widgets/bottom_navbar.dart';
 import 'package:frontend/features/home/services/katalog_service.dart';
+import 'package:frontend/features/home/kategori_barang_customer.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
 import 'package:intl/intl.dart';
 
 // ✅ Deklarasi RouteObserver global untuk mendeteksi navigasi halaman
@@ -81,8 +83,11 @@ class HomeContent extends StatefulWidget {
 
 class _HomeContentState extends State<HomeContent> {
   final KatalogService _katalogService = KatalogService();
-  final _currencyFormat =
-      NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
+  final _currencyFormat = NumberFormat.currency(
+    locale: 'id_ID',
+    symbol: 'Rp ',
+    decimalDigits: 0,
+  );
 
   List<KategoriModel> _kategoriList = [];
   List<BarangModel> _barangList = [];
@@ -271,9 +276,7 @@ class _HomeContentState extends State<HomeContent> {
     );
   }
 
-
   Widget _buildPromoBanner() {
-
     // Jika tidak ada promo dari API, tampilkan gambar statis
     if (_promoList.isEmpty) {
       return ClipRRect(
@@ -286,8 +289,11 @@ class _HomeContentState extends State<HomeContent> {
             'assets/images/promo.png',
             fit: BoxFit.cover,
             errorBuilder: (context, error, stackTrace) => const Center(
-              child: Icon(Icons.local_offer_outlined,
-                  size: 48, color: Colors.orange),
+              child: Icon(
+                Icons.local_offer_outlined,
+                size: 48,
+                color: Colors.orange,
+              ),
             ),
           ),
         ),
@@ -316,18 +322,18 @@ class _HomeContentState extends State<HomeContent> {
                           width: double.infinity,
                           errorBuilder: (context, error, stackTrace) =>
                               Container(
-                            color: Colors.orange.shade100,
-                            child: Center(
-                              child: Text(
-                                promo.namaDiskon,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: Color(0xFFAD510D),
+                                color: Colors.orange.shade100,
+                                child: Center(
+                                  child: Text(
+                                    promo.namaDiskon,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFAD510D),
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
                         )
                       : Container(
                           color: Colors.orange.shade100,
@@ -372,7 +378,6 @@ class _HomeContentState extends State<HomeContent> {
   }
 
   Widget _buildKategoriSection() {
-
     if (_isLoadingKategori) {
       return const SizedBox(
         height: 90,
@@ -382,11 +387,24 @@ class _HomeContentState extends State<HomeContent> {
       );
     }
 
+    // 2. Kondisi jika API error atau data di database kosong (Fallback statis dihapus)
     if (_errorKategori != null || _kategoriList.isEmpty) {
-      // Fallback ke kategori statis jika API error atau kosong
-      return _buildKategoriStatis();
+      return const SizedBox(
+        height: 90,
+        child: Center(
+          child: Text(
+            'Belum ada kategori.',
+            style: TextStyle(
+              color: Colors.grey,
+              fontSize: 14,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      );
     }
 
+    // 3. Menampilkan Data Dinamis dari API
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -399,31 +417,24 @@ class _HomeContentState extends State<HomeContent> {
       itemCount: _kategoriList.length,
       itemBuilder: (context, index) {
         final k = _kategoriList[index];
-        return _catItem(k.namaKategori, Icons.category_outlined);
+
+        // BUNGKUS DI SINI
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => KategoriBarangPage(
+                  initialCategory: k.namaKategori, // Nama kategori yang diklik
+                  apiCategories: _kategoriList, // Kirim seluruh list kategori
+                ),
+              ),
+            );
+          },
+          // Memanggil k.iconKategori dari service/model kamu dan mem-parsingnya ke package MdiIcons
+          child: _catItem(k.namaKategori, getIconFromString(k.iconKategori)),
+        );
       },
-    );
-  }
-
-  Widget _buildKategoriStatis() {
-    final staticCategories = [
-      {'label': 'Tas', 'icon': Icons.shopping_bag_outlined},
-      {'label': 'Gadget', 'icon': Icons.smartphone},
-      {'label': 'Alat Tulis', 'icon': Icons.edit_outlined},
-      {'label': 'Pakaian', 'icon': Icons.checkroom},
-      {'label': 'Alat Dapur', 'icon': Icons.flatware},
-      {'label': 'Elektronik', 'icon': Icons.kitchen_outlined},
-      {'label': 'Buku', 'icon': Icons.book_outlined},
-      {'label': 'Sepatu', 'icon': Icons.ice_skating_outlined},
-    ];
-
-    return GridView.count(
-      shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 4,
-      mainAxisSpacing: 10,
-      children: staticCategories
-          .map((c) => _catItem(c['label'] as String, c['icon'] as IconData))
-          .toList(),
     );
   }
 
@@ -445,15 +456,17 @@ class _HomeContentState extends State<HomeContent> {
             children: [
               const Icon(Icons.wifi_off, size: 48, color: Colors.grey),
               const SizedBox(height: 8),
-              Text(_errorBarang!,
-                  style: const TextStyle(color: Colors.grey)),
+              Text(_errorBarang!, style: const TextStyle(color: Colors.grey)),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: _loadBarang,
                 style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFAD510D)),
-                child: const Text('Coba Lagi',
-                    style: TextStyle(color: Colors.white)),
+                  backgroundColor: const Color(0xFFAD510D),
+                ),
+                child: const Text(
+                  'Coba Lagi',
+                  style: TextStyle(color: Colors.white),
+                ),
               ),
             ],
           ),
@@ -530,15 +543,20 @@ class _HomeContentState extends State<HomeContent> {
                       width: double.infinity,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey.shade100,
-                        child: const Icon(Icons.image_not_supported,
-                            color: Colors.grey),
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
                       ),
                     )
                   : Container(
                       color: Colors.grey.shade100,
                       child: const Center(
-                        child: Icon(Icons.inventory_2_outlined,
-                            color: Colors.grey, size: 40),
+                        child: Icon(
+                          Icons.inventory_2_outlined,
+                          color: Colors.grey,
+                          size: 40,
+                        ),
                       ),
                     ),
             ),
@@ -576,7 +594,9 @@ class _HomeContentState extends State<HomeContent> {
                   Text(
                     _currencyFormat.format(barang.hargaTerendah),
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 13),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
                   ),
                 ],
               ],
@@ -586,4 +606,12 @@ class _HomeContentState extends State<HomeContent> {
       ),
     );
   }
+}
+
+// Helper fungsi untuk mengambil ikon berdasarkan string dari DB
+IconData getIconFromString(String? iconName) {
+  if (iconName == null) return Icons.category_outlined;
+
+  // Fungsi bawaan package untuk mencari IconData berdasarkan string namanya
+  return MdiIcons.fromString(iconName) ?? Icons.category_outlined;
 }
