@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'checkout.dart'; // Pastikan import halaman checkout
+import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class CartCustomerPage extends StatefulWidget {
   const CartCustomerPage({super.key});
@@ -66,112 +67,114 @@ class _CartCustomerPageState extends State<CartCustomerPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isAnyItemSelected = cartItems.any((item) => item['isSelected'] == true);
+    bool isAnyItemSelected = cartItems.any(
+      (item) => item['isSelected'] == true,
+    );
 
     return Scaffold(
       backgroundColor: const Color(0xFFF7F7F7),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Head AppBar
-            Container(
-              width: double.infinity,
-              decoration: const BoxDecoration(
-                color: Color(0xFFAD510D),
-                borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(30),
-                  bottomRight: Radius.circular(30),
-                ),
-              ),
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, color: Colors.white, size: 24),
-                  ),
-                  const SizedBox(width: 16),
-                  const Text(
-                    'Keranjang Saya',
-                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-            
-            // List Item
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
-                  ...List.generate(cartItems.length, (index) {
-                    return _buildCartItem(index);
-                  }),
-                  const SizedBox(height: 20),
-                  
-                  // Total Pesanan Box
-                  Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.04),
-                          blurRadius: 12,
-                          offset: const Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Total Pesanan', style: TextStyle(color: Colors.grey)),
-                        const SizedBox(height: 8),
-                        Text(
-                          _formatRupiah(totalHargaCentang),
-                          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                        ),
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: isAnyItemSelected
-                                ? () {
-                                    // Ambil hanya item yang diberi centang
-                                    List<Map<String, dynamic>> selectedItems = cartItems
-                                        .where((item) => item['isSelected'] == true)
-                                        .toList();
+      appBar: BaseHeaderWidget(
+        title: 'Keranjang Saya',
 
-                                    // Pindah ke Checkout dengan membawa data belanjaan
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Checkout(selectedProducts: selectedItems),
+        leading: IconButton(
+          onPressed: () => Navigator.pop(context),
+
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
+        ),
+      ),
+
+      body: Column(
+        children: [
+          // List Item
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(20),
+              children: [
+                ...List.generate(cartItems.length, (index) {
+                  return _buildCartItem(index);
+                }),
+                const SizedBox(height: 20),
+
+                // Total Pesanan Box
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.04),
+                        blurRadius: 12,
+                        offset: const Offset(0, 6),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Total Pesanan',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _formatRupiah(totalHargaCentang),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: isAnyItemSelected
+                              ? () {
+                                  // Ambil hanya item yang diberi centang
+                                  List<Map<String, dynamic>> selectedItems =
+                                      cartItems
+                                          .where(
+                                            (item) =>
+                                                item['isSelected'] == true,
+                                          )
+                                          .toList();
+
+                                  // Pindah ke Checkout dengan membawa data belanjaan
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => Checkout(
+                                        selectedProducts: selectedItems,
                                       ),
-                                    );
-                                  }
-                                : null, // Mati jika tidak ada yang dicentang
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFAD510D),
-                              disabledBackgroundColor: Colors.grey.shade300,
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              padding: const EdgeInsets.symmetric(vertical: 16),
+                                    ),
+                                  );
+                                }
+                              : null, // Mati jika tidak ada yang dicentang
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFAD510D),
+                            disabledBackgroundColor: Colors.grey.shade300,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
                             ),
-                            child: const Text(
-                              'Lanjut ke Checkout',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: const Text(
+                            'Lanjut ke Checkout',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -203,8 +206,14 @@ class _CartCustomerPageState extends State<CartCustomerPage> {
                   width: 24,
                   height: 24,
                   decoration: BoxDecoration(
-                    color: item['isSelected'] ? const Color(0xFFAD510D) : Colors.white,
-                    border: Border.all(color: item['isSelected'] ? const Color(0xFFAD510D) : Colors.grey.shade300),
+                    color: item['isSelected']
+                        ? const Color(0xFFAD510D)
+                        : Colors.white,
+                    border: Border.all(
+                      color: item['isSelected']
+                          ? const Color(0xFFAD510D)
+                          : Colors.grey.shade300,
+                    ),
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: item['isSelected']
@@ -230,11 +239,29 @@ class _CartCustomerPageState extends State<CartCustomerPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(item['title'], style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    Text(
+                      item['title'],
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(item['subtitle'], style: TextStyle(color: Colors.grey.shade500, fontSize: 12)),
+                    Text(
+                      item['subtitle'],
+                      style: TextStyle(
+                        color: Colors.grey.shade500,
+                        fontSize: 12,
+                      ),
+                    ),
                     const SizedBox(height: 8),
-                    Text(_formatRupiah(item['price']), style: const TextStyle(color: Color(0xFFAD510D), fontWeight: FontWeight.bold)),
+                    Text(
+                      _formatRupiah(item['price']),
+                      style: const TextStyle(
+                        color: Color(0xFFAD510D),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -256,7 +283,13 @@ class _CartCustomerPageState extends State<CartCustomerPage> {
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: Text(item['quantity'].toString(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold)),
+                    child: Text(
+                      item['quantity'].toString(),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -278,7 +311,10 @@ class _CartCustomerPageState extends State<CartCustomerPage> {
     return Container(
       width: 32,
       height: 32,
-      decoration: BoxDecoration(color: const Color(0xFFF3F3F3), borderRadius: BorderRadius.circular(8)),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3F3F3),
+        borderRadius: BorderRadius.circular(8),
+      ),
       child: Icon(icon, size: 18, color: Colors.black54),
     );
   }

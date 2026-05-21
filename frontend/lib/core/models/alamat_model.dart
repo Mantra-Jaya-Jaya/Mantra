@@ -1,5 +1,6 @@
 class AlamatModel {
   // Kita gunakan publicId sebagai string UUID untuk keperluan di Flutter
+  final String idAlamat;
   final String publicId;
   final String
   idCustomer; // Menampung UUID/Public ID milik Customer jika dikirim dari backend
@@ -13,6 +14,7 @@ class AlamatModel {
   final bool isUtama;
 
   AlamatModel({
+    required this.idAlamat,
     required this.publicId,
     required this.idCustomer,
     required this.namaPenerima,
@@ -27,10 +29,8 @@ class AlamatModel {
 
   factory AlamatModel.fromJson(Map<String, dynamic> json) {
     return AlamatModel(
-      // 1. Ambil 'public_id' dari json sebagai ID utama di Flutter
+      idAlamat: json['id_alamat']?.toString() ?? '',
       publicId: json['public_id']?.toString() ?? '',
-
-      // 2. Sesuaikan key JSON untuk customer (di backend: id_customer)
       idCustomer: json['id_customer']?.toString() ?? '',
 
       namaPenerima: json['nama_penerima']?.toString() ?? '',
@@ -52,6 +52,7 @@ class AlamatModel {
 
   Map<String, dynamic> toJson() {
     return {
+      'id_alamat': idAlamat,
       'public_id': publicId,
       'id_customer': idCustomer,
       'nama_penerima': namaPenerima,
