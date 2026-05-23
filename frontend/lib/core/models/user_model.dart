@@ -19,13 +19,14 @@ class UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) {
     return UserModel(
+      // Lapisi semua field String non-nullable dengan fallback ?? ''
       idUser: (json['id_user'] ?? json['public_id'] ?? '').toString(),
-      username: json['username'],
-      email: json['email'] ?? '',
-      namaLengkap: json['nama_lengkap'],
-      role: json['role'],
+      username: (json['username'] ?? '').toString(),
+      email: (json['email'] ?? '').toString(),
+      namaLengkap: (json['nama_lengkap'] ?? json['nama'] ?? '').toString(),
+      role: (json['role'] ?? '').toString(),
       profileId: json['profile_id']?.toString(),
-      fotoProfil: json['foto_profil'],
+      fotoProfil: json['foto_profil']?.toString(),
     );
   }
 }

@@ -1,46 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import '../../core/models/riwayattransaksi_model.dart';
+import '../../core/services/riwayattransaksi_service.dart';
 
-// ==================== MODEL DETAIL ====================
-class TransactionHistoryModel {
-  final String invoiceNumber;
-  final String date;
-  final double totalPrice;
-  final int quantity;
-
-  TransactionHistoryModel({
-    required this.invoiceNumber,
-    required this.date,
-    required this.totalPrice,
-    required this.quantity,
-  });
-}
-
-class ProductDetailData {
-  final String productName;
-  final String category;
-  final String imageUrl;
-  final int totalSold;
-  final int currentPeriodSold;
-  final List<TransactionHistoryModel> riwayatTransaksi;
-
-  ProductDetailData({
-    required this.productName,
-    required this.category,
-    required this.imageUrl,
-    required this.totalSold,
-    required this.currentPeriodSold,
-    required this.riwayatTransaksi,
-  });
-}
-
-// ==================== PAGE DETAIL ====================
 class RiwayatTransaksi extends StatefulWidget {
-  final String productName; // Menerima data dari summary.dart
+  final int productId; // Menerima ID Produk berbasis int dari summary.dart
 
   const RiwayatTransaksi({
     super.key,
-    required this.productName, // Constructor named parameter wajib ada
+    required this.productId,
   });
 
   @override
@@ -48,8 +16,10 @@ class RiwayatTransaksi extends StatefulWidget {
 }
 
 class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
+  final RiwayatTransaksiService _apiService = RiwayatTransaksiService();
   ProductDetailData? _detailData;
   bool _isLoading = true;
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -58,27 +28,28 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
   }
 
   Future<void> _loadDetailData() async {
-    await Future.delayed(const Duration(milliseconds: 400));
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
 
-    if (mounted) {
-      setState(() {
-        // Data dummy disesuaikan dengan gambar UI
-        _detailData = ProductDetailData(
-          productName: widget.productName, 
-          category: "Coffee & Beverage",
-          imageUrl: "https://images.unsplash.com/photo-1541167760496-1628856ab772?w=100",
-          totalSold: 142,
-          currentPeriodSold: 24,
-          riwayatTransaksi: [
-            TransactionHistoryModel(invoiceNumber: "INV-1042", date: "24 Oct 2023, 14:20", totalPrice: 38000, quantity: 1),
-            TransactionHistoryModel(invoiceNumber: "INV-1039", date: "24 Oct 2023, 13:05", totalPrice: 76000, quantity: 2),
-            TransactionHistoryModel(invoiceNumber: "INV-1035", date: "24 Oct 2023, 11:45", totalPrice: 38000, quantity: 1),
-            TransactionHistoryModel(invoiceNumber: "INV-1022", date: "23 Oct 2023, 18:30", totalPrice: 114000, quantity: 3),
-            TransactionHistoryModel(invoiceNumber: "INV-1018", date: "23 Oct 2023, 16:15", totalPrice: 38000, quantity: 1),
-          ],
-        );
-        _isLoading = false;
-      });
+    try {
+      // Mengambil data dari backend Go menggunakan parameter ID Produk via URL Path
+      final rawData = await _apiService.getDetailTransaksiProduk(widget.productId);
+      
+      if (mounted) {
+        setState(() {
+          _detailData = ProductDetailData.fromJson(rawData);
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString().replaceAll('Exception: ', '');
+          _isLoading = false;
+        });
+      }
     }
   }
 
@@ -86,18 +57,17 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9F9),
-      // Menggunakan AppBar standar Flutter agar tombol back otomatis muncul & berfungsi
       appBar: AppBar(
         title: const Text(
           "Transaksi Produk",
           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
         ),
-        backgroundColor: const Color(0xFFAF510C), // Warna cokelat oranye khas kuliner
+        backgroundColor: const Color(0xFFAF510C),
         elevation: 0,
         centerTitle: false,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back_ios_new, color: Colors.white, size: 18),
-          onPressed: () => Navigator.pop(context), // Fungsi tombol back
+          onPressed: () => Navigator.pop(context),
         ),
         actions: [
           IconButton(
@@ -108,37 +78,65 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator(color: Color(0xFFAF510C)))
-          : _detailData == null
-              ? const Center(child: Text("Data detail tidak tersedia"))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildHeaderCard(),
-                      const SizedBox(height: 16),
-                      _buildStatsRow(),
-                      const SizedBox(height: 24),
-                      const Text(
-                        "Riwayat Transaksi",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1A1C1C)),
-                      ),
-                      const SizedBox(height: 12),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: _detailData!.riwayatTransaksi.length,
-                        itemBuilder: (context, index) {
-                          return _buildTransactionItem(_detailData!.riwayatTransaksi[index]);
-                        },
-                      ),
-                    ],
+          : _errorMessage != null
+              ? Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(_errorMessage!, style: const TextStyle(color: Colors.red), textAlign: TextAlign.center),
+                        const SizedBox(height: 12),
+                        ElevatedButton(
+                          onPressed: _loadDetailData,
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFAF510C)),
+                          child: const Text("Coba Lagi", style: TextStyle(color: Colors.white)),
+                        )
+                      ],
+                    ),
                   ),
-                ),
+                )
+              : _detailData == null
+                  ? const Center(child: Text("Data detail tidak tersedia"))
+                  : RefreshIndicator(
+                      onRefresh: _loadDetailData,
+                      color: const Color(0xFFAF510C),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildHeaderCard(),
+                            const SizedBox(height: 16),
+                            _buildStatsRow(),
+                            const SizedBox(height: 24),
+                            const Text(
+                              "Riwayat Transaksi",
+                              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFF1A1C1C)),
+                            ),
+                            const SizedBox(height: 12),
+                            if (_detailData!.riwayatTransaksi.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 40),
+                                child: Center(child: Text("Belum ada riwayat transaksi untuk produk ini", style: TextStyle(color: Colors.grey))),
+                              )
+                            else
+                              ListView.builder(
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                itemCount: _detailData!.riwayatTransaksi.length,
+                                itemBuilder: (context, index) {
+                                  return _buildTransactionItem(_detailData!.riwayatTransaksi[index]);
+                                },
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
     );
   }
 
-  // ==================== CARD INFO PRODUK ====================
   Widget _buildHeaderCard() {
     return Container(
       padding: const EdgeInsets.all(14),
@@ -176,7 +174,7 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
                 const SizedBox(height: 4),
                 Text(
                   _detailData!.category,
-                  style: const TextStyle(fontSize: 12, color: Color(0xFF55585D)), // Dipergelap dari abu tipis
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF55585D)),
                 ),
               ],
             ),
@@ -186,7 +184,6 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
     );
   }
 
-  // ==================== STATS ROW (TOTAL SOLD & CURRENT) ====================
   Widget _buildStatsRow() {
     return Row(
       children: [
@@ -202,7 +199,7 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
               children: [
                 Text(
                   "Total Sold",
-                  style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12), // Kontras dinaikkan
+                  style: TextStyle(color: Colors.white.withOpacity(0.85), fontSize: 12),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -227,7 +224,7 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
               children: [
                 const Text(
                   "Current Period",
-                  style: TextStyle(color: Color(0xFF4B5563), fontSize: 12), // Diubah ke Abu-abu kontras medium
+                  style: TextStyle(color: Color(0xFF4B5563), fontSize: 12),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -242,7 +239,6 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
     );
   }
 
-  // ==================== ITEM LIST TRANSAKSI ====================
   Widget _buildTransactionItem(TransactionHistoryModel tx) {
     final currencyFormat = NumberFormat.currency(locale: 'id_ID', symbol: 'Rp ', decimalDigits: 0);
 
@@ -274,7 +270,7 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
               const SizedBox(height: 8),
               Text(
                 tx.date,
-                style: const TextStyle(fontSize: 12, color: Color(0xFF4B5563)), // Lebih gelap agar terbaca jelas
+                style: const TextStyle(fontSize: 12, color: Color(0xFF4B5563)),
               ),
             ],
           ),
@@ -288,7 +284,7 @@ class _RiwayatTransaksiState extends State<RiwayatTransaksi> {
               const SizedBox(height: 6),
               Text(
                 "Qty: ${tx.quantity}",
-                style: const TextStyle(fontSize: 11, color: Color(0xFF55585D)), // Diperjelas kontrasnya
+                style: const TextStyle(fontSize: 11, color: Color(0xFF55585D)),
               ),
             ],
           ),

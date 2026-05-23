@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 // IMPORT SERVICE DARI FOLDER PROFILE
-import '../profile/services/profile_service.dart';
+import '../../core/services/profile_service.dart';
 // IMPORT HALAMAN TAMBAH ALAMAT (Pastikan path folder profile sesuai dengan struktur proyekmu)
 import '../profile/tambah_alamat.dart';
 
