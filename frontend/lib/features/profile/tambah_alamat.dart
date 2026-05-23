@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'services/profile_service.dart';
+import '../../core/services/profile_service.dart';
 import 'package:frontend/core/widgets/base_header_widget.dart';
 
 class AlamatBaru extends StatefulWidget {

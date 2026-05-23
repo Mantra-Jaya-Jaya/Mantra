@@ -7,7 +7,8 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../auth/login.dart';
 import '../orders/order_kasir.dart';
-import '../summary/summary.dart';
+import '../profile/profile_kasir.dart';
+import '../notifications/notification_kasir.dart';
 
 class DashboardKasirPage extends StatefulWidget {
   const DashboardKasirPage({super.key});
@@ -25,7 +26,7 @@ class _DashboardKasirPageState extends State<DashboardKasirPage> {
     const OrderKasir(),
     const Center(child: Text('Halaman Payments')),
     const SummaryPage(),
-    const ProfileKasirPlaceholder(),
+    const ProfileKasir(),
   ];
 
   // Menu sesuai gambar yang kamu kirim
@@ -82,42 +83,6 @@ class _DashboardKasirPageState extends State<DashboardKasirPage> {
 }
 
 // ... Sisanya ke bawah (ProfileKasirPlaceholder dan DashboardContent) tetap sama seperti kode aslimu
-
-class ProfileKasirPlaceholder extends StatelessWidget {
-  const ProfileKasirPlaceholder({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Halaman Profile Kasir', style: TextStyle(fontSize: 20)),
-          const SizedBox(height: 20),
-          ElevatedButton.icon(
-            onPressed: () async {
-              // Hapus semua token
-              await const FlutterSecureStorage().deleteAll();
-              if (!context.mounted) return;
-              // Arahkan ke halaman Login
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const LoginScreen()),
-                (route) => false,
-              );
-            },
-            icon: const Icon(Icons.logout, color: Colors.white),
-            label: const Text("Logout", style: TextStyle(color: Colors.white)),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-}
 
 class DashboardContent extends StatefulWidget {
   const DashboardContent({super.key});
@@ -236,10 +201,20 @@ class _DashboardContentState extends State<DashboardContent> {
                       ),
                     ],
                   ),
-                  const Icon(
-                    Icons.notifications_none,
-                    color: Colors.white,
-                    size: 30,
+                  IconButton(
+                    icon: const Icon(
+                      Icons.notifications_none, 
+                      color: Colors.white,
+                      size: 30,
+                    ), 
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const NotificationScreen(),
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

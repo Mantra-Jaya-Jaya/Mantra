@@ -5,7 +5,7 @@ import 'ubah_password.dart';
 import 'tambah_alamat.dart';
 import 'edit_alamat.dart';
 import '../auth/login.dart';
-import 'services/profile_service.dart';
+import '../../core/services/profile_service.dart';
 import 'package:frontend/core/widgets/base_header_widget.dart';
 import 'package:frontend/core/models/alamat_model.dart';
 
